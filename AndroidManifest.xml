@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.taiko.noblenote"
+    android:versionCode="2"
+    android:versionName="1.1" >
+
+    <uses-sdk android:minSdkVersion="10" 
+        android:targetSdkVersion="19" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <application
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.Sherlock.Light">
+        <!-- Holo.Theme.Sherlock.Light.Custom for holo everywhere -->
+        <activity 
+            android:label="@string/app_name" 
+            android:name=".FolderListActivity"
+             android:theme="@style/Theme.Sherlock.Light"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>   
+            
+           
+        </activity>
+        <activity
+            android:theme="@style/Theme.Sherlock.Light"
+            android:name=".NoteListActivity"
+            > 
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".FolderListActivity" />
+        </activity>
+        <!--             android:theme="@style/Theme.Styled" -->
+        <activity
+            android:theme="@style/Theme.Sherlock.Light"
+            android:name=".NoteEditorActivity">
+        </activity>
+        
+        <activity
+            android:name=".RenameDialogActivity"
+            android:label="@string/rename_dialog"
+            android:theme="@style/Theme.Sherlock.Light.Dialog">
+        </activity>
+        
+    </application>
+
+
+</manifest>

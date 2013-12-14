@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_marginRight="10dp">
+
+    <TextView
+        android:id="@+id/checkableListItemText"
+        style="?android:attr/textAppearanceLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:focusable="false" />
+
+    <!-- set paddingBottom to add space to the items, text and checkboxes will be centered
+    and the space at the bottom and top will be equally distributed -->
+    <FrameLayout
+        android:id="@+id/frameLayout1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:paddingLeft="24dp"
+        android:paddingBottom="16dp" >
+
+        
+        <!-- android:button="@drawable/checkbox" -->
+        <com.taiko.noblenote.ExpandedCheckBox
+            android:id="@+id/itemCheckBox"
+            android:layout_width="56dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="15dp"
+            android:focusable="false" />
+    </FrameLayout>
+
+</RelativeLayout>
+ 

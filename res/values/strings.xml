@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, NobleNote!</string>
+    <string name="app_name">NobleNote</string>
+    <string name="edit_message">TODO</string>
+    <string name="emptyNoteHint">Note</string>
+    <string name="notes">Notes</string>
+    <string name="notebooks">Notebooks</string>
+    <string name="bold">&lt;b&gt;B&lt;/b&gt;</string>
+    <string name="italic">Italic</string>
+    <string name="underline">Underline</string>
+    <string name="strikethrough">Strikethrough</string>
+    <string name="remove">Remove</string>
+    
+    <string name="title_item_detail">Item Detail</string>
+    <string name="title_item_list">Klaus</string>
+    <string name="rename_dialog_text">Please enter a new name</string>
+    <string name="rename">Rename</string>
+    <string name="rename_dialog">Rename</string>
+    <string name="HTML">HTML</string>
+    <string name="noteNotRenamed">Note not renamed</string>
+    <string name="renameNote">Rename Note</string>
+    <string name="enterNewName">Please enter a new name</string>
+    <string name="enterName">Please enter a name</string>
+    <string name="newNote">New Note</string>
+    <string name="newNotebook">New Notebook</string>
+    <string name="noteNotCreated">note not created</string>
+    <string name="notebookNotCreated">notebook not created</string>
+    <string name="notCreatedNotebookExists">notebook not created because a notebook with the same name already exists </string>
+    <string name="notCreatedNoteExists">notebook not created because a notebook with the same name already exists</string>
+    <string name="removeMultipleNotes">Remove Multiple Notes</string>
+    <string name="removeMultipleNotesQuestion">Are you sure you want to remove the selected note(s)?</string>
+    <string name="notesNotRemoved">note(s) not removed</string>
+    <string name="noteSaved">note saved</string>
+    <string name="enterStoragePath">Please enter a storage path</string>
+
+</resources>

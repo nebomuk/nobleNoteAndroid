@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/rename_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="8dip"
+        android:layout_marginLeft="4dip"
+        android:layout_marginRight="4dip"
+        android:layout_marginTop="16dip"
+        android:text="@string/rename_dialog_text" />
+
+    <EditText
+        android:id="@+id/rename_dialog_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dip"
+        android:layout_marginLeft="4dip"
+        android:layout_marginRight="4dip"
+        android:layout_marginTop="8dip"
+        android:ems="10" >
+    </EditText>
+
+    <!-- android:background="?android:attr/dividerVertical"  is API level 11 -->
+        <View
+	    android:layout_width="fill_parent"
+	    android:layout_height="1dip"
+	    />
+		<LinearLayout 
+		    style="?android:attr/buttonBarStyle"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:orientation="horizontal"
+		    android:paddingTop="0dip"
+		    android:paddingLeft="2dip"
+		    android:paddingRight="2dip"
+		    android:measureWithLargestChild="true">
+		
+		    <Button 
+		        android:id="@+id/ok"
+		        style="?android:attr/buttonBarButtonStyle"
+		        android:layout_width="0dip"
+		        android:layout_height="wrap_content"
+		        android:layout_weight="1"
+		        android:text="@android:string/ok"/>
+		    <Button 
+		        android:id="@+id/cancel"
+		        style="?android:attr/buttonBarButtonStyle"
+		        android:layout_width="0dip"
+		        android:layout_height="wrap_content"
+		        android:layout_weight="1"
+		        android:text="@android:string/cancel"/>
+		    
+		</LinearLayout>
+
+</LinearLayout>
