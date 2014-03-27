@@ -11,8 +11,6 @@
     <!-- note the case sensitivity -->
 
 
-    <!-- TODO document layout issues here, upload to github -->
-
     <LinearLayout
         android:id="@+id/editor_vertical_layout"
         android:layout_width="fill_parent"

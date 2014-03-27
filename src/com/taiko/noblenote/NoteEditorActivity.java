@@ -8,6 +8,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -39,6 +42,7 @@ public class NoteEditorActivity extends SherlockFragmentActivity {
 	private boolean focusable = true; // if set to false, the note is opened in read only mode
 	private String openMode;
 	private View editorScrollView;
+	private DroidWriterEditText editText;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +57,7 @@ public class NoteEditorActivity extends SherlockFragmentActivity {
 		setContentView(R.layout.note_editor_activity);
 		editorScrollView = findViewById(R.id.editor_scroll_view);
 		editorScrollView.setVisibility(View.INVISIBLE);		
-		
+		editText = (DroidWriterEditText) findViewById(R.id.editor_edit_text);
 		
 				
 		// hide soft keyboard by default
@@ -130,9 +134,10 @@ public class NoteEditorActivity extends SherlockFragmentActivity {
 
 					// add the span to the text editor as soon as it is created
 					NoteEditorActivity.this.runOnUiThread(new Runnable(){
+						
+
 						public void run()
 						{
-							DroidWriterEditText editText = (DroidWriterEditText) findViewById(R.id.editor_edit_text);
 							editText.setText(span);
 							mHandler.removeCallbacks(mProgressRunner);
 							setSupportProgress(Window.PROGRESS_END);
@@ -198,14 +203,39 @@ public class NoteEditorActivity extends SherlockFragmentActivity {
 	
 	 @Override
 	    public boolean onCreateOptionsMenu(Menu menu) {
+		 
+		 
+		 MenuItem itemCopyToClipboard = menu.add("Copy To Clipboard").setIcon(R.drawable.ic_action_content_copy)
+				 .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		 itemCopyToClipboard.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+			
+			@SuppressLint("NewApi")
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+				    android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+				    clipboard.setText(editText.getText());
+				} else {
+				    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+				    android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", editText.getText());
+				            clipboard.setPrimaryClip(clip);
+				}
+				Context context = getApplicationContext();
+				CharSequence text = "Note copied to clipboard";
+				int duration = Toast.LENGTH_SHORT;
 
-		 View textFormattingToolbar = LayoutInflater.from(this).inflate(R.layout.text_formatting_toolbar, null);
+				Toast toast = Toast.makeText(context, text, duration);
+				toast.show();
+				return true;
+			}
+		});
+		 
+		 View textFormattingToolbar = LayoutInflater.from(this).inflate(R.layout.text_formatting_toolbar, null); 
 		 MenuItem item = menu.add("Toolbar").setIcon(R.drawable.ic_action_btn_show_text_formatting_toolbar)
 				 .setActionView(textFormattingToolbar);
 		 item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 		 
 		 final DroidWriterEditText editText = (DroidWriterEditText) findViewById(R.id.editor_edit_text);
-		 
 		 
 		 
 		 // disable auto complete if the text formatting toolbar is shown, because auto-complete's underlining interferes
@@ -226,6 +256,32 @@ public class NoteEditorActivity extends SherlockFragmentActivity {
 				return true;
 			}
 		});
+		 
+		 MenuItem itemClose = menu.add("Close").setIcon(R.drawable.ic_action_close)
+				 .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		 itemClose.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+			
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(NoteEditorActivity.this);
+		        builder.setMessage(R.string.saveOnClose)
+		               .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+		                   public void onClick(DialogInterface dialog, int id) {
+		                	   editText.setModified(false);//  does not get saved
+		                       finish();
+		                   }
+		               })
+		               .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+		                   public void onClick(DialogInterface dialog, int id) {
+		                   }
+		               });
+		        // Create the AlertDialog object and return it
+		        builder.create().show();
+		        
+				return true;
+			}
+		});
+				 
 		 
 		 editText.setSingleLine(false);
 		 editText.setTextWatcherEnabled(false);
@@ -256,14 +312,11 @@ public class NoteEditorActivity extends SherlockFragmentActivity {
 		 btnToggleStrikethrough.setText(strikethroughText,TextView.BufferType.SPANNABLE);
 		 btnToggleStrikethrough.setTextOn(strikethroughText);
 		 btnToggleStrikethrough.setTextOff(strikethroughText);
-		 
-		 // not yet implemented
-		 //editText.setStrikethroughToggleButton(btnToggleStrikethrough);
 
 		 
 		 editText.setFocusable(focusable); // read only if not focusable
 		 
-		 item.expandActionView(); // show text formatting toolbar by default
+		 //item.expandActionView(); // show text formatting toolbar by default
 
 		 return super.onCreateOptionsMenu(menu);
 	 }

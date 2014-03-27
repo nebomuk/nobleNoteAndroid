@@ -34,5 +34,6 @@
     <string name="notesNotRemoved">note(s) not removed</string>
     <string name="noteSaved">note saved</string>
     <string name="enterStoragePath">Please enter a storage path</string>
+    <string name="saveOnClose">Do you really want to quit without saving?</string>
 
 </resources>
