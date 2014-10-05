@@ -1,4 +1,4 @@
-package com.taiko.noblenote;
+package com.taiko.noblenote.deprecated;
 
 import android.content.Context;
 import android.graphics.Rect;

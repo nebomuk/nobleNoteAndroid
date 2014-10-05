@@ -25,7 +25,7 @@
 
         
         <!-- android:button="@drawable/checkbox" -->
-        <com.taiko.noblenote.ExpandedCheckBox
+        <com.taiko.noblenote.deprecated.ExpandedCheckBox
             android:id="@+id/itemCheckBox"
             android:layout_width="56dp"
             android:layout_height="wrap_content"

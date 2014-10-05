@@ -43,13 +43,14 @@ public class NoteEditorActivity extends SherlockFragmentActivity {
 	private String openMode;
 	private View editorScrollView;
 	private DroidWriterEditText editText;
+	private float displayDensity;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		 //requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 		
 		super.onCreate(savedInstanceState);		
-		
+		displayDensity = getApplicationContext().getResources().getDisplayMetrics().density;;
 		//This has to be called before setContentView and you must use the
         //class in com.actionbarsherlock.view and NOT android.view
         requestWindowFeature(Window.FEATURE_PROGRESS);
@@ -129,7 +130,7 @@ public class NoteEditorActivity extends SherlockFragmentActivity {
 					}
 					else
 					{
-						span = Html.fromHtml(htmlText.toString()); // time consuming
+						span = Html.fromHtml(htmlText.toString(),displayDensity); // time consuming
 					}
 
 					// add the span to the text editor as soon as it is created
@@ -176,7 +177,7 @@ public class NoteEditorActivity extends SherlockFragmentActivity {
 	    // if not focusable, changes can not be made
 	    if(focusable && editText.isModified()) // then save the note 
 	    {
-			String html = Html.toHtml(editText.getText());
+			String html = editText.getTextHTML();
 			File file = new File(filePath);
 			try {
 	        FileWriter writer = new FileWriter(file); 
@@ -263,20 +264,28 @@ public class NoteEditorActivity extends SherlockFragmentActivity {
 			
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(NoteEditorActivity.this);
-		        builder.setMessage(R.string.saveOnClose)
-		               .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-		                   public void onClick(DialogInterface dialog, int id) {
-		                	   editText.setModified(false);//  does not get saved
-		                       finish();
-		                   }
-		               })
-		               .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-		                   public void onClick(DialogInterface dialog, int id) {
-		                   }
-		               });
-		        // Create the AlertDialog object and return it
-		        builder.create().show();
+				if(editText.isModified())
+				{
+					AlertDialog.Builder builder = new AlertDialog.Builder(NoteEditorActivity.this);
+			        builder.setMessage(R.string.saveOnClose)
+			               .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+			                   public void onClick(DialogInterface dialog, int id) {
+			                	   editText.setModified(false);//  does not get saved
+			                       finish();
+			                   }
+			               })
+			               .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+			                   public void onClick(DialogInterface dialog, int id) {
+			                   }
+			               });
+			        // Create the AlertDialog object and return it
+			        builder.create().show();
+				}
+				else // no modification, do not ask to save the document
+				{
+					editText.setModified(false);//  does not get saved
+                    finish();					
+				}
 		        
 				return true;
 			}
@@ -287,28 +296,28 @@ public class NoteEditorActivity extends SherlockFragmentActivity {
 		 editText.setTextWatcherEnabled(false);
 		 
 		 ToggleButton btnToggleBold = (ToggleButton) textFormattingToolbar.findViewById(R.id.btnToggleBold);
-		 Spanned boldText = Html.fromHtml("<big><b>B</b></big>");
+		 Spanned boldText = Html.fromHtml("<big><b>B</b></big>",displayDensity);
 		 btnToggleBold.setText(boldText,TextView.BufferType.SPANNABLE);
 		 btnToggleBold.setTextOn(boldText);
 		 btnToggleBold.setTextOff(boldText);
 		 editText.setBoldToggleButton(btnToggleBold);
 		 
 		 ToggleButton btnToggleItalic= (ToggleButton)textFormattingToolbar.findViewById(R.id.btnToggleItalic);
-		 Spanned italicText = Html.fromHtml("<big><i>I</i></big>");
+		 Spanned italicText = Html.fromHtml("<big><i>I</i></big>",displayDensity);
 		 btnToggleItalic.setText(italicText,TextView.BufferType.SPANNABLE);
 		 btnToggleItalic.setTextOn(italicText);
 		 btnToggleItalic.setTextOff(italicText);
 		 editText.setItalicsToggleButton(btnToggleItalic);
 		 
 		 ToggleButton btnToggleUnderline = (ToggleButton)textFormattingToolbar.findViewById(R.id.btnToggleUnderline);
-		 Spanned underlinedText = Html.fromHtml("<big><u>U</u></big>");
+		 Spanned underlinedText = Html.fromHtml("<big><u>U</u></big>",displayDensity);
 		 btnToggleUnderline.setText(underlinedText,TextView.BufferType.SPANNABLE);
 		 btnToggleUnderline.setTextOn(underlinedText);
 		 btnToggleUnderline.setTextOff(underlinedText);
 		 editText.setUnderlineToggleButton(btnToggleUnderline);
 		
 		 ToggleButton btnToggleStrikethrough = (ToggleButton)textFormattingToolbar.findViewById(R.id.btnToggleStrikethrough);
-		 Spanned strikethroughText = Html.fromHtml("<big><s>S</s></big>");
+		 Spanned strikethroughText = Html.fromHtml("<big><s>S</s></big>",displayDensity);
 		 btnToggleStrikethrough.setText(strikethroughText,TextView.BufferType.SPANNABLE);
 		 btnToggleStrikethrough.setTextOn(strikethroughText);
 		 btnToggleStrikethrough.setTextOff(strikethroughText);

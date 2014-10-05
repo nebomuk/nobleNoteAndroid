@@ -98,20 +98,23 @@ public class Html {
                                  Editable output, XMLReader xmlReader);
     }
 
+	private static Object displayDensity;
+
     private Html() { }
     
     /**
      * the endSpan method will assume this point size as the default point size and set different point sizes
      * relative to this point size
      */
-    protected final static int FONT_POINT_SIZE = 10;
+   // protected final static int FONT_POINT_SIZE = 10;
     
     /**
      * by default, this Html class uses AbsoluteSizeSpan(fontSize*6) with 6 as a scaling factor
      * ABSOLUTESIZESPAN_SCALE_FACTOR is a variable to set the scaling factor
      * this still does not fix the problem that AbsoluteSizeSpan does by default use device pixels and not dp
      */
-    protected final static int ABSOLUTESIZESPAN_SCALE_FACTOR = 2; 
+    protected final static float ABSOLUTESIZESPAN_SCALE_FACTOR = 1.0f; 
+    protected final static float TEST_DPI = 2.0f;
     
     protected final static String P_START_TAG = "<p style=\" margin-top:0px; margin-bottom:0px;\">";
     protected final static String EMPTY_PARAGRAPH = "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"><br /></p>";
@@ -124,8 +127,8 @@ public class Html {
      *
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
-    public static Spanned fromHtml(String source) {
-        return fromHtml(source, null, null);
+    public static Spanned fromHtml(String source, float displayDensity) {
+        return fromHtml(source, null, null,displayDensity);
     }
 
     /**
@@ -147,7 +150,7 @@ public class Html {
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
     public static Spanned fromHtml(String source, ImageGetter imageGetter,
-                                   TagHandler tagHandler) {
+                                   TagHandler tagHandler, float displayDensity) {
         Parser parser = new Parser();
         try {
             parser.setProperty(Parser.schemaProperty, HtmlParser.schema);
@@ -161,16 +164,17 @@ public class Html {
 
         HtmlToSpannedConverter converter =
                 new HtmlToSpannedConverter(source, imageGetter, tagHandler,
-                        parser);
+                        parser, displayDensity);
         return converter.convert();
     }
 
     /**
      * Returns an HTML representation of the provided Spanned text.
+     * @param displayDensity use getContext().getResources().getDisplayMetrics().density;
      */
-    public static String toHtml(Spanned text) {
+    public static String toHtml(Spanned text, float displayDensity) {
         StringBuilder out = new StringBuilder();
-        withinHtml(out, text);
+        withinHtml(out, text, displayDensity);
         return out.toString();
     }
     
@@ -183,7 +187,7 @@ public class Html {
         return out.toString();
     }
 
-    private static void withinHtml(StringBuilder out, Spanned text) {
+    private static void withinHtml(StringBuilder out, Spanned text, float displayDensity) {
         int len = text.length();
 
         int next;
@@ -211,7 +215,7 @@ public class Html {
                 out.append("<div " + elements + ">");
             }
 
-            withinDiv(out, text, i, next);
+            withinDiv(out, text, i, next, displayDensity);
 
             if (needDiv) {
                 out.append("</div>");
@@ -220,7 +224,7 @@ public class Html {
     }
 
     private static void withinDiv(StringBuilder out, Spanned text,
-            int start, int end) {
+            int start, int end, float displayDensity) {
         int next;
         for (int i = start; i < end; i = next) {
             next = text.nextSpanTransition(i, end, QuoteSpan.class);
@@ -230,7 +234,7 @@ public class Html {
                 out.append("<blockquote>");
             }
 
-            withinBlockquote(out, text, i, next);
+            withinBlockquote(out, text, i, next, displayDensity);
 
             for (QuoteSpan quote: quotes) {
                 out.append("</blockquote>\n");
@@ -239,7 +243,7 @@ public class Html {
     }
 
     private static void withinBlockquote(StringBuilder out, Spanned text,
-                                         int start, int end) {
+                                         int start, int end, float displayDensity) {
         out.append(P_START_TAG);
 
         int next;
@@ -256,7 +260,7 @@ public class Html {
                 next++;
             }
 
-            withinParagraph(out, text, i, next - nl, nl, next == end);
+            withinParagraph(out, text, i, next - nl, nl, next == end, displayDensity);
         }
 
         out.append("</p>\n");
@@ -264,7 +268,7 @@ public class Html {
 
     private static void withinParagraph(StringBuilder out, Spanned text,
                                         int start, int end, int nl,
-                                        boolean last) {
+                                        boolean last, float displayDensity) {
         int next;
         for (int i = start; i < end; i = next) {
             next = text.nextSpanTransition(i, end, CharacterStyle.class);
@@ -317,7 +321,8 @@ public class Html {
                 }
                 if (style[j] instanceof AbsoluteSizeSpan) {
                     out.append("<font size =\"");
-                    out.append(((AbsoluteSizeSpan) style[j]).getSize() / ABSOLUTESIZESPAN_SCALE_FACTOR);
+                    // pixels = dps * (density / 160), AbsoluteSizeSpan.getSize() returns pixels
+                    out.append(Math.round(Html.convertPixtoDip(((AbsoluteSizeSpan)style[j]).getSize(), displayDensity) / ABSOLUTESIZESPAN_SCALE_FACTOR));
                     out.append("\">");
                 }
                 
@@ -458,6 +463,10 @@ public class Html {
             }
         }
     }
+    
+    public static float convertPixtoDip(int pixel, float density){
+        return (float)pixel/density;
+    }
 }
 
 class HtmlToSpannedConverter implements ContentHandler {
@@ -471,15 +480,17 @@ class HtmlToSpannedConverter implements ContentHandler {
     private SpannableStringBuilder mSpannableStringBuilder;
     private Html.ImageGetter mImageGetter;
     private Html.TagHandler mTagHandler;
+	private float mDisplayDensity;
 
     public HtmlToSpannedConverter(
             String source, Html.ImageGetter imageGetter, Html.TagHandler tagHandler,
-            Parser parser) {
+            Parser parser, float displayDensity) {
         mSource = source;
         mSpannableStringBuilder = new SpannableStringBuilder();
         mImageGetter = imageGetter;
         mTagHandler = tagHandler;
         mReader = parser;
+        mDisplayDensity = displayDensity;
     }
 
     public Spanned convert() {
@@ -588,7 +599,7 @@ class HtmlToSpannedConverter implements ContentHandler {
 		start(mSpannableStringBuilder2, attr);
 	}
     
-    private static void endSpan(SpannableStringBuilder text) 
+    private static void endSpan(SpannableStringBuilder text, float displayDensity) 
     {
 		int len = text.length();
         Object obj = getLast(text, String.class);
@@ -656,9 +667,8 @@ class HtmlToSpannedConverter implements ContentHandler {
 				   fontStr = fontStr.substring(0,fontStr.length()-2);
 			   int pointSize = 0;
 			   try{ pointSize = Integer.parseInt(fontStr); } catch(NumberFormatException e){}
-			   float size = (float)pointSize/10.0f;
 			   //text.setSpan(new RelativeSizeSpan(size), where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			   text.setSpan(new AbsoluteSizeSpan(pointSize*Html.ABSOLUTESIZESPAN_SCALE_FACTOR,true), where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			   text.setSpan(new AbsoluteSizeSpan(Math.round((float)pointSize*displayDensity),true), where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		   }
 	   }
 	}
@@ -691,7 +701,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         } else if (tag.equalsIgnoreCase("small")) {
             end(mSpannableStringBuilder, Small.class, new RelativeSizeSpan(0.8f));
         } else if (tag.equalsIgnoreCase("font")) {
-            endFont(mSpannableStringBuilder);
+            endFont(mSpannableStringBuilder, mDisplayDensity);
         } else if (tag.equalsIgnoreCase("blockquote")) {
             handleP(mSpannableStringBuilder);
             end(mSpannableStringBuilder, Blockquote.class, new QuoteSpan());
@@ -707,7 +717,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         } else if (tag.equalsIgnoreCase("sub")) {
             end(mSpannableStringBuilder, Sub.class, new SubscriptSpan());
         } else if (tag.equalsIgnoreCase("span")) {
-        	endSpan(mSpannableStringBuilder);  
+        	endSpan(mSpannableStringBuilder, mDisplayDensity);  
         } else if (tag.equalsIgnoreCase("style")) {
         	
         } else if (tag.length() == 2 &&
@@ -900,13 +910,13 @@ class HtmlToSpannedConverter implements ContentHandler {
         int size = -1;
         
         if(sizeS != null)
-        	size = Integer.parseInt(sizeS) * Html.ABSOLUTESIZESPAN_SCALE_FACTOR;
+        	size = Math.round((float)Integer.parseInt(sizeS) * Html.ABSOLUTESIZESPAN_SCALE_FACTOR);
 
         int len = text.length();
         text.setSpan(new Font(color, face, size), len, len, Spannable.SPAN_MARK_MARK);
     }
 
-    private static void endFont(SpannableStringBuilder text) {
+    private static void endFont(SpannableStringBuilder text, float displayDensity) {
         int len = text.length();
         Object obj = getLast(text, Font.class);
         int where = text.getSpanStart(obj);
@@ -943,7 +953,7 @@ class HtmlToSpannedConverter implements ContentHandler {
             }
             
             if (f.mSize != -1) {
-                text.setSpan(new AbsoluteSizeSpan(f.mSize), where, len,
+                text.setSpan(new AbsoluteSizeSpan(Math.round(f.mSize*displayDensity),true), where, len,
                              Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
@@ -1016,6 +1026,7 @@ class HtmlToSpannedConverter implements ContentHandler {
         handleStartTag(localName, attributes);
     }
 
+    @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         handleEndTag(localName);
     }
@@ -1244,6 +1255,8 @@ class HtmlToSpannedConverter implements ContentHandler {
         }
 
     }
+    
+    
 }
 
 

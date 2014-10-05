@@ -274,11 +274,11 @@ public class DroidWriterEditText extends EditText {
 
 	// Get and set styled HTML text
 	public String getTextHTML() {
-		return Html.toHtml(this.getText());
+		return Html.toHtml(this.getText(), getContext().getResources().getDisplayMetrics().density);
 	}
 
 	public void setTextHTML(String text) {
-		this.setText(Html.fromHtml(text, imageGetter, null));
+		this.setText(Html.fromHtml(text, imageGetter, null,getContext().getResources().getDisplayMetrics().density));
 	}
 
 	// Set the default image getter that handles the loading of inline images
@@ -323,7 +323,7 @@ public class DroidWriterEditText extends EditText {
 			public void onClick(View v) {
 				int position = Selection.getSelectionStart(DroidWriterEditText.this.getText());
 
-				Spanned e = Html.fromHtml("<img src=\"" + imageResource + "\">", imageGetter, null);
+				Spanned e = Html.fromHtml("<img src=\"" + imageResource + "\">", imageGetter, null,getContext().getResources().getDisplayMetrics().density);
 
 				DroidWriterEditText.this.getText().insert(position, e);
 			}
