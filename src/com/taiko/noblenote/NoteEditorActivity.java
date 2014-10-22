@@ -17,8 +17,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.NavUtils;
 import android.text.InputType;
+import android.text.Layout;
+import android.text.Selection;
+import android.text.Spannable;
 import android.text.Spanned;
+import android.text.method.ArrowKeyMovementMethod;
+import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -140,6 +146,7 @@ public class NoteEditorActivity extends SherlockFragmentActivity {
 						public void run()
 						{
 							editText.setText(span);
+							editText.setMovementMethod(new ArrowKeyLinkMovementMethod());
 							mHandler.removeCallbacks(mProgressRunner);
 							setSupportProgress(Window.PROGRESS_END);
 							editorScrollView.setVisibility(View.VISIBLE);
