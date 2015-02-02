@@ -50,6 +50,7 @@ public class NoteEditorActivity extends SherlockFragmentActivity {
 	private View editorScrollView;
 	private DroidWriterEditText editText;
 	private float displayDensity;
+	private long lastModified = 0;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -57,8 +58,7 @@ public class NoteEditorActivity extends SherlockFragmentActivity {
 		
 		super.onCreate(savedInstanceState);		
 		displayDensity = getApplicationContext().getResources().getDisplayMetrics().density;;
-		//This has to be called before setContentView and you must use the
-        //class in com.actionbarsherlock.view and NOT android.view
+		//This has to be called before setContentVie
         requestWindowFeature(Window.FEATURE_PROGRESS);
 
 		setContentView(R.layout.note_editor_activity);
@@ -81,14 +81,54 @@ public class NoteEditorActivity extends SherlockFragmentActivity {
 		getSupportActionBar().setTitle(new File(filePath).getName());
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		
+		lastModified = new File(filePath).lastModified();
+		reload();
+		
 	}
+	
+//	@Override
+//	public void onStart()
+//	{
+//		super.onStart();
+//
+//	}
 
 	@SuppressLint("NewApi")
     @Override
     public void onResume()
     {
-    	
 		super.onResume();
+		
+		if(new File(filePath).lastModified() > lastModified)
+		{
+			reload();
+			lastModified = new File(filePath).lastModified();
+			Toast.makeText(NoteEditorActivity.this.getApplicationContext(), R.string.noteReloaded, Toast.LENGTH_SHORT).show();
+		}
+		
+			// fix selection & formatting for Honeycomb and newer devices
+			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+			{
+				DroidWriterEditText editText = (DroidWriterEditText) findViewById(R.id.editor_edit_text);
+				editText.setCustomSelectionActionModeCallback(new SelectionActionModeCallback(editText));
+			}
+			
+//			long end1 = System.currentTimeMillis();
+//			Log.d("MyTag","Execution time fromHtml was "+(end1-start1)+" ms.");
+//			long start = System.currentTimeMillis();
+//			
+//			long end = System.currentTimeMillis();
+//			Log.d("MyTag","Execution time  setText was "+(end-start)+" ms.");
+//			//view.setText(Html.fromHtml(html));
+    	
+    }
+	
+	/**
+	 * reloads the current note file
+	 */
+	private void reload()
+	{
+		
 		// simple timer controlled progress reporting
 		final Handler mHandler = new Handler();
 		final Runnable mProgressRunner = new Runnable() {
@@ -150,28 +190,13 @@ public class NoteEditorActivity extends SherlockFragmentActivity {
 							mHandler.removeCallbacks(mProgressRunner);
 							setSupportProgress(Window.PROGRESS_END);
 							editorScrollView.setVisibility(View.VISIBLE);
-							editText.setModified(false); // reset modification state because modification flag has been set by editText.setText						
+							editText.setModified(false); // reset modification state because modification flag has been set by editText.setText
 						}
 					});
 				}
 			}.start();
 		
-			// fix selection & formatting for Honeycomb and newer devices
-			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-			{
-				DroidWriterEditText editText = (DroidWriterEditText) findViewById(R.id.editor_edit_text);
-				editText.setCustomSelectionActionModeCallback(new SelectionActionModeCallback(editText));
-			}
-			
-//			long end1 = System.currentTimeMillis();
-//			Log.d("MyTag","Execution time fromHtml was "+(end1-start1)+" ms.");
-//			long start = System.currentTimeMillis();
-//			
-//			long end = System.currentTimeMillis();
-//			Log.d("MyTag","Execution time  setText was "+(end-start)+" ms.");
-//			//view.setText(Html.fromHtml(html));
-    	
-    }
+	}
 	
 	@Override
 	public void onPause()
@@ -192,6 +217,7 @@ public class NoteEditorActivity extends SherlockFragmentActivity {
 	        writer.flush();
 	        writer.close();
 	        editText.setModified(false);
+	        lastModified = file.lastModified();
 			Toast.makeText(this.getApplicationContext(), R.string.noteSaved, Toast.LENGTH_SHORT).show();
 			} catch (IOException e) {
 				e.printStackTrace();
