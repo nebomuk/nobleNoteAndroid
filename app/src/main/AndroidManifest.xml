@@ -42,7 +42,6 @@
             android:name=".RenameDialogActivity"
             android:label="@string/rename_dialog">
         </activity>
-        
     </application>
 
 
