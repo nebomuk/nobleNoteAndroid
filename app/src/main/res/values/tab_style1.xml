@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+<!-- a tab style, that disables the tab selected indicator to use the tabs as buttons -->
+
+<style name="Widget.Styled.TabView" parent="Widget.Sherlock.ActionBar.TabView">
+
+        <item name="android:background">@color/gray</item>
+<!--          <item name="android:paddingBottom">3dp</item>  -->
+         <item name="android:paddingLeft">0dp</item>  
+        <item name="android:paddingRight">0dp</item> 
+
+</style>
+    
+</resources>
