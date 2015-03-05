@@ -41,6 +41,8 @@ public class SelectionActionModeCallback implements android.view.ActionMode.Call
     }
 	@Override
     public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+
+        editText.setWindowFocusWait(true);
         return false;
     }
     @Override
@@ -78,7 +80,9 @@ public class SelectionActionModeCallback implements android.view.ActionMode.Call
     }
 
 	@Override
-	public void onDestroyActionMode(ActionMode arg0) {		
+	public void onDestroyActionMode(ActionMode arg0)
+    {
+        editText.setWindowFocusWait(false);
 	}
 	
 
