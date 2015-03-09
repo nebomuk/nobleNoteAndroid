@@ -16,6 +16,12 @@
           android:showAsAction="ifRoom"
           android:icon="@drawable/strikethrough"
           android:title="Strikethrough"/>
+    <item
+        android:id="@+id/menu_item_share"
+        android:showAsAction="ifRoom"
+        android:title="Share"
+        android:actionProviderClass=
+            "android.widget.ShareActionProvider" />
 </menu>
 
 
