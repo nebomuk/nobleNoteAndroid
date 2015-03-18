@@ -1,4 +1,8 @@
-nobleNote
+nobleNoteAndroid
 
 
-This is a simple note taking application for Android. Notes are saved as html files on the sdcard. It is compatible to the nobleNote desktop application for Linux, Windows and mac os x. 
+This is a simple note taking application for Android phones and tablets. 
+
+Notes can be put into notebooks and notes are saved as html files on the sd card. It is compatible to the nobleNote desktop application for Linux, Windows and Mac os x. 
+
+License: MIT
