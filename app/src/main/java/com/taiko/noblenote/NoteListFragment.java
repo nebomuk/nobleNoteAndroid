@@ -4,27 +4,25 @@ import java.io.File;
 import java.io.FileFilter;
 
 import android.app.AlertDialog;
+import android.app.ListFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.taiko.noblenote.NoteEditorActivity;
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 
 
-
-public class NoteListFragment extends SherlockListFragment {
+public class NoteListFragment extends ListFragment {
 
     public static final String ARG_FOLDER_PATH = "folder_path";
     public static final int ITEM_NEW_NOTE = 1;
@@ -133,13 +131,13 @@ public class NoteListFragment extends SherlockListFragment {
     	{
         	if(item.getItemId() == ITEM_NEW_NOTE)
         	{
-        		AlertDialog.Builder dialogBuilder = new FileNameDialogBuilder(getSherlockActivity());
+        		AlertDialog.Builder dialogBuilder = new FileNameDialogBuilder(getActivity());
 
         		dialogBuilder.setTitle(R.string.newNote);
         		dialogBuilder.setMessage(R.string.enterName);
 
         		// Set an EditText view to get user input 
-        		final EditText input = new EditText(this.getSherlockActivity());
+        		final EditText input = new EditText(this.getActivity());
         		input.setFilters(new InputFilter[]{new FileNameFilter()});
         		
         		// dont propose a name that already exists
@@ -166,7 +164,7 @@ public class NoteListFragment extends SherlockListFragment {
         						}        					
         						else // error occured
         						{
-        							Toast.makeText(getSherlockActivity(), R.string.noteNotCreated, Toast.LENGTH_SHORT).show();
+        							Toast.makeText(getActivity(), R.string.noteNotCreated, Toast.LENGTH_SHORT).show();
         						}
         					}
         				});

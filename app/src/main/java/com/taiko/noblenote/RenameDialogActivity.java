@@ -3,6 +3,7 @@
  */
 package com.taiko.noblenote;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputFilter;
@@ -10,13 +11,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.actionbarsherlock.app.SherlockActivity;
 
 /**
  * @author Taiko-G780
  *
  */
-public class RenameDialogActivity extends SherlockActivity 
+public class RenameDialogActivity extends Activity
 {
 	public final static String ARG_FILE_NAME = "file_name";
     

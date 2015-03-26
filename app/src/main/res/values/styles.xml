@@ -1,5 +1,27 @@
 <resources>
 
-    <style name="AppTheme" parent="Theme.Sherlock.Light" />
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="AppTheme.Base"/>
+
+    <style name="AppTheme.Base" parent="Theme.AppCompat.Light">
+
+        <item name="android:windowNoTitle">false</item>
+        <item name="windowActionBar">true</item>
+
+        <!-- Customize your theme here. -->
+
+        <!--&lt;!&ndash; colorPrimary is used for the default action bar background &ndash;&gt;-->
+        <!--<item name="colorPrimary">@color/colorPrimary</item>-->
+
+        <!--&lt;!&ndash; colorPrimaryDark is used for the status bar &ndash;&gt;-->
+        <!--<item name="colorPrimaryDark">@color/colorPrimaryDark</item>-->
+
+        <!--&lt;!&ndash; colorAccent is used as the default value for colorControlActivated-->
+             <!--which is used to tint widgets &ndash;&gt;-->
+        <!--<item name="colorAccent">@color/colorAccent</item>-->
+
+        <!--&lt;!&ndash; You can also set colorControlNormal, colorControlActivated-->
+             <!--colorControlHighlight & colorSwitchThumbNormal. &ndash;&gt;-->
+    </style>
 
 </resources>

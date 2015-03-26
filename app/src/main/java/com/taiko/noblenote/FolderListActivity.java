@@ -1,10 +1,10 @@
 package com.taiko.noblenote;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-public class FolderListActivity extends SherlockFragmentActivity
+public class FolderListActivity extends Activity
         implements FolderListFragment.Callbacks {
 
     private boolean mTwoPane;
@@ -18,7 +18,7 @@ public class FolderListActivity extends SherlockFragmentActivity
         
         if (findViewById(R.id.item_detail_container) != null) {
             mTwoPane = true;
-            ((FolderListFragment) getSupportFragmentManager()
+            ((FolderListFragment) getFragmentManager()
                     .findFragmentById(R.id.item_list))
                     .setActivateOnItemClick(true);
         }
@@ -31,7 +31,7 @@ public class FolderListActivity extends SherlockFragmentActivity
             arguments.putBoolean(FolderListActivity.ARG_TWO_PANE, mTwoPane);
             NoteListFragment fragment = new NoteListFragment();
             fragment.setArguments(arguments);
-            getSupportFragmentManager().beginTransaction()
+            getFragmentManager().beginTransaction()
                     .replace(R.id.item_detail_container, fragment)
                     .commit();
 

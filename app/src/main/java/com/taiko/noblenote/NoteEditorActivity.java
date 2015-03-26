@@ -1,13 +1,8 @@
 package com.taiko.noblenote;
 
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,26 +12,25 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.NavUtils;
 import android.text.InputType;
-import android.text.Layout;
-import android.text.Selection;
-import android.text.Spannable;
 import android.text.Spanned;
-import android.text.method.ArrowKeyMovementMethod;
-import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
-public class NoteEditorActivity extends SherlockFragmentActivity {
+
+public class NoteEditorActivity extends Activity {
 
 	public static final String ARG_FILE_PATH = "file_path";
 	public static final String ARG_OPEN_MODE = "open_mode";
@@ -76,10 +70,10 @@ public class NoteEditorActivity extends SherlockFragmentActivity {
 		
 		filePath = extras.getString(NoteEditorActivity.ARG_FILE_PATH);
 		openMode = extras.getString(NoteEditorActivity.ARG_OPEN_MODE);
-		focusable = openMode.equals(HTML) || openMode.equals(READ_ONLY) ? false : true; // no editing if html source should be shown
+		focusable = !(openMode.equals(HTML) || openMode.equals(READ_ONLY)); // no editing if html source should be shown
 		
-		getSupportActionBar().setTitle(new File(filePath).getName());
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getActionBar().setTitle(new File(filePath).getName());
+		getActionBar().setDisplayHomeAsUpEnabled(true);
 		
 		lastModified = new File(filePath).lastModified();
 		reload();
@@ -138,7 +132,7 @@ public class NoteEditorActivity extends SherlockFragmentActivity {
 
 				//Normalize our progress along the progress bar's scale
 				int progress = (Window.PROGRESS_END - Window.PROGRESS_START) / 100 * mProgress;
-				setSupportProgress(progress);
+				setProgress(progress);
 
 				if (mProgress < 100) {
 					mHandler.postDelayed(this, 10);
@@ -188,7 +182,7 @@ public class NoteEditorActivity extends SherlockFragmentActivity {
 							editText.setText(span);
 							editText.setMovementMethod(new ArrowKeyLinkMovementMethod());
 							mHandler.removeCallbacks(mProgressRunner);
-							setSupportProgress(Window.PROGRESS_END);
+							setProgress(Window.PROGRESS_END);
 							editorScrollView.setVisibility(View.VISIBLE);
 							editText.setModified(false); // reset modification state because modification flag has been set by editText.setText
 						}

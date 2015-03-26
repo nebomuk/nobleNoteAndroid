@@ -10,7 +10,7 @@
                android:layout_width="match_parent"
                android:layout_height="0dp"
                android:layout_weight="1"
-               android:background="?attr/activatedBackgroundIndicator"
+               android:background="?android:attr/activatedBackgroundIndicator"
                android:drawSelectorOnTop="false"
                tools:context=".NoteListFragment"
                />

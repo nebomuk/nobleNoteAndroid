@@ -1,13 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 19
+    compileSdkVersion 21
     buildToolsVersion "21.1.2"
 
     defaultConfig {
         applicationId "com.taiko.noblenote"
-        minSdkVersion 7
-        targetSdkVersion 19
+        minSdkVersion 13
+        targetSdkVersion 21
+        versionCode 1
+        versionName '1.0'
     }
 
     buildTypes {
@@ -18,8 +20,15 @@ android {
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
+
 dependencies {
-    compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
-    compile 'com.android.support:support-v4:18.0.0'
+    compile 'com.android.support:support-v4:21.0.+'
     compile 'org.ccil.cowan.tagsoup:tagsoup:1.2.1'
+    compile 'com.github.developerpaul123.filepickerlibrary:library:1.0@aar'
+    compile 'com.android.support:appcompat-v7:21.0.0'
+
 }

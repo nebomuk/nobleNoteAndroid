@@ -4,24 +4,28 @@ import java.io.File;
 import java.io.FileFilter;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ListFragment;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.InputFilter;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
+import com.devpaul.filepickerlibrary.FilePickerActivity;
+import com.devpaul.filepickerlibrary.enums.ThemeType;
 
-public class FolderListFragment extends SherlockListFragment {
+
+public class FolderListFragment extends ListFragment {
 
     private static final String STATE_ACTIVATED_POSITION = "activated_position";
     public static final int ITEM_NEW_FOLDER = 2;
@@ -59,42 +63,54 @@ public class FolderListFragment extends SherlockListFragment {
     {
     	super.onResume();
     	
-    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.getSherlockActivity());
-        final SharedPreferences.Editor prefEditor = prefs.edit();
-        
-        File exStorageDir = Environment.getExternalStorageDirectory();
+    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
 
         // show an input dialog where the user can enter the desired root path if it has not been set before
         if (!prefs.contains(ROOT_PATH)) {
 
-    		rootPath = exStorageDir + "/nnote";
-        	final EditText input = new EditText(this.getSherlockActivity());
-        	input.setText(rootPath);
-            new AlertDialog.Builder(this.getSherlockActivity()).setIcon(android.R.drawable.ic_dialog_alert).setTitle(R.string.enterStoragePath).
-            setView(input).setPositiveButton(
-                    android.R.string.ok, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                        	rootPath =  input.getText().toString();
-                        	prefEditor.putString(ROOT_PATH,rootPath);
-                        	prefEditor.commit();  // save the preference, note that this is a different scope than the commit below
-                        	showFolders();
-                            dialog.dismiss();
-                        }
-                    }).show();
-            
-            prefEditor.commit(); // save the preference
+            Intent filePickerIntent = new Intent(this.getActivity(), FilePickerActivity.class);
+            filePickerIntent.putExtra(FilePickerActivity.THEME_TYPE, ThemeType.DIALOG);
+            filePickerIntent.putExtra(FilePickerActivity.REQUEST_CODE, FilePickerActivity.REQUEST_DIRECTORY);
+            startActivityForResult(filePickerIntent, FilePickerActivity.REQUEST_DIRECTORY);
         }
-        else // rootPath has been set before, read from the prefs
-        {
-        	rootPath = prefs.getString(ROOT_PATH, exStorageDir + "/nnote");
-        	showFolders();
+
+        String fallbackRootPath = prefs.getString(ROOT_PATH, Environment.getExternalStorageDirectory().getAbsolutePath() + "/nobleNote");
+
+        // always try to either read from the prefs or set a default path
+        rootPath = prefs.getString(ROOT_PATH,fallbackRootPath);
+        if(fileSystemAdapter == null)
+            initFolders();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if(requestCode == FilePickerActivity.REQUEST_DIRECTORY) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
+            final SharedPreferences.Editor prefEditor = prefs.edit();
+
+
+            if (resultCode == FilePickerActivity.RESULT_OK) {
+
+                String filePath = data.
+                        getStringExtra(FilePickerActivity.FILE_EXTRA_DATA_PATH);
+                if (filePath != null) {
+                    rootPath = filePath;
+                }
+            }
+
+            prefEditor.putString(ROOT_PATH, rootPath);
+            prefEditor.commit();  // save the preference
+            initFolders();
         }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
     
     /**
      * shows the folders on the screen
      */
-    public void showFolders()
+    public void initFolders()
     {
     	File dir = new File(rootPath);
 		if(!dir.exists())
@@ -106,7 +122,7 @@ public class FolderListFragment extends SherlockListFragment {
 				return pathname.isDirectory() && !pathname.isHidden();
 			}};
 				
-		fileSystemAdapter = new FileSystemAdapter(getSherlockActivity(),android.R.layout.simple_list_item_1, new File(rootPath),folderFilter);
+		fileSystemAdapter = new FileSystemAdapter(getActivity(),android.R.layout.simple_list_item_1, new File(rootPath),folderFilter);
 		
 		setListAdapter(fileSystemAdapter);
     }
@@ -168,7 +184,7 @@ public class FolderListFragment extends SherlockListFragment {
     }
     
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) 
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
     {
     	 if (this.getActivity().findViewById(R.id.item_detail_container) != null)
              mTwoPane = true;
@@ -186,13 +202,13 @@ public class FolderListFragment extends SherlockListFragment {
     	
     	if(item.getItemId() == ITEM_NEW_FOLDER)
     	{
-    		AlertDialog.Builder dialogBuilder = new FileNameDialogBuilder(getSherlockActivity());
+    		AlertDialog.Builder dialogBuilder = new FileNameDialogBuilder(getActivity());
 
     		dialogBuilder.setTitle(R.string.newNotebook);
     		dialogBuilder.setMessage(R.string.enterName);
 
     		// Set an EditText view to get user input 
-    		final EditText input = new EditText(this.getSherlockActivity());
+    		final EditText input = new EditText(this.getActivity());
     		input.setFilters(new InputFilter[]{new FileNameFilter()});
     		
     		String proposedDirPath = rootPath + File.separator + this.getString(R.string.newNotebook);
@@ -214,7 +230,7 @@ public class FolderListFragment extends SherlockListFragment {
     						Editable newName = input.getText();
     						if(fileSystemAdapter.mkdir(new File(rootPath + File.separator + newName)) != 0)
     						{
-    							Toast.makeText(getSherlockActivity(), R.string.notebookNotCreated, Toast.LENGTH_SHORT).show();
+    							Toast.makeText(getActivity(), R.string.notebookNotCreated, Toast.LENGTH_SHORT).show();
     						}
     					}
     				});

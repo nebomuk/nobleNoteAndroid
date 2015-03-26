@@ -1,31 +1,29 @@
 package com.taiko.noblenote;
 
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ListFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.InputFilter;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
-
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.ActionMode;
-import com.actionbarsherlock.view.ActionMode.Callback;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * @author Taiko-G780
@@ -35,7 +33,7 @@ public class LongClickListener implements ListView.OnItemLongClickListener
 {
 	private ActionMode mActionMode;
     private SelectionModel selectionModel = new SelectionModel();
-    private SherlockListFragment fragment;
+    private ListFragment fragment;
     private MenuItem renameMenuItem;
     private MenuItem showSourceMenuItem;
     
@@ -65,7 +63,7 @@ public class LongClickListener implements ListView.OnItemLongClickListener
      * expects the fragment's listAdapter to be a FileSystemAdapter
      * @param fragment
      */
-	public LongClickListener(SherlockListFragment fragment) {
+	public LongClickListener(ListFragment fragment) {
 		this.fragment = fragment;
 	}
 
@@ -80,7 +78,7 @@ public class LongClickListener implements ListView.OnItemLongClickListener
 	        // Start the CAB using the ActionMode.Callback defined abov
 		 
 		 
-	        mActionMode = fragment.getSherlockActivity().startActionMode(new ActionModeCallback());
+	        mActionMode = fragment.getActivity().startActionMode(new ActionModeCallback());
 	        selectionModel.toggleSelection(pos, view);
 	        //view.setSelected(true);
 	        //listView.setItemChecked(pos, true);
@@ -90,7 +88,7 @@ public class LongClickListener implements ListView.OnItemLongClickListener
 	        return true;
 	}
 	
-	private class ActionModeCallback implements Callback {
+	private class ActionModeCallback implements ActionMode.Callback {
 
         
 
@@ -132,7 +130,7 @@ public class LongClickListener implements ListView.OnItemLongClickListener
         			return false;
         		
         		final File noteFile = (File)noteItem;
-//    		    Intent intent = new Intent(fragment.getSherlockActivity(),RenameDialogActivity.class);
+//    		    Intent intent = new Intent(fragment.getActivity(),RenameDialogActivity.class);
 //    		    intent.putExtra(RenameDialogActivity.ARG_FILE_NAME, ((File)noteItem).getName());
 //    		    fragment.startActivityForResult(intent, NEW_FILE_NAME); 
        
@@ -254,7 +252,7 @@ public class LongClickListener implements ListView.OnItemLongClickListener
         		if(noteItem == null)
         			return false;
         		
-    		    Intent intent = new Intent(fragment.getSherlockActivity(),NoteEditorActivity.class);
+    		    Intent intent = new Intent(fragment.getActivity(),NoteEditorActivity.class);
     		    intent.putExtra(NoteEditorActivity.ARG_FILE_PATH, ((File)noteItem).getPath()); 
     		    intent.putExtra(NoteEditorActivity.ARG_OPEN_MODE, NoteEditorActivity.HTML);
     		    fragment.startActivity(intent);
@@ -288,7 +286,7 @@ public class LongClickListener implements ListView.OnItemLongClickListener
     {
     	if(requestCode == NEW_FILE_NAME)
     	{
-    		if(resultCode == SherlockActivity.RESULT_OK)
+    		if(resultCode == Activity.RESULT_OK)
     		{
 	    		String newName = data.getStringExtra(RenameDialogActivity.ARG_FILE_NAME);
 	    		
