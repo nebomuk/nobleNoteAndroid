@@ -134,7 +134,7 @@ public class LongClickListener implements ListView.OnItemLongClickListener
 //    		    intent.putExtra(RenameDialogActivity.ARG_FILE_NAME, ((File)noteItem).getName());
 //    		    fragment.startActivityForResult(intent, NEW_FILE_NAME); 
        
-        		AlertDialog.Builder dialogBuilder = new FileNameDialogBuilder(fragment.getActivity());
+        		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(fragment.getActivity());
 
         		dialogBuilder.setTitle(R.string.renameNote);
         		dialogBuilder.setMessage(R.string.enterNewName);
@@ -189,7 +189,7 @@ public class LongClickListener implements ListView.OnItemLongClickListener
         	}
         	case R.id.removeNote:
         	{       
-        		AlertDialog.Builder dialogBuilder = new FileNameDialogBuilder(fragment.getActivity());
+        		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(fragment.getActivity());
 
         		dialogBuilder.setTitle(R.string.removeMultipleNotes);
         		dialogBuilder.setMessage(R.string.removeMultipleNotesQuestion);

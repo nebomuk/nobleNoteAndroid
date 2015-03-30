@@ -131,7 +131,7 @@ public class NoteListFragment extends ListFragment {
     	{
         	if(item.getItemId() == ITEM_NEW_NOTE)
         	{
-        		AlertDialog.Builder dialogBuilder = new FileNameDialogBuilder(getActivity());
+        		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
 
         		dialogBuilder.setTitle(R.string.newNote);
         		dialogBuilder.setMessage(R.string.enterName);

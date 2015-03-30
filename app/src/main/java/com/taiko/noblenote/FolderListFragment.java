@@ -21,8 +21,10 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.devpaul.filepickerlibrary.FilePickerActivity;
 import com.devpaul.filepickerlibrary.enums.ThemeType;
+import com.melnykov.fab.FloatingActionButton;
 
 
 public class FolderListFragment extends ListFragment {
@@ -55,7 +57,29 @@ public class FolderListFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        this.setHasOptionsMenu(true); 	
+       // this.setHasOptionsMenu(true);
+
+//        FloatingActionButton fab = (FloatingActionButton)getActivity().findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                new MaterialDialog.Builder(FolderListFragment.this.getActivity())
+//                        .positiveText(R.string.newNote).negativeText(R.string.newNotebook).callback(
+//                        new MaterialDialog.ButtonCallback() {
+//                            @Override
+//                            public void onPositive(MaterialDialog dialog) {
+//                                super.onPositive(dialog);
+//                            }
+//
+//                            @Override
+//                            public void onNegative(MaterialDialog dialog) {
+//                                super.onNegative(dialog);
+//                            }
+//                        }
+//                );
+//            }
+//        });
+
     }
     
     @Override
@@ -202,7 +226,7 @@ public class FolderListFragment extends ListFragment {
     	
     	if(item.getItemId() == ITEM_NEW_FOLDER)
     	{
-    		AlertDialog.Builder dialogBuilder = new FileNameDialogBuilder(getActivity());
+    		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
 
     		dialogBuilder.setTitle(R.string.newNotebook);
     		dialogBuilder.setMessage(R.string.enterName);
