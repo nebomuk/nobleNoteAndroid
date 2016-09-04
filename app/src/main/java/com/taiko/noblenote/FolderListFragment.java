@@ -1,7 +1,5 @@
 package com.taiko.noblenote;
 
-import java.io.File;
-import java.io.FileFilter;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListFragment;
@@ -21,10 +19,11 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.devpaul.filepickerlibrary.FilePickerActivity;
 import com.devpaul.filepickerlibrary.enums.ThemeType;
-import com.melnykov.fab.FloatingActionButton;
+
+import java.io.File;
+import java.io.FileFilter;
 
 
 public class FolderListFragment extends ListFragment {
