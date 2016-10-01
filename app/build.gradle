@@ -20,7 +20,7 @@ android {
 
     defaultConfig {
         applicationId "com.taiko.noblenote"
-        minSdkVersion 13
+        minSdkVersion 21
         targetSdkVersion 24
         versionCode 2
         versionName '1.2'
@@ -36,13 +36,26 @@ android {
 
 repositories {
     mavenCentral()
+    maven { url "https://jitpack.io" }
 }
 
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:24.2.0'
+    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.android.support:recyclerview-v7:24.2.1'
     compile 'org.ccil.cowan.tagsoup:tagsoup:1.2.1'
-    compile 'com.github.developerpaul123.filepickerlibrary:library:1.0@aar'
-    compile 'com.melnykov:floatingactionbutton:1.2.0'
+    compile 'io.reactivex:rxjava:1.2.0'
+    compile 'io.reactivex:rxandroid:1.2.1'
+    compile 'io.reactivex:rxkotlin:0.60.0'
+    compile 'com.jakewharton.rxbinding:rxbinding:0.4.0'
+    compile 'com.jakewharton.rxbinding:rxbinding-kotlin:0.4.0'
+    compile 'com.jakewharton.rxbinding:rxbinding-appcompat-v7:0.4.0'
+    compile 'com.jakewharton.rxbinding:rxbinding-appcompat-v7-kotlin:0.4.0'
+    compile 'com.tbruyelle.rxpermissions:rxpermissions:0.7.0@aar'
+    compile 'com.github.DeveloperPaul123:FilePickerLibrary:3.5.1'
+    compile "com.github.VictorAlbertos:RxActivityResult:0.3.5"
+    compile 'com.chibatching:kotpref:1.4.0'
+    compile 'com.github.clans:fab:1.6.4'
+
 
 }

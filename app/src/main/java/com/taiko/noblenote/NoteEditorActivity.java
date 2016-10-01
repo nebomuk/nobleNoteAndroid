@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
 import android.text.InputType;
 import android.text.Spanned;
@@ -22,6 +23,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+import android.widget.Toolbar;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -45,7 +47,8 @@ public class NoteEditorActivity extends Activity {
 	private DroidWriterEditText editText;
 	private float displayDensity;
 	private long lastModified = 0;
-	
+	private View mLayoutRoot;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		 //requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
@@ -53,13 +56,16 @@ public class NoteEditorActivity extends Activity {
 		super.onCreate(savedInstanceState);		
 		displayDensity = getApplicationContext().getResources().getDisplayMetrics().density;;
 		//This has to be called before setContentVie
-        requestWindowFeature(Window.FEATURE_PROGRESS);
 
+		getWindow().requestFeature(Window.FEATURE_ACTION_MODE_OVERLAY);
 		setContentView(R.layout.note_editor_activity);
+		mLayoutRoot = findViewById(R.id.layout_root);
+
 		editorScrollView = findViewById(R.id.editor_scroll_view);
 		editorScrollView.setVisibility(View.INVISIBLE);		
 		editText = (DroidWriterEditText) findViewById(R.id.editor_edit_text);
-		
+
+		setActionBar((Toolbar) findViewById(R.id.toolbar));
 				
 		// hide soft keyboard by default
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -72,9 +78,8 @@ public class NoteEditorActivity extends Activity {
 		openMode = extras.getString(NoteEditorActivity.ARG_OPEN_MODE);
 		focusable = !(openMode.equals(HTML) || openMode.equals(READ_ONLY)); // no editing if html source should be shown
 		
-		getActionBar().setTitle(new File(filePath).getName());
-		getActionBar().setDisplayHomeAsUpEnabled(true);
-		
+		//getActionBar().setTitle(new File(filePath).getName());
+
 		lastModified = new File(filePath).lastModified();
 		reload();
 		
@@ -97,7 +102,7 @@ public class NoteEditorActivity extends Activity {
 		{
 			reload();
 			lastModified = new File(filePath).lastModified();
-			Toast.makeText(NoteEditorActivity.this.getApplicationContext(), R.string.noteReloaded, Toast.LENGTH_SHORT).show();
+			Snackbar.make(mLayoutRoot, R.string.noteReloaded, Snackbar.LENGTH_SHORT).show();
 		}
 		
 			// fix selection & formatting for Honeycomb and newer devices
@@ -222,7 +227,7 @@ public class NoteEditorActivity extends Activity {
 	 @Override
 	    public boolean onOptionsItemSelected(MenuItem item) {
 	        if (item.getItemId() == android.R.id.home) {
-	            NavUtils.navigateUpTo(this, new Intent(this, FolderListActivity.class));
+	            NavUtils.navigateUpTo(this, new Intent(this, MainActivity.class));
 	            return true;
 	        }
 

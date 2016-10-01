@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="hello">Hello World, NobleNote!</string>
-    <string name="app_name">NobleNote</string>
-    <string name="edit_message">TODO</string>
+    <string name="app_name">Name not set</string>
+    <string name="edit_message">Edit</string>
     <string name="emptyNoteHint">Note</string>
     <string name="notes">Notes</string>
     <string name="notebooks">Notebooks</string>
@@ -36,5 +35,9 @@
     <string name="enterStoragePath">Please enter a storage path</string>
     <string name="saveOnClose">Do you really want to quit without saving?</string>
     <string name="noteReloaded">note reloaded</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_rootPath">Select folder</string>
+
+
 
 </resources>

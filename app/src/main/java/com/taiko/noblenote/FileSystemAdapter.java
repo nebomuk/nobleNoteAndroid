@@ -3,12 +3,6 @@
  */
 package com.taiko.noblenote;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.text.Collator;
-import java.util.ArrayList;
-import java.util.Comparator;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * @author Taiko-G780
@@ -51,8 +53,17 @@ public class FileSystemAdapter extends ArrayAdapter<File> {
 	{
 		//List<File> fileList = Arrays.asList(); // returns read only list, causes unsupported operation exceptions in adapter
 		ArrayList<File> fileList = new ArrayList<File>();
-		for(File f : dir.listFiles(filter))
-			fileList.add(f);
+		if(dir.exists() || dir.mkdirs())
+		{
+			Collections.addAll(fileList, dir.listFiles(filter));
+			Collections.sort(fileList,new Comparator<File>()
+			{
+				@Override
+				public int compare(File lhs, File rhs) {
+					return Collator.getInstance().compare(lhs.getName(), rhs.getName());
+				}
+			});
+		}
 		return fileList;
 	}
 	
