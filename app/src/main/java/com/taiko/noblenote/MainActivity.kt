@@ -27,7 +27,8 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 
-class MainActivity : Activity(), FolderListFragment.Callbacks {
+class MainActivity : Activity()
+{
 
     private var mTwoPane: Boolean = false
 
@@ -35,10 +36,10 @@ class MainActivity : Activity(), FolderListFragment.Callbacks {
         @JvmField val ARG_TWO_PANE = "two_pane"
     }
 
-    public override fun onItemSelected(id: String) {
+    public fun onItemSelected(path: String) {
 
             val arguments = Bundle()
-            arguments.putString(NoteListFragment.ARG_FOLDER_PATH, id)
+            arguments.putString(NoteListFragment.ARG_FOLDER_PATH, path)
             arguments.putBoolean(MainActivity.ARG_TWO_PANE, mTwoPane)
             val fragment = NoteListFragment()
             fragment.arguments = arguments
@@ -88,6 +89,9 @@ class MainActivity : Activity(), FolderListFragment.Callbacks {
 
             }
         }
+
+        val app = application as MainApplication
+        compositeSubscription += app.uiCommunicator.folderSelected.subscribe { onItemSelected(it.absolutePath) }
     }
 
     private var actionSearch: MenuItem? = null

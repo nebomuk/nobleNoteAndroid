@@ -47,7 +47,7 @@ public class Dialogs
                         File newFile = new File(fileSystemAdapter.getRootDir().getPath() + File.separator + newName);
                         if (fileSystemAdapter.createFile(newFile) == 0)
                         {
-                            NoteListFragment.startNoteEditor(activity, newFile);
+                            NoteListFragment.Companion.startNoteEditor(activity, newFile);
                         }
                         else // error occured
                         {

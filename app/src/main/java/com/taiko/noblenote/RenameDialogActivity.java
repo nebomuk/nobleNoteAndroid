@@ -26,7 +26,7 @@ public class RenameDialogActivity extends Activity
 	        super.onCreate(savedInstanceState);
 	        setContentView(R.layout.rename_dialog_activity);
 	        final EditText editText = (EditText)findViewById(R.id.rename_dialog_edit_text);
-	        
+
 	        String fileName = getIntent().getStringExtra(ARG_FILE_NAME);
 	        editText.setText(fileName);
 	        
