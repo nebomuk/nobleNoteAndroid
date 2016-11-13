@@ -3,7 +3,6 @@ package com.taiko.noblenote;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.EditText;
-import android.widget.TextView;
 
 /**
  * Created by taiko on 05.03.15.

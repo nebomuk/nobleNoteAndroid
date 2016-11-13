@@ -14,8 +14,6 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ToggleButton;
-import com.taiko.noblenote.Html;
-
 
 
 public class DroidWriterEditText extends CABEditText {

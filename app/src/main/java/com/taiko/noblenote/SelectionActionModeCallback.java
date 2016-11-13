@@ -5,7 +5,6 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Build;
-import android.text.SpannableString;
 import android.text.style.StrikethroughSpan;
 import android.text.style.UnderlineSpan;
 import android.view.ActionMode;

@@ -26,7 +26,6 @@ public class FileNameFilter implements InputFilter {
     @Override
     public CharSequence filter(CharSequence source, int start, int end,
             Spanned dest, int dstart, int dend) {
-
     	 if (source instanceof SpannableStringBuilder) {
              SpannableStringBuilder sourceAsSpannableBuilder = (SpannableStringBuilder)source;
              for (int i = end - 1; i >= start; i--) { 

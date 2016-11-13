@@ -6,12 +6,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.NavUtils;
 import android.text.InputType;
 import android.text.Spanned;
 import android.view.LayoutInflater;
@@ -59,6 +57,7 @@ public class NoteEditorActivity extends Activity {
 
 		getWindow().requestFeature(Window.FEATURE_ACTION_MODE_OVERLAY);
 		setContentView(R.layout.note_editor_activity);
+
 		mLayoutRoot = findViewById(R.id.layout_root);
 
 		editorScrollView = findViewById(R.id.editor_scroll_view);
@@ -66,6 +65,8 @@ public class NoteEditorActivity extends Activity {
 		editText = (DroidWriterEditText) findViewById(R.id.editor_edit_text);
 
 		setActionBar((Toolbar) findViewById(R.id.toolbar));
+
+		getActionBar().setDisplayHomeAsUpEnabled(true);
 				
 		// hide soft keyboard by default
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -227,7 +228,25 @@ public class NoteEditorActivity extends Activity {
 	 @Override
 	    public boolean onOptionsItemSelected(MenuItem item) {
 	        if (item.getItemId() == android.R.id.home) {
-	            NavUtils.navigateUpTo(this, new Intent(this, MainActivity.class));
+				if(editText.isModified())
+				{
+					AlertDialog.Builder builder = new AlertDialog.Builder(NoteEditorActivity.this);
+					builder.setMessage(R.string.dialogDiscardKeepEditing)
+							.setPositiveButton(R.string.discard, new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int id) {
+									editText.setModified(false);//  does not get saved
+                                    Handler handler
+                                }
+							})
+							.setNegativeButton(R.string.keepEditing,null);
+					// Create the AlertDialog object and return it
+					builder.create().show();
+				}
+				else // no modification, do not ask to save the document
+				{
+					editText.setModified(false);//  does not get saved
+					finish();
+				}
 	            return true;
 	        }
 
@@ -290,38 +309,8 @@ public class NoteEditorActivity extends Activity {
 			}
 		});
 		 
-		 MenuItem itemClose = menu.add("Close").setIcon(R.drawable.ic_action_close)
+		 MenuItem itemClose = menu.add("Done").setIcon(R.drawable.ic_done_black_24dp)
 				 .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-		 itemClose.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-			
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				if(editText.isModified())
-				{
-					AlertDialog.Builder builder = new AlertDialog.Builder(NoteEditorActivity.this);
-			        builder.setMessage(R.string.saveOnClose)
-			               .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-			                   public void onClick(DialogInterface dialog, int id) {
-			                	   editText.setModified(false);//  does not get saved
-			                       finish();
-			                   }
-			               })
-			               .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-			                   public void onClick(DialogInterface dialog, int id) {
-			                   }
-			               });
-			        // Create the AlertDialog object and return it
-			        builder.create().show();
-				}
-				else // no modification, do not ask to save the document
-				{
-					editText.setModified(false);//  does not get saved
-                    finish();					
-				}
-		        
-				return true;
-			}
-		});
 				 
 		 
 		 editText.setSingleLine(false);

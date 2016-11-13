@@ -8,7 +8,7 @@ import com.chibatching.kotpref.KotprefModel
  */
 object Pref : KotprefModel()
 {
-    private val fallbackRootPath = Environment.getExternalStorageDirectory().absolutePath + "/nobleNote";
+    private val fallbackRootPath = Environment.getExternalStorageDirectory().absolutePath + "/nn";
     var rootPath: String by stringPrefVar(default = fallbackRootPath) // the root path where the folders are stored
     var selectedFolderPath: String by stringPrefVar(default = "") // the folder that has been selected in the ui
 }

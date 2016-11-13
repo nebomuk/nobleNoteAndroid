@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Name not set</string>
+    <string name="app_name">testapp</string>
     <string name="edit_message">Edit</string>
     <string name="emptyNoteHint">Note</string>
     <string name="notes">Notes</string>
@@ -37,6 +37,10 @@
     <string name="noteReloaded">note reloaded</string>
     <string name="action_settings">Settings</string>
     <string name="action_rootPath">Select folder</string>
+
+    <string name="keepEditing">Keep Editing</string>
+    <string name="discard">Discard</string>
+    <string name="dialogDiscardKeepEditing">Discard your changes and quit editing?</string>
 
 
 

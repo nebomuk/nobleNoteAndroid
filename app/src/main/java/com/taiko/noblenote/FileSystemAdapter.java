@@ -15,14 +15,13 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.text.Collator;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 
 /**
  * @author Taiko-G780
  *
  */
+@Deprecated
 public class FileSystemAdapter extends ArrayAdapter<File> {
 
 	public static final int FILE_EXISTS = 1;
@@ -38,7 +37,7 @@ public class FileSystemAdapter extends ArrayAdapter<File> {
 	
 	public FileSystemAdapter(Context context, int textViewResourceId, File path, FileFilter filter) 
 	{
-		super(context, textViewResourceId, listFiles(path,filter));
+		super(context, textViewResourceId, RecyclerFileAdapter.listFiles(path,filter));
 		sort();
 		mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mFieldId = 0;
@@ -46,26 +45,7 @@ public class FileSystemAdapter extends ArrayAdapter<File> {
 		mRootFile = path;
 	}
 	
-	/**
-	 *  creates a writable list of the contents of the directory
-	 */
-	public static ArrayList<File> listFiles(File dir, FileFilter filter)
-	{
-		//List<File> fileList = Arrays.asList(); // returns read only list, causes unsupported operation exceptions in adapter
-		ArrayList<File> fileList = new ArrayList<File>();
-		if(dir.exists() || dir.mkdirs())
-		{
-			Collections.addAll(fileList, dir.listFiles(filter));
-			Collections.sort(fileList,new Comparator<File>()
-			{
-				@Override
-				public int compare(File lhs, File rhs) {
-					return Collator.getInstance().compare(lhs.getName(), rhs.getName());
-				}
-			});
-		}
-		return fileList;
-	}
+
 	
 	// copied from ArrayAdapter
 	public View getView(int position, View convertView, ViewGroup parent) {

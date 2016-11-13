@@ -5,11 +5,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator
 import kotlinx.android.synthetic.main.fragment_file_list.view.*
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
@@ -24,7 +24,7 @@ class NoteListFragment : Fragment() {
 
     private var folderPath: String? = null
 
-    private lateinit var fileSystemAdapter: RecyclerFileAdapter
+    private lateinit var recyclerFileAdapter: RecyclerFileAdapter
 
     private var mCompositeSubscription: CompositeSubscription = CompositeSubscription()
 
@@ -48,7 +48,8 @@ class NoteListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        val rv = view.recycler_view as RecyclerView
+        val rv = view.recycler_view
+        rv.itemAnimator = SlideInLeftAnimator();
 
         if (arguments.containsKey(MainActivity.ARG_TWO_PANE)) {
             mTwoPane = arguments.getBoolean(MainActivity.ARG_TWO_PANE)
@@ -58,9 +59,9 @@ class NoteListFragment : Fragment() {
         }
         val fileFilter = FileFilter { pathname -> pathname.isFile && !pathname.isHidden }
 
-        fileSystemAdapter = RecyclerFileAdapter(File(folderPath!!), fileFilter)
+        recyclerFileAdapter = RecyclerFileAdapter(File(folderPath!!), fileFilter)
 
-        rv.adapter = fileSystemAdapter
+        rv.adapter = recyclerFileAdapter
         rv.layoutManager = LinearLayoutManager(activity)
 
 
@@ -68,7 +69,9 @@ class NoteListFragment : Fragment() {
         val app = (activity.application as MainApplication)
         mCompositeSubscription += rv.itemClicks()
                 .doOnNext { Log.d("","item pos clicked: " + it) }
-                .subscribe { app.uiCommunicator.fileSelected.onNext(fileSystemAdapter.getItem(it)) }
+                .subscribe { app.uiCommunicator.fileSelected.onNext(recyclerFileAdapter.getItem(it)) }
+
+        app.uiCommunicator.fileCreated.subscribe { recyclerFileAdapter.addFile(it) }
     }
 
     companion object {
@@ -76,6 +79,7 @@ class NoteListFragment : Fragment() {
         @JvmStatic
         val ARG_FOLDER_PATH = "folder_path"
 
+        @JvmStatic
         fun startNoteEditor(activity: Context, file: File) {
             val detailIntent = Intent(activity, NoteEditorActivity::class.java)
             detailIntent.putExtra(NoteEditorActivity.ARG_FILE_PATH, file.path)

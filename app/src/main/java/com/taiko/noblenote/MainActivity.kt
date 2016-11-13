@@ -16,7 +16,10 @@ import com.github.developerpaul123.filepickerlibrary.FilePickerActivity
 import com.github.developerpaul123.filepickerlibrary.enums.Request
 import com.github.developerpaul123.filepickerlibrary.enums.ThemeType
 import com.jakewharton.rxbinding.support.v7.widget.queryTextChanges
+import com.jakewharton.rxbinding.view.clicks
 import com.tbruyelle.rxpermissions.RxPermissions
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main_twopane.*
 import kotlinx.android.synthetic.main.toolbar.*
 import rx.Observable
 import rx.lang.kotlin.plusAssign
@@ -43,7 +46,7 @@ class MainActivity : Activity()
             arguments.putBoolean(MainActivity.ARG_TWO_PANE, mTwoPane)
             val fragment = NoteListFragment()
             fragment.arguments = arguments
-
+            Pref.selectedFolderPath = path;
 
         if (mTwoPane) {
             fragmentManager.beginTransaction().replace(R.id.item_detail_container, fragment).commit()
@@ -70,9 +73,7 @@ class MainActivity : Activity()
         window.exitTransition = fade
         window.enterTransition = fade
 
-        if (findViewById(R.id.item_detail_container) != null) {
-            mTwoPane = true
-        }
+        mTwoPane = findViewById(R.id.item_detail_container) != null
 
 //        setSupportActionBar(toolbar) // required to make styling working, activity options menu callbacks now have to be used
 
@@ -92,6 +93,31 @@ class MainActivity : Activity()
 
         val app = application as MainApplication
         compositeSubscription += app.uiCommunicator.folderSelected.subscribe { onItemSelected(it.absolutePath) }
+        compositeSubscription += app.uiCommunicator.fileSelected.mergeWith(app.uiCommunicator.fileCreated).subscribe { NoteListFragment.startNoteEditor(this,it) }
+
+        if(mTwoPane)
+        {
+            compositeSubscription += fab_menu_note.clicks().subscribe {
+                Dialogs.showNewNoteDialog(this) {app.uiCommunicator.fileCreated.onNext(it)}
+            }
+
+            compositeSubscription += fab_menu_folder.clicks().subscribe {
+                Dialogs.showNewFolderDialog(this,{app.uiCommunicator.folderCreated.onNext(it)})
+            }
+        }
+        else
+        {
+            compositeSubscription += fab.clicks().subscribe {
+                if(fragmentManager.backStackEntryCount > 0)
+                {
+                    Dialogs.showNewNoteDialog(this, {app.uiCommunicator.fileCreated.onNext(it)})
+                }
+                else
+                {
+                    Dialogs.showNewFolderDialog(this, {app.uiCommunicator.folderCreated.onNext(it)})
+                }
+            }
+        }
     }
 
     private var actionSearch: MenuItem? = null

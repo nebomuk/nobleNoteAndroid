@@ -45,7 +45,7 @@ class ClickDetectorItemTouchListener(val recyclerView: RecyclerView, val listene
             val position = recyclerView.getChildAdapterPosition(view)
             val id = recyclerView.getChildItemId(view)
 
-            if (id >= 0) {
+            if (position >= 0) {
                 listener.onNext(position)
             }
             //listener.onNext(recyclerView, view, position, id)

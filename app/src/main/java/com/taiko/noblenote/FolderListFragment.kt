@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ListView
+import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator
 import kotlinx.android.synthetic.main.fragment_file_list.view.*
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
@@ -23,7 +24,7 @@ class FolderListFragment : Fragment() {
     private val mCompositeSubscription = CompositeSubscription()
 
 
-    private lateinit var fileSystemAdapter: RecyclerFileAdapter
+    private lateinit var recyclerFileAdapter: RecyclerFileAdapter
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -36,6 +37,7 @@ class FolderListFragment : Fragment() {
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
 
         val rv = view?.recycler_view as RecyclerView
+        rv.itemAnimator = SlideInLeftAnimator();
 
         val dir = File(Pref.rootPath)
         if (!dir.exists())
@@ -44,16 +46,19 @@ class FolderListFragment : Fragment() {
         // the following code lists only visible folders and push their names into an ArrayAdapter
         val folderFilter = FileFilter { pathname -> pathname.isDirectory && !pathname.isHidden }
 
-        fileSystemAdapter = RecyclerFileAdapter(File(Pref.rootPath), folderFilter)
-        rv.adapter = fileSystemAdapter
+        recyclerFileAdapter = RecyclerFileAdapter(File(Pref.rootPath), folderFilter)
+        rv.adapter = recyclerFileAdapter
         rv.layoutManager = LinearLayoutManager(activity)
+
 
 
 
         val app = (activity.application as MainApplication)
         mCompositeSubscription += rv.itemClicks()
                 .doOnNext { Log.d("","item pos clicked: " + it) }
-                .subscribe { app.uiCommunicator.folderSelected.onNext(fileSystemAdapter.getItem(it)) }
+                .subscribe { app.uiCommunicator.folderSelected.onNext(recyclerFileAdapter.getItem(it)) }
+
+        app.uiCommunicator.folderCreated.subscribe { recyclerFileAdapter.addFile(it) }
 
     }
 
