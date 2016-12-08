@@ -7,10 +7,33 @@
     android:id="@+id/layout_root"
     android:orientation="vertical"
 >
+    <!-- shadow, elevation and outlineProvider based on
+    https://stackoverflow.com/questions/27477371/android-elevation-not-showing-a-shadow/27518160#27518160 -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="@dimen/elevation_toolbar"
+        android:clipToPadding="false"
+        android:outlineProvider="bounds"
+        >
+        <include
+            layout="@layout/toolbar_editor"
+            />
+        <!-- elevation must be the same as the toolbar , requires MaterialProgressDrawable to work properly-->
+        <ProgressBar
+        android:id="@+id/progress_bar_file_loading"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:indeterminate="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:visibility="visible"
+        android:elevation="4dp"
+        android:maxHeight="3dp"
+        android:minHeight="3dp" />
+    </FrameLayout>
 
-<include layout="@layout/toolbar"/>
-
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/editor_scroll_view"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -48,7 +71,7 @@
             android:layout_weight="1"
             android:background="@color/gray"
             android:gravity="top"
-            android:hint="@+string/emptyNoteHint"
+            android:hint="@string/emptyNoteHint"
             android:imeOptions="flagNoExtractUi"
             android:inputType="textMultiLine"
             android:scrollHorizontally="false"

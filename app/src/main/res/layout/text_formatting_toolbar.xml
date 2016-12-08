@@ -13,23 +13,43 @@
         <ToggleButton
             android:id="@+id/btnToggleBold"
             android:layout_width="50dip"
+            android:drawableTop="@drawable/ic_format_bold_black_24dp"
+            android:gravity="center"
+            android:textOff=""
+            android:textOn=""
+            android:textSize="0sp"
             android:layout_height="wrap_content" />
 
          <ToggleButton
             android:layout_width="50dip"
             android:layout_height="wrap_content"
+            android:drawableTop="@drawable/ic_format_italic_black_24dp"
+            android:gravity="center"
+            android:textOff=""
+            android:textOn=""
+            android:textSize="0sp"
             android:id="@+id/btnToggleItalic"
             />
         
         <ToggleButton
             android:layout_width="50dip"
             android:layout_height="wrap_content"
+            android:drawableTop="@drawable/ic_format_underlined_black_24dp"
+            android:gravity="center"
+            android:textOff=""
+            android:textOn=""
+            android:textSize="0sp"
             android:id="@+id/btnToggleUnderline"
             />
         <ToggleButton
             android:layout_width="50dip"
             android:layout_height="wrap_content"
             android:id="@+id/btnToggleStrikethrough"
+            android:drawableTop="@drawable/ic_strikethrough_s_black_24dp"
+            android:gravity="center"
+            android:textOff=""
+            android:textOn=""
+            android:textSize="0sp"
             android:enabled="false"
             />
 

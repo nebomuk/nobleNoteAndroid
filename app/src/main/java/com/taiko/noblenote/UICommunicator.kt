@@ -5,7 +5,7 @@ import rx.subjects.PublishSubject
 import java.io.File
 
 /**
- * Created by fabdeuch on 04.10.2016.
+ * Created by Taiko on 04.10.2016.
  *
  * event bus to communicate between different ui components
  */

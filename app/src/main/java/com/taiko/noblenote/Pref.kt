@@ -4,7 +4,7 @@ import android.os.Environment
 import com.chibatching.kotpref.KotprefModel
 
 /**
- * Created by fabdeuch on 06.04.2016.
+ * Created by Taiko on 06.04.2016.
  */
 object Pref : KotprefModel()
 {

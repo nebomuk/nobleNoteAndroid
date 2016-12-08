@@ -9,10 +9,12 @@ import java.io.File
 import java.io.IOException
 
 /**
- * Created by fabdeuch on 23.09.2016.
+ * @author Taiko
  */
 
 object Dialogs {
+
+    @JvmStatic
     fun showNewNoteDialog(activity: Context, fileCreated : (f : File) -> Unit) {
         val dialogBuilder = AlertDialog.Builder(activity)
 
@@ -55,6 +57,7 @@ object Dialogs {
         dialogBuilder.show()
     }
 
+    @JvmStatic
     fun showNewFolderDialog(activity: Context, folderCreated : (f : File) -> Unit) {
         val dialogBuilder = AlertDialog.Builder(activity)
 

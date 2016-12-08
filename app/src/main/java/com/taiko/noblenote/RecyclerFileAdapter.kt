@@ -12,7 +12,7 @@ import java.text.Collator
 import java.util.*
 
 /**
- * Created by fabdeuch on 26.09.2016.
+ * Created by Taiko on 26.09.2016.
  */
 
 class RecyclerFileAdapter(path: File, filter: FileFilter) : RecyclerView.Adapter<ViewHolder>() {

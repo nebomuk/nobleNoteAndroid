@@ -19,7 +19,7 @@ android {
     buildToolsVersion "24.0.3"
 
     defaultConfig {
-        applicationId "com.taiko.natural"
+        applicationId "com.taiko.noblenote"
         minSdkVersion 21
         targetSdkVersion 24
         versionCode 2
@@ -42,6 +42,9 @@ android {
 repositories {
     mavenCentral()
     maven { url "https://jitpack.io" }
+    maven {
+        url 'https://github.com/yanzm/ActionBarProgress/raw/master/maven-repo'
+    }
 }
 
 
@@ -49,7 +52,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.android.support:recyclerview-v7:24.2.1'
     compile 'org.ccil.cowan.tagsoup:tagsoup:1.2.1'
-    compile 'io.reactivex:rxjava:1.2.0'
+    compile 'io.reactivex:rxjava:1.2.2'
     compile 'io.reactivex:rxandroid:1.2.1'
     compile 'io.reactivex:rxkotlin:0.60.0'
     compile 'com.jakewharton.rxbinding:rxbinding:0.4.0'
@@ -62,6 +65,8 @@ dependencies {
     compile 'com.chibatching:kotpref:1.4.0'
     compile 'com.github.clans:fab:1.6.4'
     compile 'jp.wasabeef:recyclerview-animators:2.2.4'
+    compile 'net.yanzm:actionbarprogress:1.0.0'
+
 
 
 }

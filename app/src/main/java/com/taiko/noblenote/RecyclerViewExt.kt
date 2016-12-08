@@ -9,7 +9,7 @@ import rx.Observer
 import rx.lang.kotlin.add
 
 /**
- * Created by fabdeuch on 05.10.2016.
+ * Created by Taiko on 05.10.2016.
  */
 fun RecyclerView.itemClicks() : Observable<Int>
 {

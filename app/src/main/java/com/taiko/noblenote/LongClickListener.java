@@ -253,8 +253,8 @@ public class LongClickListener implements ListView.OnItemLongClickListener
         			return false;
         		
     		    Intent intent = new Intent(fragment.getActivity(),NoteEditorActivity.class);
-    		    intent.putExtra(NoteEditorActivity.ARG_FILE_PATH, ((File)noteItem).getPath()); 
-    		    intent.putExtra(NoteEditorActivity.ARG_OPEN_MODE, NoteEditorActivity.HTML);
+    		    intent.putExtra(NoteEditorActivity.Companion.getARG_FILE_PATH(), ((File)noteItem).getPath());
+    		    intent.putExtra(NoteEditorActivity.Companion.getARG_OPEN_MODE(), NoteEditorActivity.Companion.getHTML());
     		    fragment.startActivity(intent);
     		    mode.finish(); // Action picked, so close the CAB
     		    return true;

@@ -10,7 +10,7 @@ import rx.lang.kotlin.toSingletonObservable
 import java.io.File
 
 /**
- * Created by fabdeuch on 04.09.2016.
+ * Created by Taiko on 04.09.2016.
  */
 class SuggestionAdapter constructor(context: Context, queryTextObservable: Observable<CharSequence>) : ArrayAdapter<File>(context,android.R.layout.simple_dropdown_item_1line)
 {

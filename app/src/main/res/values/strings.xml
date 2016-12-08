@@ -3,7 +3,7 @@
 
     <string name="app_name">testapp</string>
     <string name="edit_message">Edit</string>
-    <string name="emptyNoteHint">Note</string>
+    <string name="emptyNoteHint">Click to enter text</string>
     <string name="notes">Notes</string>
     <string name="notebooks">Notebooks</string>
     <string name="bold">&lt;b&gt;B&lt;/b&gt;</string>
@@ -37,11 +37,16 @@
     <string name="noteReloaded">note reloaded</string>
     <string name="action_settings">Settings</string>
     <string name="action_rootPath">Select folder</string>
+    <string name="action_find_in_text">Find in text</string>
+    <string name="action_done">Done</string>
+    <string name="action_copy_to_clipboard">Copy to clipboard</string>
+    <string name="msg_copied_to_clipboard">Note copied to clipboard</string>
 
     <string name="keepEditing">Keep Editing</string>
     <string name="discard">Discard</string>
     <string name="dialogDiscardKeepEditing">Discard your changes and quit editing?</string>
-
+    <string name="file_loading_error">Error: Could not load file</string>
+    <string name="find_in_text">find in text</string>
 
 
 </resources>

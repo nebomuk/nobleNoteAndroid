@@ -13,7 +13,7 @@ import android.text.Spanned;
  */
 public class FileNameFilter implements InputFilter {
 	
-	boolean isAllowedChar(char c)
+	private boolean isAllowedChar(char c)
 	{
 		//Matcher m = p.matcher(CharBuffer.wrap(new char[]{c}));
 		//return !m.matches();
