@@ -36,7 +36,7 @@ object Dialogs {
         dialogBuilder.setView(input)
         dialogBuilder.setPositiveButton(
                 android.R.string.ok) { dialog, whichButton ->
-            val newName = input.text
+            val newName = input.text.trim()
             val newFile = File(Pref.selectedFolderPath, newName.toString())
             try {
                 if (newFile.createNewFile()) {
@@ -80,7 +80,7 @@ object Dialogs {
 
         dialogBuilder.setPositiveButton(
                 android.R.string.ok) { dialog, whichButton ->
-            val newName = input.text
+            val newName = input.text.trim()
             val dir = File(Pref.rootPath, newName.toString())
             if (!dir.mkdirs()) {
                 Toast.makeText(activity, R.string.notebookNotCreated, Toast.LENGTH_SHORT).show()

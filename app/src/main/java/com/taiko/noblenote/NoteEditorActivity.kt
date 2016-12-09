@@ -3,10 +3,14 @@ package com.taiko.noblenote
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.support.annotation.ColorInt
 import android.support.design.widget.Snackbar
+import android.support.v4.content.ContextCompat
+import android.support.v4.graphics.drawable.DrawableCompat
 import android.text.InputType
 import android.util.Log
 import android.view.*
@@ -21,8 +25,11 @@ import kotlinx.android.synthetic.main.toolbar_find_in_text.view.*
 import net.yanzm.actionbarprogress.MaterialIndeterminateProgressDrawable
 import net.yanzm.actionbarprogress.MaterialProgressDrawable
 import rx.android.schedulers.AndroidSchedulers
+import rx.lang.kotlin.plusAssign
 import rx.schedulers.Schedulers
+import rx.subscriptions.CompositeSubscription
 import java.io.File
+
 
 
 
@@ -37,6 +44,9 @@ class NoteEditorActivity : Activity() {
     private var openMode: String? = null
     private var lastModified: Long = 0
     private var mFormattingMenuItem: MenuItem? = null
+    private val mCompositeSubscription : CompositeSubscription = CompositeSubscription();
+
+    private lateinit var mUndoRedo: TextViewUndoRedo
 
     override fun onCreate(savedInstanceState: Bundle?) {
         //requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
@@ -46,6 +56,8 @@ class NoteEditorActivity : Activity() {
 
         window.requestFeature(Window.FEATURE_ACTION_MODE_OVERLAY)
         setContentView(R.layout.activity_editor)
+
+        mUndoRedo = TextViewUndoRedo(editor_edit_text)
 
         editor_scroll_view.visibility = View.INVISIBLE
 
@@ -104,7 +116,7 @@ class NoteEditorActivity : Activity() {
      */
     private fun reload() {
         // load file contents and parse html thread
-        FileHelper.readFile(filePath,this,true)
+        mCompositeSubscription += FileHelper.readFile(filePath,this,true)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe( {
@@ -170,7 +182,7 @@ class NoteEditorActivity : Activity() {
         }
         else if(toolbar_find_in_text.visibility == View.VISIBLE)
         {
-            toolbar_find_in_text.visibility = View.INVISIBLE
+            hideFindInTextToolbar()
         }
         else {
             showExitDialog(Runnable { super@NoteEditorActivity.onBackPressed() })
@@ -194,6 +206,44 @@ class NoteEditorActivity : Activity() {
         MenuHelper.addCopyToClipboard(this,menu,{editor_edit_text.text})
 
         val textFormattingToolbar = LayoutInflater.from(this).inflate(R.layout.text_formatting_toolbar, null)
+
+        val undoItem = menu.add(R.string.action_undo)
+                .setIcon(R.drawable.ic_undo_black_24dp)
+                .setAlphabeticShortcut('Z')
+                .setOnMenuItemClickListener {
+            mUndoRedo.undo();
+            true;
+        }
+
+        // TODO callback should be invoked when no text has changed
+        mCompositeSubscription += mUndoRedo.canUndoChanged().subscribe {
+
+            val draw = getDrawable(R.drawable.ic_undo_black_24dp)
+            draw.setTintCompat(getColorForState(it))
+            undoItem.isEnabled = it;
+            undoItem.icon = draw
+         }
+        undoItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+
+        val redoItem = menu.add(R.string.action_redo)
+                .setIcon(R.drawable.ic_redo_black_24dp)
+                .setAlphabeticShortcut('Y')
+                .setOnMenuItemClickListener {
+                    mUndoRedo.redo();
+                    true;
+                }
+        mCompositeSubscription += mUndoRedo.canRedoChanged().subscribe {
+
+            val draw = getDrawable(R.drawable.ic_redo_black_24dp)
+            draw.setTintCompat(getColorForState(it))
+            redoItem.isEnabled = it;
+            redoItem.icon = draw
+        }
+        redoItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+
+
         mFormattingMenuItem = menu.add("FormattingToolbar").setIcon(R.drawable.ic_action_btn_show_text_formatting_toolbar)
                 .setActionView(textFormattingToolbar)
         mFormattingMenuItem!!.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS or MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
@@ -225,12 +275,22 @@ class NoteEditorActivity : Activity() {
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
             true
         }
-        toolbar_find_in_text.toolbar_find_in_text_close.clicks()
-                .map { View.INVISIBLE }
-                .subscribe { toolbar_find_in_text.visibility  = it}
+        mCompositeSubscription += toolbar_find_in_text.toolbar_find_in_text_close.clicks()
+                .subscribe {
+                    hideFindInTextToolbar()
+                }
+
 
         val finder = Finder(editor_edit_text);
-        toolbar_find_in_text.toolbar_find_in_text_edit_text.textChanges().subscribe { finder.searchString = it.toString() }
+        toolbar_find_in_text.toolbar_find_in_text_edit_text.textChanges().subscribe {
+            finder.searchString = it.toString()
+            val hasMatches = editor_edit_text.text!!.countMatches(finder.searchString) > 0;
+            toolbar_find_in_text.arrow_down.isEnabled = hasMatches;
+            toolbar_find_in_text.arrow_up.isEnabled = hasMatches;
+
+            toolbar_find_in_text.arrow_down.drawable.setTintCompat(getColorForState(hasMatches));
+            toolbar_find_in_text.arrow_up.drawable.setTintCompat(getColorForState(hasMatches));
+        }
 
         toolbar_find_in_text.arrow_down.clicks().subscribe { finder.selectNext()  }
         toolbar_find_in_text.arrow_up.clicks().subscribe { finder.selectPrevious() }
@@ -265,6 +325,30 @@ class NoteEditorActivity : Activity() {
         return super.onCreateOptionsMenu(menu)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        mCompositeSubscription.clear();
+    }
+
+    fun hideFindInTextToolbar()
+    {
+        toolbar_find_in_text.visibility = View.INVISIBLE
+        if(editor_edit_text.hasSelection())
+        {
+            editor_edit_text.setSelection(editor_edit_text.selectionStart,editor_edit_text.selectionStart) // show cursor instead of selection
+        }
+    }
+
+    fun Drawable.setTintCompat(@ColorInt color : Int)
+    {
+        DrawableCompat.setTint(this,ContextCompat.getColor(this@NoteEditorActivity,color));
+    }
+
+    fun getColorForState(enabled : Boolean) : /*color int*/ Int
+    {
+        return if(enabled) R.color.md_grey_800 else R.color.md_grey_400
+    }
+
     companion object {
         val ARG_FILE_PATH = "file_path"
         val ARG_OPEN_MODE = "open_mode"
@@ -272,4 +356,5 @@ class NoteEditorActivity : Activity() {
         val READ_WRITE = "read_write"
         val READ_ONLY = "read_only"
     }
-} 
+}
+

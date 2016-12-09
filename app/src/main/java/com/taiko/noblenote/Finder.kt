@@ -12,7 +12,6 @@ class Finder constructor(editText : EditText)
     private val mEditText = editText
 
     public var searchString : String = ""
-    var hasSelection = false;
 
 
     fun selectPrevious() : Boolean
@@ -47,23 +46,5 @@ class Finder constructor(editText : EditText)
         }
     }
 
-    fun countOccurrences(source : String, substring : String): Int {
-        var n = 0;
-        var count = 0;
-        if(substring != "")
-        {
-            while (true)
-            {
-                n = source.indexOf(substring, n, true);
-                if(n == -1)
-                {
-                    break;
-                }
 
-                n += substring.length;
-                ++count;
-            }
-        }
-        return count;
-    }
 }

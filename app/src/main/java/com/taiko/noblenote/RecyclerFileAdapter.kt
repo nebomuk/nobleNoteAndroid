@@ -28,7 +28,6 @@ class RecyclerFileAdapter(path: File, filter: FileFilter) : RecyclerView.Adapter
         val h = Handler()
         h.postDelayed({ mFiles.addAll(listFiles(path, filter)) },0)
 
-        // TODO use binary search to insert so that list stays sorted
         //rx.Observable.interval(3,TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe { mFiles.add(File(Pref.rootPath,"test " + it)) }
     }
 

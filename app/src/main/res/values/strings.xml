@@ -39,6 +39,8 @@
     <string name="action_rootPath">Select folder</string>
     <string name="action_find_in_text">Find in text</string>
     <string name="action_done">Done</string>
+    <string name="action_redo">Redo</string>
+    <string name="action_undo">Undo</string>
     <string name="action_copy_to_clipboard">Copy to clipboard</string>
     <string name="msg_copied_to_clipboard">Note copied to clipboard</string>
 
