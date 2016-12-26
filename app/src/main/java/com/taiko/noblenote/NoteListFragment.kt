@@ -9,7 +9,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator
 import kotlinx.android.synthetic.main.fragment_file_list.view.*
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
@@ -49,7 +48,7 @@ class NoteListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         val rv = view.recycler_view
-        rv.itemAnimator = SlideInLeftAnimator();
+        //rv.itemAnimator = SlideInLeftAnimator();
 
         if (arguments.containsKey(MainActivity.ARG_TWO_PANE)) {
             mTwoPane = arguments.getBoolean(MainActivity.ARG_TWO_PANE)
@@ -67,7 +66,7 @@ class NoteListFragment : Fragment() {
 
 
         val app = (activity.application as MainApplication)
-        mCompositeSubscription += rv.itemClicks()
+        mCompositeSubscription += recyclerFileAdapter.itemClicks()
                 .doOnNext { Log.d("","item pos clicked: " + it) }
                 .subscribe { app.uiCommunicator.fileSelected.onNext(recyclerFileAdapter.getItem(it)) }
 

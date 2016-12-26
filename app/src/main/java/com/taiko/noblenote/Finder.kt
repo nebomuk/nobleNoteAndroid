@@ -1,6 +1,11 @@
 package com.taiko.noblenote
 
+import android.view.KeyEvent
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import android.widget.TextView
+
+
 
 /**
  *  @author Taiko
@@ -12,6 +17,19 @@ class Finder constructor(editText : EditText)
     private val mEditText = editText
 
     public var searchString : String = ""
+
+
+    init {
+        editText.setOnEditorActionListener(object : TextView.OnEditorActionListener {
+            override  fun onEditorAction(v: TextView, actionId: Int, event: KeyEvent): Boolean {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH || event.keyCode == KeyEvent.KEYCODE_ENTER) {
+                    selectNext()
+                    return true
+                }
+                return false
+            }
+        })
+    }
 
 
     fun selectPrevious() : Boolean

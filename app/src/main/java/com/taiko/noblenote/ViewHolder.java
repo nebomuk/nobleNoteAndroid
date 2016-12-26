@@ -2,7 +2,8 @@ package com.taiko.noblenote;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.TextView;
+
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * Created by Taiko on 26.09.2016.
@@ -10,7 +11,7 @@ import android.widget.TextView;
 
 public class ViewHolder extends RecyclerView.ViewHolder
 {
-    public TextView text1;
+    public CompositeSubscription mCompositeSubscription = new CompositeSubscription();
 
     public ViewHolder(View itemView)
     {

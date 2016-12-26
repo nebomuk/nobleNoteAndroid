@@ -57,7 +57,7 @@
             android:src="@drawable/ic_folder_24dp"
             fab:fab_size="mini"
             fab:fab_label="@string/newNotebook"
-            fab:fab_colorNormal="@color/primary"
+            fab:fab_colorNormal="@color/colorPrimary"
             fab:fab_colorPressed="@color/primary_pressed"
             fab:fab_colorRipple="@color/ripple"/>
         <com.github.clans.fab.FloatingActionButton
@@ -70,7 +70,7 @@
             android:src="@drawable/ic_insert_drive_file_24dp"
             fab:fab_size="mini"
             fab:fab_label="@string/newNote"
-            fab:fab_colorNormal="@color/primary"
+            fab:fab_colorNormal="@color/colorPrimary"
             fab:fab_colorPressed="@color/primary_pressed"
             fab:fab_colorRipple="@color/ripple"/>
     </com.github.clans.fab.FloatingActionMenu>

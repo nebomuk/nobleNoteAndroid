@@ -96,9 +96,9 @@ public class LongClickListener implements ListView.OnItemLongClickListener
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
         	
-        	renameMenuItem = menu.findItem(R.id.renameNote);
+        	renameMenuItem = menu.findItem(R.id.actionRename);
         	
-        	showSourceMenuItem = menu.findItem(R.id.showHtml);
+        	showSourceMenuItem = menu.findItem(R.id.actionShowHtml);
         	
             MenuInflater inflater = mode.getMenuInflater();
             inflater.inflate(R.menu.note_list_cab, menu);
@@ -119,11 +119,11 @@ public class LongClickListener implements ListView.OnItemLongClickListener
         	int id = item.getItemId();
         	switch(id)
         	{
-        	case R.id.renameNote: // TODO try out  AlertDialog.Builder
+        	case R.id.actionRename: // TODO try out  AlertDialog.Builder
         	{
         		// TODO keep old rename dialog as fallback for android  2.3?
         		
-        		// get first selected item, this is a File
+        		// get first isSelected item, this is a File
         		Object noteItem = fragment.getListAdapter().getItem(selectionModel.getSelectionMap().keySet().iterator().next()); // get first key
         		
         		if(noteItem == null)
@@ -244,7 +244,7 @@ public class LongClickListener implements ListView.OnItemLongClickListener
         		return true;
         		
         	}
-        	case R.id.showHtml:
+        	case R.id.actionShowHtml:
         	{
         		
         		Object noteItem = fragment.getListAdapter().getItem(selectionModel.getSelectionMap().keySet().iterator().next());
@@ -280,7 +280,7 @@ public class LongClickListener implements ListView.OnItemLongClickListener
             mActionMode = null;
             selectionModel.clearSelection();
         }
-    };
+    }
     
     public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
@@ -290,7 +290,7 @@ public class LongClickListener implements ListView.OnItemLongClickListener
     		{
 	    		String newName = data.getStringExtra(RenameDialogActivity.ARG_FILE_NAME);
 	    		
-	    		// get first selected item, this is a File
+	    		// get first isSelected item, this is a File
 	    		Object noteItem = fragment.getListAdapter().getItem(selectionModel.getSelectionMap().keySet().iterator().next());
 	    		
     		}
@@ -329,13 +329,13 @@ public class LongClickListener implements ListView.OnItemLongClickListener
     			selectionMap.remove(position);
     		}	
     		
-    		if(renameMenuItem != null) // only if exactly one item is selected, the rename menu item should be available
+    		if(renameMenuItem != null) // only if exactly one item is isSelected, the rename menu item should be available
     		{
     			renameMenuItem.setVisible(selectionMap.size() == 1);
     			renameMenuItem.setEnabled(selectionMap.size() == 1); // disables shortcuts
     		}
     		
-    		if(showSourceMenuItem != null) // only if exactly one item is selected, the rename menu item should be available
+    		if(showSourceMenuItem != null) // only if exactly one item is isSelected, the rename menu item should be available
     		{
     			showSourceMenuItem.setVisible(selectionMap.size() == 1);
     			showSourceMenuItem.setEnabled(selectionMap.size() == 1); // disables shortcuts

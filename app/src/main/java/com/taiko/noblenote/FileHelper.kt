@@ -13,7 +13,7 @@ object FileHelper {
     @JvmStatic
     fun readFile(filePath : String, ctx : Context, isHtml : Boolean ) : Observable<CharSequence>
     {
-        return Observable.create(Observable.OnSubscribe<CharSequence> { subscriber ->
+        return Observable.create({ subscriber ->
             val htmlText = StringBuilder()
             try {
                 BufferedReader(FileReader(filePath)).use { br ->

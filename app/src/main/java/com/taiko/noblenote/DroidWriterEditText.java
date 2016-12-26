@@ -64,18 +64,18 @@ public class DroidWriterEditText extends CABEditText {
 			}
 		};
 
-		// Add TextWatcher that reacts to text changes and applies the selected
+		// Add TextWatcher that reacts to text changes and applies the isSelected
 		// styles
 		this.addTextChangedListener(new DWTextWatcher());
 	}
 
 	/**
 	 * When the user selects a section of the text, this method is used to
-	 * toggle the defined style on it. If the selected text already has the
+	 * toggle the defined style on it. If the isSelected text already has the
 	 * style applied, we remove it, otherwise we apply it.
 	 * 
 	 * @param style
-	 *            The styles that should be toggled on the selected text.
+	 *            The styles that should be toggled on the isSelected text.
 	 */
 	private void toggleStyle(int style) {
 		// Gets the current cursor position, or the starting position of the
@@ -95,7 +95,7 @@ public class DroidWriterEditText extends CABEditText {
 		}
 
 		// The selectionEnd is only greater then the selectionStart position
-		// when the user selected a section of the text. Otherwise, the 2
+		// when the user isSelected a section of the text. Otherwise, the 2
 		// variables
 		// should be equal (the cursor position).
 		if (selectionEnd > selectionStart) {
@@ -107,7 +107,7 @@ public class DroidWriterEditText extends CABEditText {
 			case STYLE_BOLD:
 				styleSpans = str.getSpans(selectionStart, selectionEnd, StyleSpan.class);
 
-				// If the selected text-part already has BOLD style on it, then
+				// If the isSelected text-part already has BOLD style on it, then
 				// we need to disable it
 				for (int i = 0; i < styleSpans.length; i++) {
 					if (styleSpans[i].getStyle() == android.graphics.Typeface.BOLD) {
@@ -127,7 +127,7 @@ public class DroidWriterEditText extends CABEditText {
 			case STYLE_ITALIC:
 				styleSpans = str.getSpans(selectionStart, selectionEnd, StyleSpan.class);
 
-				// If the selected text-part already has ITALIC style on it,
+				// If the isSelected text-part already has ITALIC style on it,
 				// then we need to disable it
 				for (int i = 0; i < styleSpans.length; i++) {
 					if (styleSpans[i].getStyle() == android.graphics.Typeface.ITALIC) {
@@ -147,7 +147,7 @@ public class DroidWriterEditText extends CABEditText {
 			case STYLE_UNDERLINED:
 				UnderlineSpan[] underSpan = str.getSpans(selectionStart, selectionEnd, UnderlineSpan.class);
 
-				// If the selected text-part already has UNDERLINE style on it,
+				// If the isSelected text-part already has UNDERLINE style on it,
 				// then we need to disable it
 				for (int i = 0; i < underSpan.length; i++) {
 					str.removeSpan(underSpan[i]);
@@ -196,7 +196,7 @@ public class DroidWriterEditText extends CABEditText {
 			}
 		}
 
-		// Else if the user selected multiple characters
+		// Else if the user isSelected multiple characters
 		else {
 			CharacterStyle[] styleSpans = this.getText().getSpans(selStart, selEnd, CharacterStyle.class);
 

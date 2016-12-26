@@ -11,11 +11,12 @@ import android.support.annotation.ColorInt
 import android.support.design.widget.Snackbar
 import android.support.v4.content.ContextCompat
 import android.support.v4.graphics.drawable.DrawableCompat
+import android.support.v4.view.MenuItemCompat
+import android.support.v7.widget.Toolbar
 import android.text.InputType
 import android.util.Log
 import android.view.*
 import android.widget.Toast
-import android.widget.Toolbar
 import com.jakewharton.rxbinding.view.clicks
 import com.jakewharton.rxbinding.widget.textChanges
 import kotlinx.android.synthetic.main.activity_editor.*
@@ -218,7 +219,7 @@ class NoteEditorActivity : Activity() {
         // TODO callback should be invoked when no text has changed
         mCompositeSubscription += mUndoRedo.canUndoChanged().subscribe {
 
-            val draw = getDrawable(R.drawable.ic_undo_black_24dp)
+            val draw = resources.getDrawable(R.drawable.ic_undo_black_24dp)
             draw.setTintCompat(getColorForState(it))
             undoItem.isEnabled = it;
             undoItem.icon = draw
@@ -235,7 +236,7 @@ class NoteEditorActivity : Activity() {
                 }
         mCompositeSubscription += mUndoRedo.canRedoChanged().subscribe {
 
-            val draw = getDrawable(R.drawable.ic_redo_black_24dp)
+            val draw = resources.getDrawable(R.drawable.ic_redo_black_24dp)
             draw.setTintCompat(getColorForState(it))
             redoItem.isEnabled = it;
             redoItem.icon = draw
@@ -251,7 +252,7 @@ class NoteEditorActivity : Activity() {
 
         // disable auto complete if the text formatting toolbar is shown, because auto-complete's underlining interferes
         // with the text formatting's underline
-        mFormattingMenuItem!!.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+        MenuItemCompat.setOnActionExpandListener(mFormattingMenuItem,  (object : MenuItemCompat.OnActionExpandListener {
             override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                 editor_edit_text.isTextWatcherEnabled = true
                 editor_edit_text.inputType = editor_edit_text.inputType or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
@@ -263,7 +264,7 @@ class NoteEditorActivity : Activity() {
                 editor_edit_text.inputType = editor_edit_text.inputType and InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS.inv()
                 return true
             }
-        })
+        }));
 
         val itemFindInText = menu.add(R.string.action_find_in_text)
                 .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER)

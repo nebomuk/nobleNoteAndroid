@@ -2,19 +2,22 @@ package com.taiko.noblenote
 
 import android.app.Fragment
 import android.os.Bundle
+import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ListView
-import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator
 import kotlinx.android.synthetic.main.fragment_file_list.view.*
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
 import java.io.File
 import java.io.FileFilter
+
+
+
+
 
 
 class FolderListFragment : Fragment() {
@@ -37,7 +40,7 @@ class FolderListFragment : Fragment() {
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
 
         val rv = view?.recycler_view as RecyclerView
-        rv.itemAnimator = SlideInLeftAnimator();
+        rv.itemAnimator = DefaultItemAnimator();
 
         val dir = File(Pref.rootPath)
         if (!dir.exists())
@@ -52,11 +55,14 @@ class FolderListFragment : Fragment() {
 
 
 
+        val listController = ListController(activity,rv)
 
         val app = (activity.application as MainApplication)
-        mCompositeSubscription += rv.itemClicks()
-                .doOnNext { Log.d("","item pos clicked: " + it) }
+        mCompositeSubscription += listController.itemClicks()
+                .doOnNext { KLog.d("item pos clicked: " + it) }
                 .subscribe { app.uiCommunicator.folderSelected.onNext(recyclerFileAdapter.getItem(it)) }
+
+
 
         app.uiCommunicator.folderCreated.subscribe { recyclerFileAdapter.addFile(it) }
 

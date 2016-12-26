@@ -1,43 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.taiko.noblenote"
- >
+<manifest package="com.taiko.noblenote"
+          xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <!--android:icon="@drawable/ic_launcher"-->
+    <!-- android:icon="@drawable/ic_launcher" -->
     <application
-
-        android:label="@string/app_name"
-        android:theme="@style/AppTheme"
         android:name="com.taiko.noblenote.MainApplication"
-        android:resizeableActivity="true"
         android:allowBackup="true"
-        >
-
+        android:label="@string/app_name"
+        android:resizeableActivity="true"
+        android:theme="@style/AppTheme">
         <activity
-            android:label="@string/app_name" 
             android:name="com.taiko.noblenote.MainActivity"
-             
-            >
+            android:label="@string/app_name">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>   
-            
-           
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
         </activity>
-        <!--             android:theme="@style/Theme.Styled" -->
-        <activity
-            
-            android:name="com.taiko.noblenote.NoteEditorActivity">
+        <!-- android:theme="@style/Theme.Styled" -->
+        <activity android:name="com.taiko.noblenote.NoteEditorActivity">
         </activity>
-        
         <activity
             android:name="com.taiko.noblenote.RenameDialogActivity"
             android:label="@string/rename_dialog">
         </activity>
     </application>
-
 
 </manifest>

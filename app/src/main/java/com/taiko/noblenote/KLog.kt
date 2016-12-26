@@ -2,54 +2,56 @@ package com.taiko.noblenote
 
 import android.util.Log
 
-
+// simple kotlin logging
 object KLog {
+    
+    private val Tag = "";
 
     @JvmStatic fun v(message: String) {
-        Log.v(this.javaClass.name, message)
+        Log.v(Tag, message)
     }
 
     @JvmStatic fun d(message: String) {
-        Log.d(this.javaClass.name, message)
+        Log.d(Tag, message)
     }
 
     @JvmStatic fun i(message: String) {
-        Log.i(this.javaClass.name, message)
+        Log.i(Tag, message)
     }
 
     @JvmStatic fun w(message: String) {
-        Log.w(this.javaClass.name, message)
+        Log.w(Tag, message)
     }
 
     @JvmStatic fun e(message: String) {
-        Log.e(this.javaClass.name, message)
+        Log.e(Tag, message)
     }
 
     @JvmStatic fun wtf(message: String) {
-        Log.wtf(this.javaClass.name, message)
+        Log.wtf(Tag, message)
     }
     @JvmStatic fun v(message: String, exception : Throwable) {
-        Log.v(this.javaClass.name, message, exception)
+        Log.v(Tag, message, exception)
     }
 
     @JvmStatic fun d(message: String, exception : Throwable) {
-        Log.d(this.javaClass.name, message, exception)
+        Log.d(Tag, message, exception)
     }
 
     @JvmStatic fun i(message: String, exception : Throwable) {
-        Log.i(this.javaClass.name, message, exception)
+        Log.i(Tag, message, exception)
     }
 
     @JvmStatic fun w(message: String, exception : Throwable) {
-        Log.w(this.javaClass.name, message, exception)
+        Log.w(Tag, message, exception)
     }
 
 
     @JvmStatic fun e(message: String, exception : Throwable) {
-        Log.e(this.javaClass.name, message, exception)
+        Log.e(Tag, message, exception)
     }
 
     @JvmStatic fun wtf(message: String, exception : Throwable) {
-        Log.wtf(this.javaClass.name, message, exception)
+        Log.wtf(Tag, message, exception)
     }
 }

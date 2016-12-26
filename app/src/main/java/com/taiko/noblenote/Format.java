@@ -10,7 +10,7 @@ import android.widget.EditText;
  * 
  * @author Taiko
  * 
- * use these methods to format selected text in EditText 
+ * use these methods to format isSelected text in EditText
  * with StyleSpans and CharacterStyles and derived classes
  *
  */
@@ -45,7 +45,7 @@ public class Format
     			if (ss[i].getStyle() == style)
     			{
     				enable  = false;
-    				// the formatting span object may spans to a larger extend than the selected range
+    				// the formatting span object may spans to a larger extend than the isSelected range
     				// thus the ranges before the selection and after the selection must get their own spans
     				if(str.getSpanStart(ss[i]) < selectionStart)
     				{
@@ -95,7 +95,7 @@ public class Format
     		for (int i = 0; i < ss.length; i++) {
     			if (ss[i].getStyle() == style)
     			{
-    				// the formatting span object may spans to a larger extend than the selected range
+    				// the formatting span object may spans to a larger extend than the isSelected range
     				// thus the ranges before the selection and after the selection must get their own spans
     				if(str.getSpanStart(ss[i]) < selectionStart)
     				{
@@ -144,7 +144,7 @@ public class Format
     		
     		// remove styles of that type
     		for (int i = 0; i < ss.length; i++) {
-    			// the formatting span object may spans to a larger extend than the selected range
+    			// the formatting span object may spans to a larger extend than the isSelected range
 				// thus the ranges before the selection and after the selection must get their own spans
 				if(text.getSpanStart(ss[i]) < selectionStart)
 				{
@@ -206,7 +206,7 @@ public class Format
     			
     			enable = false;
     			
-    			// the formatting span object may spans to a larger extend than the selected range
+    			// the formatting span object may spans to a larger extend than the isSelected range
 				// thus the ranges before the selection and after the selection must get their own spans
 				if(text.getSpanStart(ss[i]) < selectionStart)
 				{

@@ -73,7 +73,7 @@ public class TextFormatter implements TextWatcher, CustomEditText.OnSelectionCha
     		for (int i = 0; i < ss.length; i++) {
     			if (ss[i].getStyle() == style)
     			{
-    				// the formatting span object may spans to a larger extend than the selected range
+    				// the formatting span object may spans to a larger extend than the isSelected range
     				// thus the ranges before the selection and after the selection must get their own spans
     				if(str.getSpanStart(ss[i]) < selectionStart)
     				{
@@ -124,7 +124,7 @@ public class TextFormatter implements TextWatcher, CustomEditText.OnSelectionCha
     		
     		// remove styles of that type
     		for (int i = 0; i < ss.length; i++) {
-    			// the formatting span object may spans to a larger extend than the selected range
+    			// the formatting span object may spans to a larger extend than the isSelected range
 				// thus the ranges before the selection and after the selection must get their own spans
 				if(text.getSpanStart(ss[i]) < selectionStart)
 				{

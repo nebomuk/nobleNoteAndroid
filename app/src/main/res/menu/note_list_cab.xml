@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/renameNote"
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/actionRename"
           android:icon="@drawable/ic_action_rename"
           android:title="@string/rename"
-          android:showAsAction="ifRoom"/>
+          android:showAsAction="ifRoom"
+          app:showAsAction="ifRoom"/>
     <item android:id="@+id/removeNote"
           android:icon="@drawable/ic_action_remove"
           android:title="@string/remove"
-          android:showAsAction="ifRoom" />
-    <item android:id="@+id/showHtml" 
+          android:showAsAction="ifRoom"
+          app:showAsAction="ifRoom"/>
+    <item android:id="@+id/actionShowHtml"
         android:titleCondensed="Source" 
         android:title="Show HTML Source Code"
-        android:showAsAction="ifRoom"/>
+        android:showAsAction="never"
+          app:showAsAction="never"/>
 </menu>
