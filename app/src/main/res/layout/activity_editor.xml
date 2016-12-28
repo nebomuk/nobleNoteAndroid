@@ -38,7 +38,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/gray"
-    android:fadingEdge="none" 
+    android:fadingEdge="none"
  	android:fillViewport="true">
     
     <!-- android:fillViewport expands the border-buttons -->
@@ -69,7 +69,6 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_weight="1"
-            android:background="@color/gray"
             android:gravity="top"
             android:hint="@string/emptyNoteHint"
             android:imeOptions="flagNoExtractUi"

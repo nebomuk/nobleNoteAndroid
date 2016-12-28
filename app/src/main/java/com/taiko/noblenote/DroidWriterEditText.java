@@ -1,6 +1,7 @@
 package com.taiko.noblenote;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.Selection;
@@ -14,6 +15,9 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ToggleButton;
+
+import rx.Observable;
+import rx.subjects.PublishSubject;
 
 
 public class DroidWriterEditText extends CABEditText {
@@ -40,6 +44,19 @@ public class DroidWriterEditText extends CABEditText {
 	// set to true when text watcher is called
 	private boolean modified = false;
 
+	private final PublishSubject<Integer> mSelectionStartChangedSubject = PublishSubject.create();
+
+
+	public Observable<Integer> selectionStartChanges()
+	{
+		if(hasSelection())
+		{
+			return mSelectionStartChangedSubject.startWith(getSelectionStart());
+		}
+
+		return mSelectionStartChangedSubject;
+	}
+
 	public DroidWriterEditText(Context context) {
 		super(context);
 		initialize();
@@ -56,6 +73,7 @@ public class DroidWriterEditText extends CABEditText {
 	}
 
 	private void initialize() {
+
 		// Add a default imageGetter
 		imageGetter = new Html.ImageGetter() {
 			@Override
@@ -171,7 +189,13 @@ public class DroidWriterEditText extends CABEditText {
 	 * or when the user selects sections of the text.
 	 */
 	@Override
-	public void onSelectionChanged(int selStart, int selEnd) {		
+	public void onSelectionChanged(int selStart, int selEnd) {
+
+		if(mSelectionStartChangedSubject != null) // method called by superclass
+		{
+			mSelectionStartChangedSubject.onNext(selStart);
+		}
+
 		boolean boldExists = false;
 		boolean italicsExists = false;
 		boolean underlinedExists = false;
@@ -342,6 +366,12 @@ public class DroidWriterEditText extends CABEditText {
 
 	public void setTextWatcherEnabled(boolean textWatcherEnabled) {
 		this.textWatcherEnabled = textWatcherEnabled;
+	}
+
+	@Override
+	protected void onDraw(Canvas canvas)
+	{
+		super.onDraw(canvas);
 	}
 
 	public boolean isModified() {

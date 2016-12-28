@@ -48,6 +48,7 @@ class NoteEditorActivity : Activity() {
     private val mCompositeSubscription : CompositeSubscription = CompositeSubscription();
 
     private lateinit var mUndoRedo: TextViewUndoRedo
+    private lateinit var mFinder : Finder
 
     override fun onCreate(savedInstanceState: Bundle?) {
         //requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
@@ -201,6 +202,7 @@ class NoteEditorActivity : Activity() {
         return super.onOptionsItemSelected(item)
     }
 
+
     fun createToolbarMenu(menu: Menu): Boolean {
 
 
@@ -270,10 +272,11 @@ class NoteEditorActivity : Activity() {
                 .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER)
         itemFindInText.setOnMenuItemClickListener {
             toolbar_find_in_text.visibility = View.VISIBLE
-            toolbar_find_in_text_edit_text.requestFocus()
-//            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//            imm.showSoftInput(toolbar_find_in_text_edit_text, InputMethodManager.SHOW_FORCED)
-            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+            toolbar_find_in_text_edit_text.toolbar_find_in_text_edit_text.requestFocus()
+            // does not work
+/*            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+           imm.showSoftInput(toolbar_find_in_text.toolbar_find_in_text_edit_text, InputMethodManager.SHOW_FORCED)*/
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
             true
         }
         mCompositeSubscription += toolbar_find_in_text.toolbar_find_in_text_close.clicks()
@@ -282,10 +285,14 @@ class NoteEditorActivity : Activity() {
                 }
 
 
-        val finder = Finder(editor_edit_text);
+        mFinder = Finder(editText = editor_edit_text,
+                toolbarEditText = toolbar_find_in_text.toolbar_find_in_text_edit_text,
+                scrollView = editor_scroll_view)
+        editor_edit_text.selectionStartChanges().subscribe { mFinder.currentIndex = it }
+
         toolbar_find_in_text.toolbar_find_in_text_edit_text.textChanges().subscribe {
-            finder.searchString = it.toString()
-            val hasMatches = editor_edit_text.text!!.countMatches(finder.searchString) > 0;
+            mFinder.searchString = it.toString()
+            val hasMatches = editor_edit_text.text!!.countMatches(mFinder.searchString) > 0;
             toolbar_find_in_text.arrow_down.isEnabled = hasMatches;
             toolbar_find_in_text.arrow_up.isEnabled = hasMatches;
 
@@ -293,8 +300,8 @@ class NoteEditorActivity : Activity() {
             toolbar_find_in_text.arrow_up.drawable.setTintCompat(getColorForState(hasMatches));
         }
 
-        toolbar_find_in_text.arrow_down.clicks().subscribe { finder.selectNext()  }
-        toolbar_find_in_text.arrow_up.clicks().subscribe { finder.selectPrevious() }
+        toolbar_find_in_text.arrow_down.clicks().subscribe { mFinder.highlightNext()  }
+        toolbar_find_in_text.arrow_up.clicks().subscribe { mFinder.highlightPrevious() }
 
         val itemDone = menu.add(R.string.action_done).setIcon(R.drawable.ic_done_black_24dp)
                 .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
@@ -334,10 +341,7 @@ class NoteEditorActivity : Activity() {
     fun hideFindInTextToolbar()
     {
         toolbar_find_in_text.visibility = View.INVISIBLE
-        if(editor_edit_text.hasSelection())
-        {
-            editor_edit_text.setSelection(editor_edit_text.selectionStart,editor_edit_text.selectionStart) // show cursor instead of selection
-        }
+        mFinder.clearHighlight()
     }
 
     fun Drawable.setTintCompat(@ColorInt color : Int)

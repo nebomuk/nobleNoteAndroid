@@ -1,9 +1,14 @@
 package com.taiko.noblenote
 
+import android.graphics.Color
+import android.text.Spannable
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import android.widget.ScrollView
 import android.widget.TextView
+
+
 
 
 
@@ -12,18 +17,17 @@ import android.widget.TextView
  *
  * text search
  */
-class Finder constructor(editText : EditText)
+class Finder constructor(val editText : EditText,val toolbarEditText : EditText, val scrollView: ScrollView)
 {
-    private val mEditText = editText
-
     public var searchString : String = ""
-
+    var currentIndex : Int = 0; // highlight Index
+    private var highlightSpan: HighlightColorSpan = HighlightColorSpan(Color.YELLOW);
 
     init {
-        editText.setOnEditorActionListener(object : TextView.OnEditorActionListener {
-            override  fun onEditorAction(v: TextView, actionId: Int, event: KeyEvent): Boolean {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH || event.keyCode == KeyEvent.KEYCODE_ENTER) {
-                    selectNext()
+        toolbarEditText.setOnEditorActionListener(object : TextView.OnEditorActionListener {
+            override  fun onEditorAction(v: TextView, actionId: Int, event: KeyEvent?): Boolean {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH || event?.keyCode == KeyEvent.KEYCODE_ENTER) {
+                    highlightNext()
                     return true
                 }
                 return false
@@ -31,37 +35,57 @@ class Finder constructor(editText : EditText)
         })
     }
 
-
-    fun selectPrevious() : Boolean
+    fun clearHighlight()
     {
-        val localStart = if (mEditText.hasSelection()) mEditText.selectionStart-1 else mEditText.text.length-1;
-        val index = mEditText.text.lastIndexOf(searchString,localStart,ignoreCase = true)
+        editText.text.removeSpan(highlightSpan)
+    }
+
+
+    fun highlightPrevious() : Boolean
+    {
+        val localStart = if (currentIndex < editText.text.length-1) currentIndex-1 else editText.text.length-1;
+        val index = editText.text.lastIndexOf(searchString,localStart,ignoreCase = true)
         if(index == -1)
         {
             return false;
         }
         else
         {
-            mEditText.requestFocus()
-            mEditText.setSelection(index,index + searchString.length)
+            editText.text.setSpan(highlightSpan,index,index + searchString.length,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            scrollToIndex(index)
+            currentIndex = index;
             return true;
         }
     }
 
-    fun selectNext() : Boolean
+    fun highlightNext() : Boolean
     {
-        val localStart = if (mEditText.hasSelection()) mEditText.selectionEnd else 0;
-        val index = mEditText.text.indexOf(searchString,localStart,ignoreCase = true)
+        val localStart = if (currentIndex > 0) currentIndex+ searchString.length else 0;
+        val index = editText.text.indexOf(searchString,localStart,ignoreCase = true)
         if(index == -1)
         {
             return false;
         }
         else
         {
-            mEditText.requestFocus()
-            mEditText.setSelection(index,index + searchString.length)
+            editText.text.setSpan(highlightSpan,index,index + searchString.length,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            scrollToIndex(index)
+
+            currentIndex = index;
+
             return true;
         }
+    }
+
+    fun scrollToIndex(index : Int)
+    {
+        scrollView.post {
+
+            val y = editText.layout.getLineTop(editText.layout.getLineForOffset(index))
+            scrollView.smoothScrollTo(0,y)
+
+        }
+
     }
 
 
