@@ -58,7 +58,9 @@ class NoteListFragment : Fragment() {
         }
         val fileFilter = FileFilter { pathname -> pathname.isFile && !pathname.isHidden }
 
-        recyclerFileAdapter = RecyclerFileAdapter(File(folderPath!!), fileFilter)
+        recyclerFileAdapter = RecyclerFileAdapter()
+        recyclerFileAdapter.filter = fileFilter
+        recyclerFileAdapter.path = File(folderPath)
 
         rv.adapter = recyclerFileAdapter
         rv.layoutManager = LinearLayoutManager(activity)

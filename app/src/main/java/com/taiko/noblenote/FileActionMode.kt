@@ -10,7 +10,7 @@ import rx.subjects.PublishSubject
 /***
  * contextual action mode for files
  */
-class FileActionMode : ActionMode.Callback2()
+class FileActionMode : ActionMode.Callback
 
 {
     private  val mDestroySubject : PublishSubject<Unit> = PublishSubject()

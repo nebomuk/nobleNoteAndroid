@@ -7,11 +7,13 @@ import android.os.Bundle
 import android.transition.Fade
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import com.github.developerpaul123.filepickerlibrary.FilePickerActivity
 import com.github.developerpaul123.filepickerlibrary.enums.Request
 import com.github.developerpaul123.filepickerlibrary.enums.ThemeType
 import com.jakewharton.rxbinding.view.clicks
+import com.miguelcatalan.materialsearchview.MaterialSearchView
 import com.tbruyelle.rxpermissions.RxPermissions
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main_twopane.*
@@ -130,12 +132,12 @@ class MainActivity : Activity()
                 filePickerDialogIntent.putExtra(FilePickerActivity.THEME_TYPE, ThemeType.ACTIVITY);
                 filePickerDialogIntent.putExtra(FilePickerActivity.REQUEST, Request.DIRECTORY);
 
-                compositeSubscription += Observable.concat(RxPermissions.getInstance(this).request(Manifest.permission.WRITE_EXTERNAL_STORAGE).map {
-                    if(it) RxActivityResult.on(this@MainActivity).startIntent(filePickerDialogIntent) else Observable.empty()
-                }).subscribe {
+                compositeSubscription += Observable.concat(RxPermissions.getInstance(this).request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        .map {
+                            if (it) RxActivityResult.on(this@MainActivity).startIntent(filePickerDialogIntent) else Observable.empty()
+                        }).subscribe {
 
-                    if ((it.resultCode() == RESULT_OK))
-                    {
+                    if ((it.resultCode() == RESULT_OK)) {
                         val path = it.data().getStringExtra(FilePickerActivity.FILE_EXTRA_DATA_PATH)
                         Pref.rootPath = path
                         Toast.makeText(this, "Directory Selected: " + Pref.rootPath, Toast.LENGTH_LONG).show();
@@ -155,6 +157,23 @@ class MainActivity : Activity()
         actionSearch = menu?.findItem(R.id.action_search)
 
         search_view.setMenuItem(actionSearch)
+
+        search_view.setOnSearchViewListener(object : MaterialSearchView.SearchViewListener
+        {
+            override fun onSearchViewShown() {
+                fab?.visibility = View.INVISIBLE;
+                fab_menu_folder?.visibility = View.INVISIBLE;
+                fab_menu_note?.visibility = View.INVISIBLE;
+            }
+
+            override fun onSearchViewClosed() {
+                fab?.visibility = View.VISIBLE;
+                fab_menu_folder?.visibility = View.VISIBLE;
+                fab_menu_note?.visibility = View.VISIBLE;
+            }
+
+        }
+        )
 
 //        val searchAutoComplete = searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text) as SearchView.SearchAutoComplete
 //        searchAutoComplete.threshold = 2

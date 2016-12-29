@@ -18,7 +18,7 @@ import java.text.Collator
 import java.util.*
 
 
-class RecyclerFileAdapter(path: File, filter: FileFilter) : RecyclerView.Adapter<ViewHolder>() {
+class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
 
     private val mFiles: ObservableArrayList<FileItem>
 
@@ -34,12 +34,22 @@ class RecyclerFileAdapter(path: File, filter: FileFilter) : RecyclerView.Adapter
     val selectedFiles : List<File>
         get() = mFiles.filter { it.isSelected }.map { it.file }
 
+    var filter : FileFilter = FileFilter { true }
+
+    var path : File = File(Pref.rootPath)
+    set(value) {
+        mFiles.clear()
+        mHandler.postDelayed({ mFiles.addAll(listFiles(value, filter).map { FileItem(it,false) }) },0)
+        field = value
+    }
+
+    private val mHandler = Handler()
+
     init {
+       // path = argPath
         mFiles = ObservableArrayList()
         mWeakReferenceOnListChangedCallback = WeakReferenceOnListChangedCallback(this);
         mFiles.addOnListChangedCallback(mWeakReferenceOnListChangedCallback)
-        val h = Handler()
-        h.postDelayed({ mFiles.addAll(listFiles(path, filter).map { FileItem(it,false) }) },0)
 
         //rx.Observable.interval(3,TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe { mFiles.add(File(Pref.rootPath,"test " + it)) }
     }

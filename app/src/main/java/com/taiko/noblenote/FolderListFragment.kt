@@ -49,7 +49,10 @@ class FolderListFragment : Fragment() {
         // the following code lists only visible folders and push their names into an ArrayAdapter
         val folderFilter = FileFilter { pathname -> pathname.isDirectory && !pathname.isHidden }
 
-        recyclerFileAdapter = RecyclerFileAdapter(File(Pref.rootPath), folderFilter)
+        recyclerFileAdapter = RecyclerFileAdapter()
+        recyclerFileAdapter.filter = folderFilter
+        mCompositeSubscription += Pref.rootPathChanged().subscribe { recyclerFileAdapter.path = File(it) }
+
         rv.adapter = recyclerFileAdapter
         rv.layoutManager = LinearLayoutManager(activity)
 
