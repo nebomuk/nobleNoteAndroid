@@ -187,7 +187,7 @@ public class LongClickListener implements ListView.OnItemLongClickListener
         		
         		return true;
         	}
-        	case R.id.removeNote:
+        	case R.id.actionRemove:
         	{       
         		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(fragment.getActivity());
 

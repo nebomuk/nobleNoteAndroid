@@ -15,8 +15,8 @@ class UICommunicator
     public val  fileSelected : PublishSubject<File> = PublishSubject();
     val newFolderClick : PublishSubject<Unit> = PublishSubject();
     val newFileClick : PublishSubject<Unit> = PublishSubject();
-    val fileCreated : PublishSubject<File> = PublishSubject()
-    val folderCreated : PublishSubject<File> = PublishSubject()
+    val createFileClick: PublishSubject<File> = PublishSubject()
+    val createFolderClick: PublishSubject<File> = PublishSubject()
 
 
 

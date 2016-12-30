@@ -4,6 +4,8 @@ import android.content.Context
 import rx.Observable
 import java.io.*
 
+
+
 /**
  * Created by taiko000
  */
@@ -66,5 +68,28 @@ object FileHelper {
 
         }
 
+    }
+
+    @JvmStatic
+    fun directoryMove(oldRootDir: File, newRootDir: File): Boolean {
+        var result = true
+        if (!newRootDir.exists()) {
+            result = result && newRootDir.mkdirs()
+        }
+        if (result) {
+            for (f in oldRootDir.listFiles()) {
+                if (f.isDirectory) {
+                    val newDir = File(newRootDir, f.name)
+                    result = result && directoryMove(f, newDir)
+                } else {
+                    val newFile = File(newRootDir, f.name)
+                    if (newFile.exists()) {
+                        result = result && newFile.delete()
+                    }
+                    result = result && f.renameTo(newFile)
+                }
+            }
+        }
+        return result
     }
 }

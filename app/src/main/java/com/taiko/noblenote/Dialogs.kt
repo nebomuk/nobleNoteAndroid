@@ -26,7 +26,7 @@ object Dialogs {
         input.filters = arrayOf<InputFilter>(FileNameFilter())
 
         // dont propose a name that already exists
-        var proposed = File(Pref.selectedFolderPath, activity.getString(R.string.newNote))
+        var proposed = File(Pref.currentFolderPath.value, activity.getString(R.string.newNote))
         var counter = 0
         while (proposed.exists()) {
             proposed = File("${proposed.absoluteFile} (${++counter})")
@@ -37,7 +37,7 @@ object Dialogs {
         dialogBuilder.setPositiveButton(
                 android.R.string.ok) { dialog, whichButton ->
             val newName = input.text.trim()
-            val newFile = File(Pref.selectedFolderPath, newName.toString())
+            val newFile = File(Pref.currentFolderPath.value, newName.toString())
             try {
                 if (newFile.createNewFile()) {
                     fileCreated(newFile)
@@ -68,7 +68,7 @@ object Dialogs {
         val input = EditText(activity)
         input.filters = arrayOf<InputFilter>(FileNameFilter())
 
-        val proposedDirPath = File(Pref.rootPath, activity.getString(R.string.newNotebook)).absolutePath
+        val proposedDirPath = File(Pref.rootPath.value, activity.getString(R.string.newNotebook)).absolutePath
         var proposed = File(proposedDirPath)
         var counter = 0
         while (proposed.exists()) {
@@ -81,7 +81,7 @@ object Dialogs {
         dialogBuilder.setPositiveButton(
                 android.R.string.ok) { dialog, whichButton ->
             val newName = input.text.trim()
-            val dir = File(Pref.rootPath, newName.toString())
+            val dir = File(Pref.rootPath.value, newName.toString())
             if (!dir.mkdirs()) {
                 Toast.makeText(activity, R.string.notebookNotCreated, Toast.LENGTH_SHORT).show()
             }

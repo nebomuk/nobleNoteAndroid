@@ -1,17 +1,19 @@
 package com.taiko.noblenote
 
-import android.app.Activity
 import android.os.Handler
 import android.os.Looper
 import android.support.v7.widget.RecyclerView
 import android.view.ActionMode
 import rx.Observable
 
-
-class ListController(val activity: Activity,  val recyclerView: RecyclerView)
+/***
+ * handles list selection and contextual toolbar actions
+ */
+class ListController(val activity: MainActivity,  val recyclerView: RecyclerView)
 {
     var mActionMode : ActionMode? = null
-    val adapter : RecyclerFileAdapter;
+    val adapter : RecyclerFileAdapter = recyclerView.adapter as RecyclerFileAdapter;
+    val mFileActionModeCallback = FileActionModeCallback()
 
     /**
      * item clicks when action mode is not active
@@ -24,18 +26,23 @@ class ListController(val activity: Activity,  val recyclerView: RecyclerView)
     init {
 
         val handler = Handler(Looper.getMainLooper())
-        adapter = recyclerView.adapter as RecyclerFileAdapter
+
+        mFileActionModeCallback.onRemove.subscribe { adapter.removeSelected() }
+
+        mFileActionModeCallback.onDestroy.subscribe {
+            adapter.clearSelection()
+            mActionMode = null
+            activity.setFabVisible(true);
+        }
 
         adapter.itemLongClicks().subscribe {
-            val fileActionMode = FileActionMode()
-            fileActionMode.onDestroy.subscribe {
-                adapter.clearSelection()
-                mActionMode = null
-            }
 
-            mActionMode = activity.startActionMode(fileActionMode)
-                adapter.setSelected(it,true);
-            }
+            mActionMode = activity.startActionMode(mFileActionModeCallback);
+            adapter.setSelected(it,true);
+            activity.setFabVisible(false);
+        }
+
+
         adapter.itemClicks()
                 .doOnNext { KLog.i("item click: " + it) }
                 .subscribe {

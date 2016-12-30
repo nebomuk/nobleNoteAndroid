@@ -23,7 +23,7 @@ class SuggestionAdapter constructor(context: Context, queryTextObservable: Obser
                 .map {
                     val queryText = it;
                     Log.v(TAG,"clear")
-                    findHtmlInFiles(Pref.rootPath, queryText).map { File(it) }.toSortedList()
+                    findHtmlInFiles(Pref.rootPath.value, queryText).map { File(it) }.toSortedList()
                 }
                 .switchOnNext()
                 .observeOn(AndroidSchedulers.mainThread())

@@ -6,7 +6,7 @@
           android:title="@string/rename"
           android:showAsAction="ifRoom"
           app:showAsAction="ifRoom"/>
-    <item android:id="@+id/removeNote"
+    <item android:id="@+id/actionRemove"
           android:icon="@drawable/ic_action_remove"
           android:title="@string/remove"
           android:showAsAction="ifRoom"

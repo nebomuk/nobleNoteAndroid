@@ -42,7 +42,7 @@ class FolderListFragment : Fragment() {
         val rv = view?.recycler_view as RecyclerView
         rv.itemAnimator = DefaultItemAnimator();
 
-        val dir = File(Pref.rootPath)
+        val dir = File(Pref.rootPath.value)
         if (!dir.exists())
             dir.mkdirs()
 
@@ -51,14 +51,14 @@ class FolderListFragment : Fragment() {
 
         recyclerFileAdapter = RecyclerFileAdapter()
         recyclerFileAdapter.filter = folderFilter
-        mCompositeSubscription += Pref.rootPathChanged().subscribe { recyclerFileAdapter.path = File(it) }
+        mCompositeSubscription += Pref.rootPath.subscribe { recyclerFileAdapter.path = File(it) }
 
         rv.adapter = recyclerFileAdapter
         rv.layoutManager = LinearLayoutManager(activity)
 
 
 
-        val listController = ListController(activity,rv)
+        val listController = ListController(activity as MainActivity,rv)
 
         val app = (activity.application as MainApplication)
         mCompositeSubscription += listController.itemClicks()
@@ -67,7 +67,7 @@ class FolderListFragment : Fragment() {
 
 
 
-        app.uiCommunicator.folderCreated.subscribe { recyclerFileAdapter.addFile(it) }
+        app.uiCommunicator.createFolderClick.subscribe { recyclerFileAdapter.addFile(it) }
 
     }
 

@@ -21,7 +21,6 @@ class NoteListFragment : Fragment() {
 
     private var mTwoPane = false
 
-    private var folderPath: String? = null
 
     private lateinit var recyclerFileAdapter: RecyclerFileAdapter
 
@@ -32,9 +31,6 @@ class NoteListFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         this.setHasOptionsMenu(true)
-
-
-
 
     }
 
@@ -53,26 +49,22 @@ class NoteListFragment : Fragment() {
         if (arguments.containsKey(MainActivity.ARG_TWO_PANE)) {
             mTwoPane = arguments.getBoolean(MainActivity.ARG_TWO_PANE)
         }
-        if (arguments.containsKey(ARG_FOLDER_PATH)) {
-            folderPath = arguments.getString(ARG_FOLDER_PATH)
-        }
+
         val fileFilter = FileFilter { pathname -> pathname.isFile && !pathname.isHidden }
 
         recyclerFileAdapter = RecyclerFileAdapter()
         recyclerFileAdapter.filter = fileFilter
-        recyclerFileAdapter.path = File(folderPath)
+        mCompositeSubscription += Pref.currentFolderPath.subscribe { recyclerFileAdapter.path = File(it) }
 
         rv.adapter = recyclerFileAdapter
         rv.layoutManager = LinearLayoutManager(activity)
-
-
 
         val app = (activity.application as MainApplication)
         mCompositeSubscription += recyclerFileAdapter.itemClicks()
                 .doOnNext { Log.d("","item pos clicked: " + it) }
                 .subscribe { app.uiCommunicator.fileSelected.onNext(recyclerFileAdapter.getItem(it)) }
 
-        app.uiCommunicator.fileCreated.subscribe { recyclerFileAdapter.addFile(it) }
+        app.uiCommunicator.createFileClick.subscribe { recyclerFileAdapter.addFile(it) }
     }
 
     companion object {

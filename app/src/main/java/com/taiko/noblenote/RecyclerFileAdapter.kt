@@ -36,7 +36,7 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
 
     var filter : FileFilter = FileFilter { true }
 
-    var path : File = File(Pref.rootPath)
+    var path : File = File(Pref.rootPath.value)
     set(value) {
         mFiles.clear()
         mHandler.postDelayed({ mFiles.addAll(listFiles(value, filter).map { FileItem(it,false) }) },0)
@@ -67,6 +67,11 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
 
         return ViewHolder(view)
 
+    }
+
+    fun removeSelected()
+    {
+        mFiles.removeAll { it.isSelected }
     }
 
     fun addFile(f : File)
