@@ -37,7 +37,7 @@ public class FileSystemAdapter extends ArrayAdapter<File> {
 	
 	public FileSystemAdapter(Context context, int textViewResourceId, File path, FileFilter filter) 
 	{
-		super(context, textViewResourceId, RecyclerFileAdapter.listFiles(path,filter));
+		super(context, textViewResourceId, FileHelper.listFilesSorted(path,filter));
 		sort();
 		mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mFieldId = 0;

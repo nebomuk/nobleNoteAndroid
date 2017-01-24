@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- used to display the selected item count on the left in an action mode menu-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="vertical" android:layout_width="wrap_content"
+                android:layout_height="match_parent">
+    <TextView
+        android:layout_width="wrap_content"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        android:gravity="start|center_vertical"
+        android:layout_height="match_parent"
+        android:id="@+id/item_count"/>
+</RelativeLayout>

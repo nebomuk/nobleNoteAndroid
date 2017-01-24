@@ -56,8 +56,6 @@ class FolderListFragment : Fragment() {
         rv.adapter = recyclerFileAdapter
         rv.layoutManager = LinearLayoutManager(activity)
 
-
-
         val listController = ListController(activity as MainActivity,rv)
 
         val app = (activity.application as MainApplication)
@@ -67,7 +65,9 @@ class FolderListFragment : Fragment() {
 
 
 
-        app.uiCommunicator.createFolderClick.subscribe { recyclerFileAdapter.addFile(it) }
+        mCompositeSubscription += app.uiCommunicator.createFolderClick.subscribe { recyclerFileAdapter.addFile(it) }
+
+        mCompositeSubscription += app.uiCommunicator.swipeRefresh.subscribe { recyclerFileAdapter.refresh() }
 
     }
 

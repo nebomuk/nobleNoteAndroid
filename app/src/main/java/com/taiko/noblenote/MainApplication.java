@@ -4,9 +4,7 @@ import android.app.Application;
 
 import rx_activity_result.RxActivityResult;
 
-/**
- * Created by Taiko on 22.09.2016.
- */
+
 
 public class MainApplication extends Application
 {

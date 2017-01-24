@@ -1,61 +1,49 @@
 package com.taiko.noblenote
 
 import android.content.Context
-import android.util.Log
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
-import rx.lang.kotlin.switchOnNext
-import rx.lang.kotlin.toObservable
-import rx.lang.kotlin.toSingletonObservable
+import rx.schedulers.Schedulers
 import java.io.File
 
 /**
- * Created by Taiko on 04.09.2016.
+ * displays suggestions in an input field by using full text search inside files and dirs in the app pref's root path with the given char sequence
  */
 class SuggestionAdapter constructor(context: Context, queryTextObservable: Observable<CharSequence>) : ArrayAdapter<File>(context,android.R.layout.simple_dropdown_item_1line)
 {
     val TAG : String = SuggestionAdapter::class.java.simpleName
 
     init {
-        setNotifyOnChange(true)
+        setNotifyOnChange(false)
+
 
         queryTextObservable
-                .map {
+                .switchMap {
+
                     val queryText = it;
-                    Log.v(TAG,"clear")
-                    findHtmlInFiles(Pref.rootPath.value, queryText).map { File(it) }.toSortedList()
+                    FindInFiles.findHtmlInFiles(Pref.rootPath.value, queryText)
+                            .compose(MapWithIndex.instance())
+                            .subscribeOn(Schedulers.io())
+                            .concatWith(Observable.never()) // never complete
                 }
-                .switchOnNext()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-//            Timber.v(it)
-                    clear() // clear adapter as side effect
-                    addAll(it);
+                    if(it.index() == 0L)
+                   {
+                       clear();
+                   }
+                    add(File(it.value() as String));
+                    this.sort { file, file2 -> file.name.compareTo(file2.name) }
+                    this.notifyDataSetChanged();
                 }
     }
 
 
 
-    fun  findHtmlInFiles(path : String, queryText: CharSequence) : Observable<String> =
-            File(path).walkBottomUp().filter { it.isFile && !it.isHidden }
-                    .toObservable()
-                    .map {
-                        val filePath = it.path;
-                        //                Timber.i(it.name)
-                        if (it.name.contains(queryText, true)) {
-                            filePath.toSingletonObservable() // file name contains the queryText, return the filePath
-                        } else {
-                            Observable.using(// open the file and try to find the queryText inside
-                                    { it.bufferedReader() },
-                                    { it.lineSequence().toObservable() },
-                                    { it.close() })
-                                    .exists { it.contains(queryText, true) }
-                                    .filter { it == true } // found
-                                    .map { filePath }
-                        }
-                    }.concat()
 
-    fun <T> Observable<Observable<T>>.concat(): Observable<T> = Observable.concat(this)
+
+
+
 }
 
 

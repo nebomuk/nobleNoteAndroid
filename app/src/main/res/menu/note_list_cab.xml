@@ -4,10 +4,10 @@
     <item android:id="@+id/actionRename"
           android:icon="@drawable/ic_action_rename"
           android:title="@string/rename"
-          android:showAsAction="ifRoom"
-          app:showAsAction="ifRoom"/>
+          android:showAsAction="never"
+          app:showAsAction="never"/>
     <item android:id="@+id/actionRemove"
-          android:icon="@drawable/ic_action_remove"
+          android:icon="@drawable/ic_delete_black_24dp"
           android:title="@string/remove"
           android:showAsAction="ifRoom"
           app:showAsAction="ifRoom"/>

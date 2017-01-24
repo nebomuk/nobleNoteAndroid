@@ -3,6 +3,7 @@ package com.taiko.noblenote
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
@@ -16,6 +17,7 @@ import android.support.v7.widget.Toolbar
 import android.text.InputType
 import android.util.Log
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import com.jakewharton.rxbinding.view.clicks
 import com.jakewharton.rxbinding.widget.textChanges
@@ -48,7 +50,7 @@ class NoteEditorActivity : Activity() {
     private val mCompositeSubscription : CompositeSubscription = CompositeSubscription();
 
     private lateinit var mUndoRedo: TextViewUndoRedo
-    private lateinit var mFinder : Finder
+    private lateinit var mFindHighlighter: FindHighlighter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         //requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
@@ -79,8 +81,8 @@ class NoteEditorActivity : Activity() {
 
         val extras = intent.extras ?: return
 
-        filePath = extras.getString(NoteEditorActivity.ARG_FILE_PATH)
-        openMode = extras.getString(NoteEditorActivity.ARG_OPEN_MODE)
+        filePath = extras.getString(ARG_FILE_PATH)
+        openMode = extras.getString(ARG_OPEN_MODE)
         focusable = !(openMode == HTML || openMode == READ_ONLY) // no editing if html source should be shown
 
         //getActionBar().setTitle(new File(filePath).getName());
@@ -118,7 +120,7 @@ class NoteEditorActivity : Activity() {
      */
     private fun reload() {
         // load file contents and parse html thread
-        mCompositeSubscription += FileHelper.readFile(filePath,this,true)
+        mCompositeSubscription += FileHelper.readFile(filePath,this,parseHtml = openMode != HTML) // don't parse html if it should display the html source of the note
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe( {
@@ -127,6 +129,14 @@ class NoteEditorActivity : Activity() {
                     progress_bar_file_loading.visibility = View.GONE
                     editor_scroll_view.visibility = View.VISIBLE
                     editor_edit_text.isModified = false // reset modification state because modification flag has been set by editor_edit_text.setText
+
+                    val queryText = intent?.extras?.getString(ARG_QUERY_TEXT)
+                    if(!queryText.isNullOrBlank())
+                    {
+                        toolbar_find_in_text.toolbar_find_in_text_edit_text.setText(queryText);
+                        showFindInTextToolbar();
+                        mFindHighlighter.highlightNext();
+                    }
 
                 }, {
                     Log.e(TAG, it.message)
@@ -271,13 +281,8 @@ class NoteEditorActivity : Activity() {
         val itemFindInText = menu.add(R.string.action_find_in_text)
                 .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER)
         itemFindInText.setOnMenuItemClickListener {
-            toolbar_find_in_text.visibility = View.VISIBLE
-            toolbar_find_in_text_edit_text.toolbar_find_in_text_edit_text.requestFocus()
-            // does not work
-/*            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-           imm.showSoftInput(toolbar_find_in_text.toolbar_find_in_text_edit_text, InputMethodManager.SHOW_FORCED)*/
-            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-            true
+            showFindInTextToolbar();
+            true;
         }
         mCompositeSubscription += toolbar_find_in_text.toolbar_find_in_text_close.clicks()
                 .subscribe {
@@ -285,23 +290,40 @@ class NoteEditorActivity : Activity() {
                 }
 
 
-        mFinder = Finder(editText = editor_edit_text,
+        mFindHighlighter = FindHighlighter(editText = editor_edit_text,
                 toolbarEditText = toolbar_find_in_text.toolbar_find_in_text_edit_text,
                 scrollView = editor_scroll_view)
-        editor_edit_text.selectionStartChanges().subscribe { mFinder.currentIndex = it }
+        editor_edit_text.selectionStartChanges().subscribe { mFindHighlighter.currentIndex = it } // search starts from cursor position
 
         toolbar_find_in_text.toolbar_find_in_text_edit_text.textChanges().subscribe {
-            mFinder.searchString = it.toString()
-            val hasMatches = editor_edit_text.text!!.countMatches(mFinder.searchString) > 0;
-            toolbar_find_in_text.arrow_down.isEnabled = hasMatches;
-            toolbar_find_in_text.arrow_up.isEnabled = hasMatches;
+            mFindHighlighter.searchString = it.toString()
+            val count = editor_edit_text.text!!.countMatches(mFindHighlighter.searchString);
 
-            toolbar_find_in_text.arrow_down.drawable.setTintCompat(getColorForState(hasMatches));
-            toolbar_find_in_text.arrow_up.drawable.setTintCompat(getColorForState(hasMatches));
+            // selection arrows
+            if(count == 0 || count == 1)
+            {
+                setArrowUpEnabled(false);
+                setArrowDownEnabled(false);
+
+            }
+            else if(count > 1)
+            {
+                setArrowUpEnabled(false);
+                setArrowDownEnabled(true);
+            }
+
+            // highlight first
+            if(count >= 1)
+            {
+                mFindHighlighter.highlightNext();
+            }
+
+
         }
 
-        toolbar_find_in_text.arrow_down.clicks().subscribe { mFinder.highlightNext()  }
-        toolbar_find_in_text.arrow_up.clicks().subscribe { mFinder.highlightPrevious() }
+
+        toolbar_find_in_text.arrow_down.clicks().subscribe { mFindHighlighter.highlightNext()  }
+        toolbar_find_in_text.arrow_up.clicks().subscribe { mFindHighlighter.highlightPrevious() }
 
         val itemDone = menu.add(R.string.action_done).setIcon(R.drawable.ic_done_black_24dp)
                 .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
@@ -333,6 +355,26 @@ class NoteEditorActivity : Activity() {
         return super.onCreateOptionsMenu(menu)
     }
 
+    private fun setArrowDownEnabled(b : Boolean)
+    {
+        toolbar_find_in_text.arrow_down.isEnabled = b;
+        toolbar_find_in_text.arrow_down.drawable.setTintCompat(getColorForState(b));
+    }
+    private fun setArrowUpEnabled(b : Boolean)
+    {
+        toolbar_find_in_text.arrow_up.isEnabled = b;
+        toolbar_find_in_text.arrow_up.drawable.setTintCompat(getColorForState(b));
+    }
+
+    private fun showFindInTextToolbar() {
+        toolbar_find_in_text.visibility = View.VISIBLE
+        toolbar_find_in_text_edit_text.toolbar_find_in_text_edit_text.requestFocus()
+        // does not always work
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.showSoftInput(toolbar_find_in_text.toolbar_find_in_text_edit_text, 0)
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         mCompositeSubscription.clear();
@@ -341,7 +383,10 @@ class NoteEditorActivity : Activity() {
     fun hideFindInTextToolbar()
     {
         toolbar_find_in_text.visibility = View.INVISIBLE
-        mFinder.clearHighlight()
+        mFindHighlighter.clearHighlight()
+
+        val imm =  getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager;
+        imm.hideSoftInputFromWindow(toolbar_find_in_text.toolbar_find_in_text_edit_text.windowToken, 0);
     }
 
     fun Drawable.setTintCompat(@ColorInt color : Int)
@@ -354,11 +399,24 @@ class NoteEditorActivity : Activity() {
         return if(enabled) R.color.md_grey_800 else R.color.md_grey_400
     }
 
+
     companion object {
+        @JvmStatic
         val ARG_FILE_PATH = "file_path"
+
+        @JvmStatic
         val ARG_OPEN_MODE = "open_mode"
+
+        @JvmStatic
+        val ARG_QUERY_TEXT = "query_text"
+
+        @JvmStatic
         val HTML = "html"
+
+        @JvmStatic
         val READ_WRITE = "read_write"
+
+        @JvmStatic
         val READ_ONLY = "read_only"
     }
 }

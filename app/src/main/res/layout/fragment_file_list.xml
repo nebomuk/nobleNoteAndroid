@@ -6,6 +6,31 @@
               android:background="@color/lightGray"
     >
 
+    <!-- list empty indicator -->
+    <TextView
+        android:id="@+id/tv_file_list_empty"
+        android:visibility="gone"
+        android:text=""
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textColor="@color/md_grey_400"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_marginTop="8dp"
+        android:gravity="top|center_horizontal"
+        />
+    <!-- search result title -->
+    <TextView
+        android:id="@+id/tv_title_search_results"
+        android:visibility="gone"
+        android:text="@string/title_search_results"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/md_grey_400"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="top|center_horizontal"/>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"

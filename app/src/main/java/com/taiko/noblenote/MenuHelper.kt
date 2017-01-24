@@ -7,6 +7,8 @@ import android.widget.Toast
 
 /**
  * Created by taiko000
+ *
+ * toolbar menu utility methods
  */
 object MenuHelper {
 

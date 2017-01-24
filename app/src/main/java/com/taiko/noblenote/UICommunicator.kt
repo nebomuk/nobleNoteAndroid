@@ -17,6 +17,7 @@ class UICommunicator
     val newFileClick : PublishSubject<Unit> = PublishSubject();
     val createFileClick: PublishSubject<File> = PublishSubject()
     val createFolderClick: PublishSubject<File> = PublishSubject()
+    val swipeRefresh: PublishSubject<Unit> = PublishSubject()
 
 
 

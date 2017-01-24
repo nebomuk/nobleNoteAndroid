@@ -1,9 +1,11 @@
 package com.taiko.noblenote
 
 import android.content.Context
+import android.util.Log
 import rx.Observable
 import java.io.*
-
+import java.text.Collator
+import java.util.*
 
 
 /**
@@ -13,7 +15,7 @@ object FileHelper {
 
 
     @JvmStatic
-    fun readFile(filePath : String, ctx : Context, isHtml : Boolean ) : Observable<CharSequence>
+    fun readFile(filePath : String, ctx : Context, parseHtml: Boolean ) : Observable<CharSequence>
     {
         return Observable.create({ subscriber ->
             val htmlText = StringBuilder()
@@ -36,7 +38,7 @@ object FileHelper {
 
             // do slow html parsing
             val span: CharSequence
-            if (isHtml) {
+            if (parseHtml) {
                 span = Html.fromHtml(htmlText.toString(), ctx.resources.displayMetrics.density) // time consuming
             } else {
                 span = htmlText.toString()
@@ -81,7 +83,9 @@ object FileHelper {
                 if (f.isDirectory) {
                     val newDir = File(newRootDir, f.name)
                     result = result && directoryMove(f, newDir)
-                } else {
+                }
+                else // move all contained files
+                {
                     val newFile = File(newRootDir, f.name)
                     if (newFile.exists()) {
                         result = result && newFile.delete()
@@ -89,7 +93,43 @@ object FileHelper {
                     result = result && f.renameTo(newFile)
                 }
             }
+            oldRootDir.delete(); // delete empty directory
         }
         return result
+    }
+
+    /**
+     * moves the file including it's immediate parent directory
+     */
+    @JvmStatic
+    fun fileMoveWithParent(oldFile : File, newRoot : File)
+    {
+        if(oldFile.parentFile == null)
+        {
+            Log.d("","parent file missing: $oldFile");
+        }
+
+        val newDir = File(newRoot,oldFile.parentFile.name);
+        if(!newDir.exists())
+        {
+            newDir.mkdirs();
+        }
+        val newFile = File(newDir,oldFile.name);
+        oldFile.renameTo(newFile);
+
+    }
+
+    /**
+     * creates a writable list of the contents of the directory
+     */
+    @JvmStatic
+    fun listFilesSorted(dir: File, filter: FileFilter): ArrayList<File> {
+        //List<File> fileList = Arrays.asList(); // returns read only list, causes unsupported operation exceptions in adapter
+        val fileList = ArrayList<File>()
+        if (dir.exists() || dir.mkdirs()) {
+            Collections.addAll(fileList, *dir.listFiles(filter))
+            Collections.sort(fileList) { lhs, rhs -> Collator.getInstance().compare(lhs.name, rhs.name) }
+        }
+        return fileList
     }
 }

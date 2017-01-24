@@ -1,6 +1,8 @@
 package com.taiko.noblenote
 
+import android.content.Context
 import android.view.ActionMode
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import rx.lang.kotlin.PublishSubject
@@ -8,8 +10,10 @@ import rx.subjects.PublishSubject
 
 /***
  * contextual action mode for files
+ *
+ * just an rx java adapter, most stuff is done in ListController
  */
-class FileActionModeCallback : ActionMode.Callback
+class FileActionModeCallback(val mContext : Context) : ActionMode.Callback
 
 {
     val onDestroy : PublishSubject<Unit> = PublishSubject()
@@ -37,9 +41,12 @@ class FileActionModeCallback : ActionMode.Callback
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
 
-        val inflater = mode.getMenuInflater()
+
+        val inflater = mode.menuInflater
         inflater.inflate(R.menu.note_list_cab, menu)
         mMenu = menu
+        val actionModeView = LayoutInflater.from(mContext).inflate(R.layout.actionmode,null);
+        mode.customView = actionModeView;
 
         return true;
     }

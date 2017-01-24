@@ -3,6 +3,7 @@ package com.taiko.noblenote
 import android.Manifest
 import android.app.Activity
 import android.os.Bundle
+import android.os.Handler
 import android.transition.Fade
 import android.view.View
 import com.jakewharton.rxbinding.view.clicks
@@ -16,11 +17,11 @@ import rx.subscriptions.CompositeSubscription
 class MainActivity : Activity()
 {
 
-    private var mTwoPane: Boolean = false
+    var mTwoPane: Boolean = false
 
     val compositeSubscription = CompositeSubscription()
     lateinit var mainToolbarController : MainToolbarController
-
+    lateinit var mHandler : Handler;
 
     public companion object {
         @JvmField val ARG_TWO_PANE = "two_pane"
@@ -38,7 +39,7 @@ class MainActivity : Activity()
         if (mTwoPane) {
             fragmentManager.beginTransaction().replace(R.id.item_detail_container, fragment).commit()
         } else {
-            fragmentManager.beginTransaction().add(R.id.item_master_container, fragment).addToBackStack("").commit();
+            fragmentManager.beginTransaction().add(R.id.item_master_container, fragment).addToBackStack(null).commit();
         }
     }
 
@@ -46,6 +47,8 @@ class MainActivity : Activity()
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
+
+        mHandler = Handler();
 
 
     // https://stackoverflow.com/questions/26600263/how-do-i-prevent-the-status-bar-and-navigation-bar-from-animating-during-an-acti
@@ -63,7 +66,7 @@ class MainActivity : Activity()
 
 
         // request permissions dialog
-        compositeSubscription += RxPermissions.getInstance(this).request(Manifest.permission.WRITE_EXTERNAL_STORAGE).subscribe {
+        compositeSubscription += RxPermissions(this).request(Manifest.permission.WRITE_EXTERNAL_STORAGE).subscribe {
             if(it) {
                 val folderFrag = FolderListFragment()
                 fragmentManager.beginTransaction().add(R.id.item_master_container, folderFrag).commit()
@@ -73,7 +76,7 @@ class MainActivity : Activity()
 
         val app = application as MainApplication
         compositeSubscription += app.uiCommunicator.folderSelected.subscribe { onFolderSelected(it.absolutePath) }
-        compositeSubscription += app.uiCommunicator.fileSelected.mergeWith(app.uiCommunicator.createFileClick).subscribe { NoteListFragment.startNoteEditor(this,it) }
+        compositeSubscription += app.uiCommunicator.fileSelected.mergeWith(app.uiCommunicator.createFileClick).subscribe { NoteListFragment.startNoteEditor(this,it, NoteEditorActivity.READ_WRITE) }
 
         if(mTwoPane)
         {
@@ -100,6 +103,12 @@ class MainActivity : Activity()
         }
 
         mainToolbarController = MainToolbarController(this)
+
+        swipe_refresh.setOnRefreshListener {
+            mHandler.postDelayed({swipe_refresh.isRefreshing = false},500)
+            app.uiCommunicator.swipeRefresh.onNext(Unit)
+
+        }
     }
 
     override fun onBackPressed() {

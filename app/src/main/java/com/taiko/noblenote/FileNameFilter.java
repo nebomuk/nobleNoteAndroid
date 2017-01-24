@@ -10,6 +10,8 @@ import android.text.Spanned;
 /**
  * @author Taiko-G780
  *
+ * matches file system allowed chars
+ *
  */
 public class FileNameFilter implements InputFilter {
 	

@@ -5,7 +5,10 @@ import android.text.TextPaint;
 import android.text.style.CharacterStyle;
 import android.text.style.UpdateAppearance;
 
-
+/**
+ * based on BackgroundColorSpan,
+ * used to highlight text in search
+ */
 public class HighlightColorSpan extends CharacterStyle
         implements UpdateAppearance
 {

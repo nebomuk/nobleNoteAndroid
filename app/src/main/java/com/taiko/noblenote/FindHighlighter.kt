@@ -17,7 +17,7 @@ import android.widget.TextView
  *
  * text search
  */
-class Finder constructor(val editText : EditText,val toolbarEditText : EditText, val scrollView: ScrollView)
+class FindHighlighter constructor(val editText : EditText, val toolbarEditText : EditText, val scrollView: ScrollView)
 {
     public var searchString : String = ""
     var currentIndex : Int = 0; // highlight Index
@@ -39,6 +39,16 @@ class Finder constructor(val editText : EditText,val toolbarEditText : EditText,
     {
         editText.text.removeSpan(highlightSpan)
     }
+
+/*    fun hasNext() : Boolean
+    {
+
+    }
+
+    fun hasPrevious() : Boolean
+    {
+
+    }*/
 
 
     fun highlightPrevious() : Boolean

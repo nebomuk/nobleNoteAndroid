@@ -44,7 +44,7 @@ import java.util.List;
 
  @author  Taiko
 
- array adapter without element filtering and does not automatically call setNotifyOnChange(true) every time you call add/remove/clear
+ array adapter without element filtering and does not automatically call setNotifyOnChange(true) every time you call add/remove/clear but still calls notifyDataSetChanged()
 
  */
 public class ArrayAdapter<T> extends BaseAdapter implements Filterable

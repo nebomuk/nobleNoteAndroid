@@ -19,7 +19,9 @@
     <string name="rename_dialog">Rename</string>
     <string name="HTML">HTML</string>
     <string name="noteNotRenamed">Note not renamed</string>
+    <string name="notebookNotRenamed">Notebook not renamed</string>
     <string name="renameNote">Rename Note</string>
+    <string name="renameNotebook">Rename Notebook</string>
     <string name="enterNewName">Please enter a new name</string>
     <string name="enterName">Please enter a name</string>
     <string name="newNote">New Note</string>
@@ -28,6 +30,8 @@
     <string name="notebookNotCreated">notebook not created</string>
     <string name="notCreatedNotebookExists">notebook not created because a notebook with the same name already exists </string>
     <string name="notCreatedNoteExists">notebook not created because a notebook with the same name already exists</string>
+    <string name="notebookExists">a notebook with the same name already exists </string>
+    <string name="noteExists">a notebook with the same name already exists</string>
     <string name="removeMultipleNotes">Remove Multiple Notes</string>
     <string name="removeMultipleNotesQuestion">Are you sure you want to remove the selected note(s)?</string>
     <string name="notesNotRemoved">note(s) not removed</string>
@@ -43,6 +47,10 @@
     <string name="action_undo">Undo</string>
     <string name="action_copy_to_clipboard">Copy to clipboard</string>
     <string name="msg_copied_to_clipboard">Note copied to clipboard</string>
+    <string name="msg_items_removed">Items removed</string>
+    <string name="msg_directory_selected">Directory Selected:</string>
+    <string name="no_results_found">No Results Found</string>
+    <string name="notebook_is_empty">Notebook is empty</string>
 
     <string name="keepEditing">Keep Editing</string>
     <string name="discard">Discard</string>
@@ -51,6 +59,7 @@
     <string name="find_in_text">find in text</string>
     <string name="title_activity_main2">MainActivity2</string>
     <string name="search_hint">Search</string>
+    <string name="title_search_results">All Results</string>
 
 
 </resources>

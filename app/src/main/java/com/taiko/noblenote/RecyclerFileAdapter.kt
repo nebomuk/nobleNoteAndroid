@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import com.jakewharton.rxbinding.view.clicks
 import com.jakewharton.rxbinding.view.longClicks
 import kotlinx.android.synthetic.main.recycler_file_item.view.*
+import rx.Observable
 import rx.lang.kotlin.PublishSubject
 import rx.lang.kotlin.plusAssign
 import rx.subjects.PublishSubject
@@ -27,9 +28,9 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
 
     private val mWeakReferenceOnListChangedCallback: WeakReferenceOnListChangedCallback
 
-    fun itemClicks() = mClickSubject.asObservable();
+    fun itemClicks(): Observable<Int> = mClickSubject.asObservable();
 
-    fun itemLongClicks() = mLongClickSubject.asObservable();
+    fun itemLongClicks(): Observable<Int> = mLongClickSubject.asObservable();
 
     val selectedFiles : List<File>
         get() = mFiles.filter { it.isSelected }.map { it.file }
@@ -39,8 +40,33 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
     var path : File = File(Pref.rootPath.value)
     set(value) {
         mFiles.clear()
-        mHandler.postDelayed({ mFiles.addAll(listFiles(value, filter).map { FileItem(it,false) }) },0)
+        mHandler.postDelayed({ mFiles.addAll(FileHelper.listFilesSorted(value, filter).map { FileItem(it,false) }) },0)
         field = value
+    }
+
+    // reloads the file list by adding, removing files from the observable file list
+    fun refresh()
+    {
+        val newFileList = FileHelper.listFilesSorted(path,filter);
+        // add files that arent contained in the list
+        for (newFile in newFileList)
+        {
+            if(!mFiles.any { it.file.name == newFile.name })
+            {
+                addFile(newFile)
+            }
+        }
+        // remove files
+        val iter = mFiles.listIterator();
+        while (iter.hasNext())
+        {
+            val file = iter.next();
+            if(!newFileList.any { it.name == file.file.name })
+            {
+                iter.remove();
+            }
+        }
+
     }
 
     private val mHandler = Handler()
@@ -141,24 +167,6 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
     data class FileItem(val file : File,var isSelected: Boolean) : Comparable<FileItem> {
         override fun compareTo(other: FileItem): Int {
             return this.file.name.compareTo(other.file.name)
-        }
-    }
-
-
-    companion object
-    {
-        /**
-         * creates a writable list of the contents of the directory
-         */
-        @JvmStatic
-        fun listFiles(dir: File, filter: FileFilter): ArrayList<File> {
-            //List<File> fileList = Arrays.asList(); // returns read only list, causes unsupported operation exceptions in adapter
-            val fileList = ArrayList<File>()
-            if (dir.exists() || dir.mkdirs()) {
-                Collections.addAll(fileList, *dir.listFiles(filter))
-                Collections.sort(fileList) { lhs, rhs -> Collator.getInstance().compare(lhs.name, rhs.name) }
-            }
-            return fileList
         }
     }
 

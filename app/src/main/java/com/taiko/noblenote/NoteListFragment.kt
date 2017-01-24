@@ -9,8 +9,11 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import kotlinx.android.synthetic.main.fragment_file_list.*
 import kotlinx.android.synthetic.main.fragment_file_list.view.*
+import rx.android.schedulers.AndroidSchedulers
 import rx.lang.kotlin.plusAssign
+import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
 import java.io.File
 import java.io.FileFilter
@@ -46,21 +49,58 @@ class NoteListFragment : Fragment() {
         val rv = view.recycler_view
         //rv.itemAnimator = SlideInLeftAnimator();
 
-        if (arguments.containsKey(MainActivity.ARG_TWO_PANE)) {
-            mTwoPane = arguments.getBoolean(MainActivity.ARG_TWO_PANE)
-        }
-
         val fileFilter = FileFilter { pathname -> pathname.isFile && !pathname.isHidden }
 
         recyclerFileAdapter = RecyclerFileAdapter()
         recyclerFileAdapter.filter = fileFilter
-        mCompositeSubscription += Pref.currentFolderPath.subscribe { recyclerFileAdapter.path = File(it) }
+
+        if (arguments.containsKey(MainActivity.ARG_TWO_PANE)) {
+            mTwoPane = arguments.getBoolean(MainActivity.ARG_TWO_PANE)
+        }
+
+        if(arguments.containsKey(ARG_QUERY_TEXT))
+        {
+            tv_file_list_empty.setText(R.string.no_results_found);
+            tv_title_search_results.visibility = View.VISIBLE;
+
+            val queryText = arguments.getString(ARG_QUERY_TEXT,"");
+            if (!queryText.isNullOrBlank()) {
+                mCompositeSubscription += FindInFiles.findHtmlInFiles(Pref.rootPath.value,queryText)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe( {
+                            recyclerFileAdapter.addFile(File(it))
+                        },
+
+                                {},
+                                // on Completed
+                                {
+                                    // show "no results" text
+
+                                        tv_file_list_empty.visibility = if(recyclerFileAdapter.itemCount == 0) View.VISIBLE else View.GONE;
+                                })
+            }
+        }
+        else // use current folder path and display the contents
+        {
+            tv_file_list_empty.setText(R.string.notebook_is_empty);
+
+            mCompositeSubscription += Pref.currentFolderPath.subscribe { recyclerFileAdapter.path = File(it) }
+        }
+
+
+
 
         rv.adapter = recyclerFileAdapter
         rv.layoutManager = LinearLayoutManager(activity)
 
         val app = (activity.application as MainApplication)
-        mCompositeSubscription += recyclerFileAdapter.itemClicks()
+
+        val listController = ListController(activity as MainActivity,rv)
+        listController.isHtmlActionAvailable = true;
+
+
+        mCompositeSubscription += listController.itemClicks()
                 .doOnNext { Log.d("","item pos clicked: " + it) }
                 .subscribe { app.uiCommunicator.fileSelected.onNext(recyclerFileAdapter.getItem(it)) }
 
@@ -70,14 +110,25 @@ class NoteListFragment : Fragment() {
     companion object {
 
         @JvmStatic
-        val ARG_FOLDER_PATH = "folder_path"
+        val ARG_FOLDER_PATH = "folder_path" // used to display the contents of a folder
 
         @JvmStatic
-        fun startNoteEditor(activity: Context, file: File) {
-            val detailIntent = Intent(activity, NoteEditorActivity::class.java)
-            detailIntent.putExtra(NoteEditorActivity.ARG_FILE_PATH, file.path)
-            detailIntent.putExtra(NoteEditorActivity.ARG_OPEN_MODE, NoteEditorActivity.READ_WRITE)
-            activity.startActivity(detailIntent)
+        val ARG_QUERY_TEXT = "query_text" // used to display results of a full text search
+
+        // start the note editor
+        @JvmStatic
+        fun startNoteEditor(activity: Context, file: File, argOpenMode : String, argQueryText : String = "") {
+            if(!file.isFile)
+            {
+                KLog.w("startNoteEditor failed: $file is not a text file");
+                return
+            }
+
+            val intent = Intent(activity, NoteEditorActivity::class.java)
+            intent.putExtra(NoteEditorActivity.ARG_FILE_PATH, file.path)
+            intent.putExtra(NoteEditorActivity.ARG_OPEN_MODE, argOpenMode)
+            intent.putExtra(NoteEditorActivity.ARG_QUERY_TEXT,argQueryText);
+            activity.startActivity(intent);
         }
     }
 
