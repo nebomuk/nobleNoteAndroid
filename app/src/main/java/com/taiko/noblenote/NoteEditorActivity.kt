@@ -42,9 +42,9 @@ class NoteEditorActivity : Activity() {
 
     private val TAG = this.javaClass.simpleName
 
-    private var filePath = ""
     private var focusable = true // if set to false, the note is opened in read only mode
-    private var openMode: String? = null
+    private lateinit var filePath : String;
+    private lateinit var openMode: String;
     private var lastModified: Long = 0
     private var mFormattingMenuItem: MenuItem? = null
     private val mCompositeSubscription : CompositeSubscription = CompositeSubscription();
@@ -92,15 +92,8 @@ class NoteEditorActivity : Activity() {
 
     }
 
-    //	@Override
-    //	public void onStart()
-    //	{
-    //		super.onStart();
-    //
-    //	}
-
-    public override fun onResume() {
-        super.onResume()
+    public override fun onStart() {
+        super.onStart()
 
         if (File(filePath).lastModified() > lastModified) {
             reload()
@@ -112,7 +105,6 @@ class NoteEditorActivity : Activity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             editor_edit_text.customSelectionActionModeCallback = SelectionActionModeCallback(editor_edit_text)
         }
-
     }
 
     /**
@@ -120,34 +112,40 @@ class NoteEditorActivity : Activity() {
      */
     private fun reload() {
         // load file contents and parse html thread
-        mCompositeSubscription += FileHelper.readFile(filePath,this,parseHtml = openMode != HTML) // don't parse html if it should display the html source of the note
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe( {
-                    editor_edit_text.setText(it)
-                    editor_edit_text.movementMethod = ArrowKeyLinkMovementMethod()
-                    progress_bar_file_loading.visibility = View.GONE
-                    editor_scroll_view.visibility = View.VISIBLE
-                    editor_edit_text.isModified = false // reset modification state because modification flag has been set by editor_edit_text.setText
 
-                    val queryText = intent?.extras?.getString(ARG_QUERY_TEXT)
-                    if(!queryText.isNullOrBlank())
-                    {
-                        toolbar_find_in_text.toolbar_find_in_text_edit_text.setText(queryText);
-                        showFindInTextToolbar();
-                        mFindHighlighter.highlightNext();
-                    }
+        FileHelper.checkMountStateAndPermission(this,onSuccess = {
 
-                }, {
-                    Log.e(TAG, it.message)
-                    Snackbar.make(layout_root!!, R.string.file_loading_error, Snackbar.LENGTH_LONG).show()
+            mCompositeSubscription += FileHelper.readFile(filePath, this, parseHtml = openMode != HTML) // don't parse html if it should display the html source of the note
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({
+                        editor_edit_text.setText(it)
+                        editor_edit_text.movementMethod = ArrowKeyLinkMovementMethod()
+                        progress_bar_file_loading.visibility = View.GONE
+                        editor_scroll_view.visibility = View.VISIBLE
+                        editor_edit_text.isModified = false // reset modification state because modification flag has been set by editor_edit_text.setText
 
-                })
+                        val queryText = intent?.extras?.getString(ARG_QUERY_TEXT)
+                        if (!queryText.isNullOrBlank()) {
+                            toolbar_find_in_text.toolbar_find_in_text_edit_text.setText(queryText);
+                            showFindInTextToolbar();
+                            mFindHighlighter.moveNext();
+                        }
+
+                    }, {
+                        Log.e(TAG, it.message)
+                        Snackbar.make(layout_root!!, R.string.file_loading_error, Snackbar.LENGTH_LONG).show()
+
+                    })
+        },
+                onFailure = {
+                    finish(); // permission denied or sd not mounted, finish editor activity and show the empty file list of the parent activity
+                });
 
     }
 
-    public override fun onPause() {
-        super.onPause()
+    public override fun onStop() {
+        super.onStop()
 
         // does nothing if open mode is set to read only
 
@@ -155,15 +153,20 @@ class NoteEditorActivity : Activity() {
         if (focusable && editor_edit_text.isModified)
         // then save the note
         {
-            FileHelper.writeFile(filePath = filePath,text = editor_edit_text.textHTML)
-                    .subscribeOn(Schedulers.io())
-                    .subscribe {
+            FileHelper.checkMountStateAndPermission(this, onSuccess = {
+                FileHelper.writeFile(filePath = filePath, text = editor_edit_text.textHTML)
+                        .subscribeOn(Schedulers.io())
+                        .subscribe {
 
-                lastModified = it
-                editor_edit_text.isModified = false
-                runOnUiThread { Toast.makeText(this.applicationContext, R.string.noteSaved, Toast.LENGTH_SHORT).show() }
+                            lastModified = it
+                            editor_edit_text.isModified = false
+                            runOnUiThread { Toast.makeText(this.applicationContext, R.string.noteSaved, Toast.LENGTH_SHORT).show() }
+                        }
             }
-
+                    ,
+                    onFailure = {
+                        finish();
+                    });
         }
     }
 
@@ -293,37 +296,36 @@ class NoteEditorActivity : Activity() {
         mFindHighlighter = FindHighlighter(editText = editor_edit_text,
                 toolbarEditText = toolbar_find_in_text.toolbar_find_in_text_edit_text,
                 scrollView = editor_scroll_view)
-        editor_edit_text.selectionStartChanges().subscribe { mFindHighlighter.currentIndex = it } // search starts from cursor position
+
+        fun updateArrows()
+        {
+            setArrowDownEnabled(mFindHighlighter.hasNext());
+            setArrowUpEnabled(mFindHighlighter.hasPrevious());
+        }
+
+        editor_edit_text.textChanges().subscribe {
+            mFindHighlighter.onEditorTextChanged();
+            mFindHighlighter.highlight();
+            updateArrows();
+        }
 
         toolbar_find_in_text.toolbar_find_in_text_edit_text.textChanges().subscribe {
-            mFindHighlighter.searchString = it.toString()
-            val count = editor_edit_text.text!!.countMatches(mFindHighlighter.searchString);
-
-            // selection arrows
-            if(count == 0 || count == 1)
-            {
-                setArrowUpEnabled(false);
-                setArrowDownEnabled(false);
-
-            }
-            else if(count > 1)
-            {
-                setArrowUpEnabled(false);
-                setArrowDownEnabled(true);
-            }
-
-            // highlight first
-            if(count >= 1)
-            {
-                mFindHighlighter.highlightNext();
-            }
-
-
+            mFindHighlighter.mSearchString = it.toString();
+            mFindHighlighter.highlight();
+            updateArrows()
         }
 
 
-        toolbar_find_in_text.arrow_down.clicks().subscribe { mFindHighlighter.highlightNext()  }
-        toolbar_find_in_text.arrow_up.clicks().subscribe { mFindHighlighter.highlightPrevious() }
+        toolbar_find_in_text.arrow_down.clicks().subscribe {
+            mFindHighlighter.moveNext()
+            mFindHighlighter.highlight();
+            updateArrows();
+        }
+        toolbar_find_in_text.arrow_up.clicks().subscribe {
+            mFindHighlighter.movePrevious()
+            mFindHighlighter.highlight();
+            updateArrows();
+        }
 
         val itemDone = menu.add(R.string.action_done).setIcon(R.drawable.ic_done_black_24dp)
                 .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)

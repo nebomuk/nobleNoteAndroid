@@ -88,9 +88,6 @@ class NoteListFragment : Fragment() {
             mCompositeSubscription += Pref.currentFolderPath.subscribe { recyclerFileAdapter.path = File(it) }
         }
 
-
-
-
         rv.adapter = recyclerFileAdapter
         rv.layoutManager = LinearLayoutManager(activity)
 
@@ -105,6 +102,13 @@ class NoteListFragment : Fragment() {
                 .subscribe { app.uiCommunicator.fileSelected.onNext(recyclerFileAdapter.getItem(it)) }
 
         app.uiCommunicator.createFileClick.subscribe { recyclerFileAdapter.addFile(it) }
+
+        mCompositeSubscription += app.uiCommunicator.swipeRefresh.subscribe { recyclerFileAdapter.refresh(activity) }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        recyclerFileAdapter.refresh(activity);
     }
 
     companion object {

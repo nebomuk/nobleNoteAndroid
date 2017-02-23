@@ -1,7 +1,7 @@
 package com.taiko.noblenote
 
+import android.app.Activity
 import android.app.AlertDialog
-import android.content.Context
 import android.content.DialogInterface
 import android.support.design.widget.Snackbar
 import android.text.InputFilter
@@ -24,169 +24,177 @@ import java.io.IOException
 object Dialogs {
 
     @JvmStatic
-    fun showNewNoteDialog(activity: Context, fileCreated : (f : File) -> Unit) {
-        val dialogBuilder = AlertDialog.Builder(activity)
+    fun showNewNoteDialog(activity: Activity, fileCreated : (f : File) -> Unit) {
 
-        dialogBuilder.setTitle(R.string.newNote)
-        dialogBuilder.setMessage(R.string.enterName)
+        FileHelper.checkMountStateAndPermission(activity,
+        {
+            val dialogBuilder = AlertDialog.Builder(activity)
 
-        // Set an EditText view to get user input
-        val input = EditText(activity)
-        input.filters = arrayOf<InputFilter>(FileNameFilter())
+            dialogBuilder.setTitle(R.string.newNote)
+            dialogBuilder.setMessage(R.string.enterName)
 
-        // dont propose a name that already exists
-        var proposed = File(Pref.currentFolderPath.value, activity.getString(R.string.newNote))
-        var counter = 0
-        while (proposed.exists()) {
-            proposed = File("${proposed.absoluteFile} (${++counter})")
-        }
-        input.setText(proposed.name)
-        input.setSelection(input.text.length)
-        dialogBuilder.setView(input)
-        dialogBuilder.setPositiveButton(
-                android.R.string.ok) { dialog, whichButton ->
-            val newName = input.text.trim()
-            val newFile = File(Pref.currentFolderPath.value, newName.toString())
-            try {
-                if (newFile.createNewFile()) {
-                    fileCreated(newFile)
-                } else
-                // error occured
-                {
-                    Toast.makeText(activity, R.string.noteNotCreated, Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
+            // Set an EditText view to get user input
+            val input = EditText(activity)
+            input.filters = arrayOf<InputFilter>(FileNameFilter())
+
+            // dont propose a name that already exists
+            var proposed = File(Pref.currentFolderPath.value, activity.getString(R.string.newNote))
+            var counter = 0
+            while (proposed.exists()) {
+                proposed = File("${proposed.absoluteFile} (${++counter})")
             }
-        }
+            input.setText(proposed.name)
+            input.setSelection(input.text.length)
+            dialogBuilder.setView(input)
+            dialogBuilder.setPositiveButton(
+                    android.R.string.ok) { dialog, whichButton ->
+                val newName = input.text.trim()
+                val newFile = File(Pref.currentFolderPath.value, newName.toString())
+                try {
+                    if (newFile.createNewFile()) {
+                        fileCreated(newFile)
+                    } else
+                    // error occured
+                    {
+                        Toast.makeText(activity, R.string.noteNotCreated, Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
 
-        // does nothing but creates a button
-        dialogBuilder.setNegativeButton(android.R.string.cancel, null)
+            // does nothing but creates a button
+            dialogBuilder.setNegativeButton(android.R.string.cancel, null)
 
-        dialogBuilder.show()
+            dialogBuilder.show()
+        });
     }
 
     @JvmStatic
-    fun showNewFolderDialog(activity: Context, folderCreated : (f : File) -> Unit) {
-        val dialogBuilder = AlertDialog.Builder(activity)
+    fun showNewFolderDialog(activity: Activity, folderCreated : (f : File) -> Unit) {
 
-        dialogBuilder.setTitle(R.string.newNotebook)
-        dialogBuilder.setMessage(R.string.enterName)
+        FileHelper.checkMountStateAndPermission(activity,
+                {
+                    val dialogBuilder = AlertDialog.Builder(activity)
 
-        // Set an EditText view to get user input
-        val input = EditText(activity)
-        input.filters = arrayOf<InputFilter>(FileNameFilter())
+                    dialogBuilder.setTitle(R.string.newNotebook)
+                    dialogBuilder.setMessage(R.string.enterName)
 
-        val proposedDirPath = File(Pref.rootPath.value, activity.getString(R.string.newNotebook)).absolutePath
-        var proposed = File(proposedDirPath)
-        var counter = 0
-        while (proposed.exists()) {
-            proposed = File("$proposedDirPath  (${++counter})")
-        }
-        input.setText(proposed.name)
-        input.setSelection(input.text.length)
-        dialogBuilder.setView(input)
+                    // Set an EditText view to get user input
+                    val input = EditText(activity)
+                    input.filters = arrayOf<InputFilter>(FileNameFilter())
 
-        dialogBuilder.setPositiveButton(
-                android.R.string.ok) { dialog, whichButton ->
-            val newName = input.text.trim()
-            val dir = File(Pref.rootPath.value, newName.toString())
-            if (!dir.mkdirs()) {
-                Toast.makeText(activity, R.string.notebookNotCreated, Toast.LENGTH_SHORT).show()
-            }
-            else
-            {
-                folderCreated(dir)
-            }
-        }
+                    val proposedDirPath = File(Pref.rootPath.value, activity.getString(R.string.newNotebook)).absolutePath
+                    var proposed = File(proposedDirPath)
+                    var counter = 0
+                    while (proposed.exists()) {
+                        proposed = File("$proposedDirPath  (${++counter})")
+                    }
+                    input.setText(proposed.name)
+                    input.setSelection(input.text.length)
+                    dialogBuilder.setView(input)
 
-        // does nothing but creates a button
-        dialogBuilder.setNegativeButton(android.R.string.cancel, null)
+                    dialogBuilder.setPositiveButton(
+                            android.R.string.ok) { dialog, whichButton ->
+                        val newName = input.text.trim()
+                        val dir = File(Pref.rootPath.value, newName.toString())
+                        if (!dir.mkdirs()) {
+                            Toast.makeText(activity, R.string.notebookNotCreated, Toast.LENGTH_SHORT).show()
+                        } else {
+                            folderCreated(dir)
+                        }
+                    }
 
-        dialogBuilder.show()
+                    // does nothing but creates a button
+                    dialogBuilder.setNegativeButton(android.R.string.cancel, null)
+
+                    dialogBuilder.show();
+                });
     }
 
     /**
      * shows a dialog to rename a folder or file relative to the root path
      */
     @JvmStatic
-    fun showRenameDialog(rootView: View, file: File, onRenamed : (renamedFile: File) -> Unit, onNotRenamed : () -> Unit)
+    fun showRenameDialog(activity : Activity, rootView: View, file: File, onRenamed : (renamedFile: File) -> Unit, onNotRenamed : () -> Unit)
     {
-        val dialogBuilder = AlertDialog.Builder(rootView.context)
 
-        val isDir : Boolean = file.isDirectory
+        FileHelper.checkMountStateAndPermission(activity,
+                onSuccess = {
 
-        val title = if (isDir) R.string.renameNotebook else R.string.renameNote
-        val msgExists = if(isDir) R.string.notebookExists else R.string.noteExists
-        val message = R.string.enterNewName
-        val msgNotRenamed = if(isDir) R.string.notebookNotRenamed else R.string.noteNotRenamed
+                    val dialogBuilder = AlertDialog.Builder(rootView.context)
+
+                    val isDir: Boolean = file.isDirectory
+
+                    val title = if (isDir) R.string.renameNotebook else R.string.renameNote
+                    val msgExists = if (isDir) R.string.notebookExists else R.string.noteExists
+                    val message = R.string.enterNewName
+                    val msgNotRenamed = if (isDir) R.string.notebookNotRenamed else R.string.noteNotRenamed
 
 
-        dialogBuilder.setTitle(title)
-        dialogBuilder.setMessage(message)
+                    dialogBuilder.setTitle(title)
+                    dialogBuilder.setMessage(message)
 
-        // Set an EditText view to get user input
-        val input = EditText(rootView.context)
-        input.filters = arrayOf(FileNameFilter())
-        input.setText(file.name)
-        input.setSelection(input.text.length)
-        dialogBuilder.setView(input)
+                    // Set an EditText view to get user input
+                    val input = EditText(rootView.context)
+                    input.filters = arrayOf(FileNameFilter())
+                    input.setText(file.name)
+                    input.setSelection(input.text.length)
+                    dialogBuilder.setView(input)
 
-        dialogBuilder.setPositiveButton(
-                android.R.string.ok) { dialog, whichButton ->
-            val newName = input.text.toString().trim()
-            val newFile = File(file.parentFile,newName)
+                    dialogBuilder.setPositiveButton(
+                            android.R.string.ok) { dialog, whichButton ->
+                        val newName = input.text.toString().trim()
+                        val newFile = File(file.parentFile, newName)
 
-            if(newFile == file) // name wasnt changed by user
-            {
-                onNotRenamed();
-                return@setPositiveButton;
-            }
-
-            if (newFile.exists())
-            {
-                Snackbar.make(rootView, msgExists, Snackbar.LENGTH_SHORT).show()
-                onNotRenamed();
-                return@setPositiveButton
-            }
-
-            Observable.create<Boolean>
-            {
-                var renamed = false;
-
-                if (isDir)
-                {
-                    renamed = FileHelper.directoryMove(file,newFile)
-                }
-                else
-                {
-                    renamed = file.renameTo(newFile)
-                }
-                it.onNext(renamed);
-                it.onCompleted();
-
-            }
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe {
-                        val renamed = it;
-                        if (!renamed)
+                        if (newFile == file) // name wasnt changed by user
                         {
-                            Snackbar.make(rootView, msgNotRenamed, Snackbar.LENGTH_SHORT).show()
                             onNotRenamed();
-
+                            return@setPositiveButton;
                         }
-                        else
+
+                        if (newFile.exists()) {
+                            Snackbar.make(rootView, msgExists, Snackbar.LENGTH_SHORT).show()
+                            onNotRenamed();
+                            return@setPositiveButton
+                        }
+
+                        Observable.create<Boolean>
                         {
-                            onRenamed(newFile)
+                            var renamed = false;
+
+                            if (isDir) {
+                                renamed = FileHelper.directoryMove(file, newFile)
+                            } else {
+                                renamed = file.renameTo(newFile)
+                            }
+                            it.onNext(renamed);
+                            it.onCompleted();
+
                         }
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe {
+                                    val renamed = it;
+                                    if (!renamed) {
+                                        Snackbar.make(rootView, msgNotRenamed, Snackbar.LENGTH_SHORT).show()
+                                        onNotRenamed();
+
+                                    } else {
+                                        onRenamed(newFile)
+                                    }
+                                }
                     }
-        }
 
 
-        dialogBuilder.setNegativeButton(android.R.string.cancel,{ dialogInterface: DialogInterface, i: Int -> onNotRenamed()});
-        dialogBuilder.setOnCancelListener { onNotRenamed() }
+                    dialogBuilder.setNegativeButton(android.R.string.cancel, { dialogInterface: DialogInterface, i: Int -> onNotRenamed() });
+                    dialogBuilder.setOnCancelListener { onNotRenamed() }
 
-        dialogBuilder.show()
+                    dialogBuilder.show()
+                }
+        ,onFailure = { onNotRenamed() });
     }
+
+
+
 }

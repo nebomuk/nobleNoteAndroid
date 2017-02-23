@@ -1,13 +1,11 @@
 package com.taiko.noblenote
 
-import android.Manifest
 import android.app.Activity
 import android.os.Bundle
 import android.os.Handler
 import android.transition.Fade
 import android.view.View
 import com.jakewharton.rxbinding.view.clicks
-import com.tbruyelle.rxpermissions.RxPermissions
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main_twopane.*
 import rx.lang.kotlin.plusAssign
@@ -21,7 +19,6 @@ class MainActivity : Activity()
 
     val compositeSubscription = CompositeSubscription()
     lateinit var mainToolbarController : MainToolbarController
-    lateinit var mHandler : Handler;
 
     public companion object {
         @JvmField val ARG_TWO_PANE = "two_pane"
@@ -48,7 +45,7 @@ class MainActivity : Activity()
 
         setContentView(R.layout.activity_main)
 
-        mHandler = Handler();
+
 
 
     // https://stackoverflow.com/questions/26600263/how-do-i-prevent-the-status-bar-and-navigation-bar-from-animating-during-an-acti
@@ -66,13 +63,10 @@ class MainActivity : Activity()
 
 
         // request permissions dialog
-        compositeSubscription += RxPermissions(this).request(Manifest.permission.WRITE_EXTERNAL_STORAGE).subscribe {
-            if(it) {
-                val folderFrag = FolderListFragment()
-                fragmentManager.beginTransaction().add(R.id.item_master_container, folderFrag).commit()
 
-            }
-        }
+
+
+        fragmentManager.beginTransaction().add(R.id.item_master_container, FolderListFragment()).commit()
 
         val app = application as MainApplication
         compositeSubscription += app.uiCommunicator.folderSelected.subscribe { onFolderSelected(it.absolutePath) }
@@ -104,8 +98,10 @@ class MainActivity : Activity()
 
         mainToolbarController = MainToolbarController(this)
 
+        val handler = Handler();
+
         swipe_refresh.setOnRefreshListener {
-            mHandler.postDelayed({swipe_refresh.isRefreshing = false},500)
+            handler.postDelayed({swipe_refresh.isRefreshing = false},500)
             app.uiCommunicator.swipeRefresh.onNext(Unit)
 
         }
@@ -124,6 +120,9 @@ class MainActivity : Activity()
         compositeSubscription.clear()
     }
 
+    /**
+     * sets the visibility of the floating action button
+     */
     fun setFabVisible(b : Boolean)
     {
         if(b)

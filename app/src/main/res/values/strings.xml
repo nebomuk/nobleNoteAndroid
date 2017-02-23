@@ -49,6 +49,8 @@
     <string name="msg_copied_to_clipboard">Note copied to clipboard</string>
     <string name="msg_items_removed">Items removed</string>
     <string name="msg_directory_selected">Directory Selected:</string>
+    <string name="msg_external_storage_permission_denied">Permission has been denied. No features accessing, modifying or creating files will be available.</string>
+    <string name="msg_external_storage_not_mounted">The SD-Card is not mounted. No features accessing, modifying or creating files will be available.</string>
     <string name="no_results_found">No Results Found</string>
     <string name="notebook_is_empty">Notebook is empty</string>
 

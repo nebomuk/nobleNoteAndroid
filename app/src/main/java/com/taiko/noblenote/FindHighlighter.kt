@@ -9,9 +9,6 @@ import android.widget.ScrollView
 import android.widget.TextView
 
 
-
-
-
 /**
  *  @author Taiko
  *
@@ -19,15 +16,29 @@ import android.widget.TextView
  */
 class FindHighlighter constructor(val editText : EditText, val toolbarEditText : EditText, val scrollView: ScrollView)
 {
-    public var searchString : String = ""
-    var currentIndex : Int = 0; // highlight Index
-    private var highlightSpan: HighlightColorSpan = HighlightColorSpan(Color.YELLOW);
+    var mSearchString: String = ""
+    set(value)
+    {
+        if(value != mSearchString)
+        {
+            mIndices = editText.text.indicesOf(value);
+            field = value;
+        }
+    }
+
+    private var mCurrentIndicesIndex = 0 // the current index in the list of indices
+
+
+    private val highlightSpan: HighlightColorSpan = HighlightColorSpan(Color.YELLOW);
+
+    private var mIndices = emptyList<Int>(); // a list of indexes where the searchString can be found in the text
 
     init {
+        // handle enter press
         toolbarEditText.setOnEditorActionListener(object : TextView.OnEditorActionListener {
             override  fun onEditorAction(v: TextView, actionId: Int, event: KeyEvent?): Boolean {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH || event?.keyCode == KeyEvent.KEYCODE_ENTER) {
-                    highlightNext()
+                    moveNext()
                     return true
                 }
                 return false
@@ -35,55 +46,56 @@ class FindHighlighter constructor(val editText : EditText, val toolbarEditText :
         })
     }
 
+    // should be called when the editor text has been changed
+    // updates sthe search indices
+    fun onEditorTextChanged()
+    {
+        mIndices = editText.text.indicesOf(mSearchString);
+    }
+
+
+
     fun clearHighlight()
     {
         editText.text.removeSpan(highlightSpan)
     }
 
-/*    fun hasNext() : Boolean
+    fun hasNext() : Boolean
     {
-
+        return mCurrentIndicesIndex < mIndices.size -1;
     }
 
     fun hasPrevious() : Boolean
     {
+        return  mCurrentIndicesIndex > 0;
+    }
 
-    }*/
-
-
-    fun highlightPrevious() : Boolean
+    fun highlight()
     {
-        val localStart = if (currentIndex < editText.text.length-1) currentIndex-1 else editText.text.length-1;
-        val index = editText.text.lastIndexOf(searchString,localStart,ignoreCase = true)
-        if(index == -1)
+        if(mSearchString.isNullOrBlank() || mIndices.isEmpty()) // cannot highlight zero length, so simply clear the highlighting
         {
-            return false;
+            clearHighlight();
         }
-        else
-        {
-            editText.text.setSpan(highlightSpan,index,index + searchString.length,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        else if (mCurrentIndicesIndex >= 0 && mCurrentIndicesIndex < mIndices.size) {
+            val index = mIndices[mCurrentIndicesIndex];
+            editText.text.setSpan(highlightSpan,index , index + mSearchString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             scrollToIndex(index)
-            currentIndex = index;
-            return true;
         }
     }
 
-    fun highlightNext() : Boolean
+    fun movePrevious()
     {
-        val localStart = if (currentIndex > 0) currentIndex+ searchString.length else 0;
-        val index = editText.text.indexOf(searchString,localStart,ignoreCase = true)
-        if(index == -1)
+        if(hasPrevious())
         {
-            return false;
+            --mCurrentIndicesIndex;
         }
-        else
+    }
+
+    fun moveNext()
+    {
+        if(hasNext())
         {
-            editText.text.setSpan(highlightSpan,index,index + searchString.length,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-            scrollToIndex(index)
-
-            currentIndex = index;
-
-            return true;
+            ++mCurrentIndicesIndex;
         }
     }
 
@@ -95,8 +107,22 @@ class FindHighlighter constructor(val editText : EditText, val toolbarEditText :
             scrollView.smoothScrollTo(0,y)
 
         }
-
     }
+
+    // moves to the nearest index of the search word using the specified text position
+    @Deprecated("this feature is not longer used, because it's confusing when the search starts from the cursor position (words before the cursor might not be found")
+    fun moveSearchStart(textPos : Int)
+    {
+
+        val closestValue = mIndices.filter {textPos <= it }.minBy { Math.abs(textPos - it) }
+        if(closestValue != null) {
+            val index = mIndices.indexOf(closestValue);
+            if(index != -1) {
+                mCurrentIndicesIndex = index;
+            }
+        }
+    }
+
 
 
 }

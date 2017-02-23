@@ -1,7 +1,12 @@
 package com.taiko.noblenote
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.os.Environment
 import android.util.Log
+import android.widget.Toast
+import com.tbruyelle.rxpermissions.RxPermissions
 import rx.Observable
 import java.io.*
 import java.text.Collator
@@ -120,7 +125,8 @@ object FileHelper {
     }
 
     /**
-     * creates a writable list of the contents of the directory
+     * creates a mutable list of the contents of the directory
+     * and creates the directory if it does not exist
      */
     @JvmStatic
     fun listFilesSorted(dir: File, filter: FileFilter): ArrayList<File> {
@@ -132,4 +138,38 @@ object FileHelper {
         }
         return fileList
     }
+
+    /**
+     * checks write permission and sd card mount state
+     * and invokes the callback when evertything is true
+     */
+    @JvmStatic
+    fun checkMountStateAndPermission(activity: Activity, onSuccess: () -> Unit, onFailure : () -> Unit = {})
+    {
+        RxPermissions(activity).request(Manifest.permission.WRITE_EXTERNAL_STORAGE).subscribe({
+            if(it) {
+
+                if(Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED)
+                {
+                    onSuccess();
+                }
+                else
+                {
+                    onFailure();
+                    KLog.d("getExternalStorageState() != MEDIA_MOUNTED");
+                    Toast.makeText(activity,R.string.msg_external_storage_not_mounted, Toast.LENGTH_LONG).show();
+                }
+            }
+            else
+            {
+                onFailure();
+                KLog.d("Permission WRITE_EXTERNAL_STORAGE not granted");
+                Toast.makeText(activity,R.string.msg_external_storage_permission_denied, Toast.LENGTH_LONG).show();
+            }
+        }, {
+            KLog.e("exception in RxPermissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE)", it);
+            onFailure();
+        });
+    }
+
 }

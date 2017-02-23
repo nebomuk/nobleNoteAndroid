@@ -37,7 +37,7 @@ class ListController(val activity: MainActivity,  val recyclerView: RecyclerView
         mFileActionModeCallback.onRename.subscribe {
             val selectedFile = adapter.selectedFiles.firstOrNull()
             if (selectedFile != null) {
-                Dialogs.showRenameDialog(recyclerView, selectedFile, onRenamed = {
+                Dialogs.showRenameDialog(activity,recyclerView, selectedFile, onRenamed = {
                     adapter.removeSelected();
                     adapter.addFile(it);
                     mActionMode?.finish();

@@ -67,8 +67,13 @@ class FolderListFragment : Fragment() {
 
         mCompositeSubscription += app.uiCommunicator.createFolderClick.subscribe { recyclerFileAdapter.addFile(it) }
 
-        mCompositeSubscription += app.uiCommunicator.swipeRefresh.subscribe { recyclerFileAdapter.refresh() }
+        mCompositeSubscription += app.uiCommunicator.swipeRefresh.subscribe { recyclerFileAdapter.refresh(activity) }
 
+    }
+
+    override fun onStart() {
+        super.onStart()
+        recyclerFileAdapter.refresh(activity);
     }
 
     override fun onDestroyView() {

@@ -1,5 +1,6 @@
 package com.taiko.noblenote
 
+import android.app.Activity
 import android.databinding.ObservableArrayList
 import android.graphics.Color
 import android.os.Handler
@@ -18,7 +19,10 @@ import java.io.FileFilter
 import java.text.Collator
 import java.util.*
 
-
+/**
+ * file system adapter, can be configured inside onViewCreated or onCreate
+ * but you must call refresh() in onStart/onResume
+ */
 class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
 
     private val mFiles: ObservableArrayList<FileItem>
@@ -38,34 +42,38 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
     var filter : FileFilter = FileFilter { true }
 
     var path : File = File(Pref.rootPath.value)
-    set(value) {
+/*    set(value) {
         mFiles.clear()
         mHandler.postDelayed({ mFiles.addAll(FileHelper.listFilesSorted(value, filter).map { FileItem(it,false) }) },0)
         field = value
-    }
+    }*/
 
     // reloads the file list by adding, removing files from the observable file list
-    fun refresh()
+    fun refresh(activity: Activity)
     {
-        val newFileList = FileHelper.listFilesSorted(path,filter);
-        // add files that arent contained in the list
-        for (newFile in newFileList)
-        {
-            if(!mFiles.any { it.file.name == newFile.name })
+        FileHelper.checkMountStateAndPermission(activity,
+                {
+            val newFileList = FileHelper.listFilesSorted(path,filter);
+            // add files that arent contained in the list
+            for (newFile in newFileList)
             {
-                addFile(newFile)
+                if(!mFiles.any { it.file.name == newFile.name })
+                {
+                    addFile(newFile)
+                }
+            }
+            // remove files
+            val iter = mFiles.listIterator();
+            while (iter.hasNext())
+            {
+                val file = iter.next();
+                if(!newFileList.any { it.name == file.file.name })
+                {
+                    iter.remove();
+                }
             }
         }
-        // remove files
-        val iter = mFiles.listIterator();
-        while (iter.hasNext())
-        {
-            val file = iter.next();
-            if(!newFileList.any { it.name == file.file.name })
-            {
-                iter.remove();
-            }
-        }
+        );
 
     }
 

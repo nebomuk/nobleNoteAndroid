@@ -9,7 +9,7 @@ fun CharSequence.countMatches(substring: String): Int {
     var count = 0;
     if (substring != "") {
         while (true) {
-            n = this.indexOf(substring, n, true);
+            n = this.indexOf(substring, n, ignoreCase = true);
             if (n == -1) {
                 break;
             }
@@ -32,7 +32,7 @@ fun CharSequence.indicesOf(substring: String): List<Int> {
 
     if (substring != "") {
         while (true) {
-            n = this.indexOf(substring, n, true);
+            n = this.indexOf(substring, n, ignoreCase = true);
             if (n == -1) {
                 break;
             }
