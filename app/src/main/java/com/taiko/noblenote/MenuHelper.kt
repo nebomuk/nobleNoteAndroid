@@ -12,6 +12,9 @@ import android.widget.Toast
  */
 object MenuHelper {
 
+    /**
+     * adds a copy text to clipboard action to the given menu
+     */
     fun addCopyToClipboard(ctx: Context, menu: Menu, textSource: () -> CharSequence) {
         val itemCopyToClipboard = menu.add(R.string.action_copy_to_clipboard)
                 .setIcon(R.drawable.ic_action_content_copy)
