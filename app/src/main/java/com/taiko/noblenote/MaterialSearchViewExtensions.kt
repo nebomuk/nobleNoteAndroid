@@ -47,7 +47,7 @@ public class MaterialSearchViewQueryTextChangesOnSubscribe(val view: MaterialSea
 
 val  MaterialSearchView.queryText : Editable
 get() {
-        val et = this.findViewById(R.id.searchTextView) as EditText
+        val et = this.findViewById<EditText>(R.id.searchTextView)
         return et.text;
 }
 

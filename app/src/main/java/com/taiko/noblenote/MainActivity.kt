@@ -57,7 +57,7 @@ class MainActivity : Activity()
             window.enterTransition = fade
         }
 
-        mTwoPane = findViewById(R.id.item_detail_container) != null
+        mTwoPane = findViewById<View>(R.id.item_detail_container) != null
 
 //        setSupportActionBar(toolbar) // required to make styling working, activity options menu callbacks now have to be used
 

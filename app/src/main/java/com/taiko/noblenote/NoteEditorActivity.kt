@@ -68,7 +68,7 @@ class NoteEditorActivity : Activity() {
         progress_bar_file_loading.progressDrawable = MaterialProgressDrawable.create(this)
         progress_bar_file_loading.indeterminateDrawable = MaterialIndeterminateProgressDrawable.create(this)
 
-        val toolbar = findViewById(R.id.toolbar) as Toolbar
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
 
         createToolbarMenu(toolbar.menu)
 
