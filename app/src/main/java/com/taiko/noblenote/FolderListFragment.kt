@@ -51,7 +51,10 @@ class FolderListFragment : Fragment() {
 
         recyclerFileAdapter = RecyclerFileAdapter()
         recyclerFileAdapter.filter = folderFilter
-        mCompositeSubscription += Pref.rootPath.subscribe { recyclerFileAdapter.path = File(it) }
+        mCompositeSubscription += Pref.rootPath.skip(1).subscribe {
+            recyclerFileAdapter.path = File(it)
+            recyclerFileAdapter.refresh(activity)
+        }
 
         rv.adapter = recyclerFileAdapter
         rv.layoutManager = LinearLayoutManager(activity)
