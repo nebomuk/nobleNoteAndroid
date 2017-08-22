@@ -3,26 +3,18 @@ package com.taiko.noblenote
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.Context
-import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.support.annotation.ColorInt
 import android.support.design.widget.Snackbar
-import android.support.v4.content.ContextCompat
-import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v4.view.MenuItemCompat
-import android.support.v7.widget.Toolbar
 import android.text.InputType
 import android.util.Log
 import android.view.*
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import com.jakewharton.rxbinding.view.clicks
-import com.jakewharton.rxbinding.widget.textChanges
 import kotlinx.android.synthetic.main.activity_editor.*
 import kotlinx.android.synthetic.main.text_formatting_toolbar.view.*
+import kotlinx.android.synthetic.main.toolbar.*
 import kotlinx.android.synthetic.main.toolbar_find_in_text.*
 import kotlinx.android.synthetic.main.toolbar_find_in_text.view.*
 import net.yanzm.actionbarprogress.MaterialIndeterminateProgressDrawable
@@ -50,7 +42,8 @@ class NoteEditorActivity : Activity() {
     private val mCompositeSubscription : CompositeSubscription = CompositeSubscription();
 
     private lateinit var mUndoRedo: TextViewUndoRedo
-    private lateinit var mFindHighlighter: FindHighlighter
+
+    private lateinit var  mFindInTextToolbarController: FindInTextToolbarController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         //requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
@@ -68,9 +61,12 @@ class NoteEditorActivity : Activity() {
         progress_bar_file_loading.progressDrawable = MaterialProgressDrawable.create(this)
         progress_bar_file_loading.indeterminateDrawable = MaterialIndeterminateProgressDrawable.create(this)
 
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+
 
         createToolbarMenu(toolbar.menu)
+
+
+        mFindInTextToolbarController = FindInTextToolbarController(this);
 
         //setActionBar(toolbar);
 
@@ -128,8 +124,7 @@ class NoteEditorActivity : Activity() {
                         val queryText = intent?.extras?.getString(ARG_QUERY_TEXT)
                         if (!queryText.isNullOrBlank()) {
                             toolbar_find_in_text.toolbar_find_in_text_edit_text.setText(queryText);
-                            showFindInTextToolbar();
-                            mFindHighlighter.moveNext();
+                            mFindInTextToolbarController.showToolbar()
                         }
 
                     }, {
@@ -170,7 +165,7 @@ class NoteEditorActivity : Activity() {
         }
     }
 
-    fun showExitDialog(runnable: Runnable) {
+    private fun showExitDialog(runnable: Runnable) {
         if (editor_edit_text.isModified) {
             val builder = AlertDialog.Builder(this@NoteEditorActivity)
             builder.setMessage(R.string.dialogDiscardKeepEditing)
@@ -197,7 +192,7 @@ class NoteEditorActivity : Activity() {
         }
         else if(toolbar_find_in_text.visibility == View.VISIBLE)
         {
-            hideFindInTextToolbar()
+            mFindInTextToolbarController.hideToolbar();
         }
         else {
             showExitDialog(Runnable { super@NoteEditorActivity.onBackPressed() })
@@ -216,7 +211,7 @@ class NoteEditorActivity : Activity() {
     }
 
 
-    fun createToolbarMenu(menu: Menu): Boolean {
+    private fun createToolbarMenu(menu: Menu): Boolean {
 
 
         MenuHelper.addCopyToClipboard(this,menu,{editor_edit_text.text})
@@ -235,7 +230,7 @@ class NoteEditorActivity : Activity() {
         mCompositeSubscription += mUndoRedo.canUndoChanged().subscribe {
 
             val draw = resources.getDrawable(R.drawable.ic_undo_black_24dp)
-            draw.setTintCompat(getColorForState(it))
+            draw.setTintCompat(this,getColorForState(it))
             undoItem.isEnabled = it;
             undoItem.icon = draw
          }
@@ -252,7 +247,7 @@ class NoteEditorActivity : Activity() {
         mCompositeSubscription += mUndoRedo.canRedoChanged().subscribe {
 
             val draw = resources.getDrawable(R.drawable.ic_redo_black_24dp)
-            draw.setTintCompat(getColorForState(it))
+            draw.setTintCompat(this, getColorForState(it))
             redoItem.isEnabled = it;
             redoItem.icon = draw
         }
@@ -281,51 +276,7 @@ class NoteEditorActivity : Activity() {
             }
         }));
 
-        val itemFindInText = menu.add(R.string.action_find_in_text)
-                .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER)
-        itemFindInText.setOnMenuItemClickListener {
-            showFindInTextToolbar();
-            true;
-        }
-        mCompositeSubscription += toolbar_find_in_text.toolbar_find_in_text_close.clicks()
-                .subscribe {
-                    hideFindInTextToolbar()
-                }
 
-
-        mFindHighlighter = FindHighlighter(editText = editor_edit_text,
-                toolbarEditText = toolbar_find_in_text.toolbar_find_in_text_edit_text,
-                scrollView = editor_scroll_view)
-
-        fun updateArrows()
-        {
-            setArrowDownEnabled(mFindHighlighter.hasNext());
-            setArrowUpEnabled(mFindHighlighter.hasPrevious());
-        }
-
-        editor_edit_text.textChanges().subscribe {
-            mFindHighlighter.onEditorTextChanged();
-            mFindHighlighter.highlight();
-            updateArrows();
-        }
-
-        toolbar_find_in_text.toolbar_find_in_text_edit_text.textChanges().subscribe {
-            mFindHighlighter.mSearchString = it.toString();
-            mFindHighlighter.highlight();
-            updateArrows()
-        }
-
-
-        toolbar_find_in_text.arrow_down.clicks().subscribe {
-            mFindHighlighter.moveNext()
-            mFindHighlighter.highlight();
-            updateArrows();
-        }
-        toolbar_find_in_text.arrow_up.clicks().subscribe {
-            mFindHighlighter.movePrevious()
-            mFindHighlighter.highlight();
-            updateArrows();
-        }
 
         val itemDone = menu.add(R.string.action_done).setIcon(R.drawable.ic_done_black_24dp)
                 .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
@@ -357,52 +308,30 @@ class NoteEditorActivity : Activity() {
         return super.onCreateOptionsMenu(menu)
     }
 
-    private fun setArrowDownEnabled(b : Boolean)
-    {
-        toolbar_find_in_text.arrow_down.isEnabled = b;
-        toolbar_find_in_text.arrow_down.drawable.setTintCompat(getColorForState(b));
-    }
-    private fun setArrowUpEnabled(b : Boolean)
-    {
-        toolbar_find_in_text.arrow_up.isEnabled = b;
-        toolbar_find_in_text.arrow_up.drawable.setTintCompat(getColorForState(b));
-    }
 
-    private fun showFindInTextToolbar() {
-        toolbar_find_in_text.visibility = View.VISIBLE
-        toolbar_find_in_text_edit_text.toolbar_find_in_text_edit_text.requestFocus()
-        // does not always work
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.showSoftInput(toolbar_find_in_text.toolbar_find_in_text_edit_text, 0)
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-    }
+
+
 
     override fun onDestroy() {
         super.onDestroy()
         mCompositeSubscription.clear();
     }
 
-    fun hideFindInTextToolbar()
-    {
-        toolbar_find_in_text.visibility = View.INVISIBLE
-        mFindHighlighter.clearHighlight()
 
-        val imm =  getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager;
-        imm.hideSoftInputFromWindow(toolbar_find_in_text.toolbar_find_in_text_edit_text.windowToken, 0);
-    }
 
-    fun Drawable.setTintCompat(@ColorInt color : Int)
-    {
-        DrawableCompat.setTint(this,ContextCompat.getColor(this@NoteEditorActivity,color));
-    }
 
-    fun getColorForState(enabled : Boolean) : /*color int*/ Int
-    {
-        return if(enabled) R.color.md_grey_800 else R.color.md_grey_400
-    }
+
+
 
 
     companion object {
+
+        @JvmStatic
+        fun getColorForState(enabled : Boolean) : /*color int*/ Int
+        {
+            return if(enabled) R.color.md_grey_800 else R.color.md_grey_400
+        }
+
         @JvmStatic
         val ARG_FILE_PATH = "file_path"
 

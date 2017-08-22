@@ -3,6 +3,7 @@ package com.taiko.noblenote
 import android.graphics.Color
 import android.text.Spannable
 import android.view.KeyEvent
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.ScrollView
@@ -79,7 +80,11 @@ class FindHighlighter constructor(val editText : EditText, val toolbarEditText :
         else if (mCurrentIndicesIndex >= 0 && mCurrentIndicesIndex < mIndices.size) {
             val index = mIndices[mCurrentIndicesIndex];
             editText.text.setSpan(highlightSpan,index , index + mSearchString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-            scrollToIndex(index)
+
+            if(toolbarEditText.visibility == View.VISIBLE)
+            {
+                scrollToIndex(index)
+            }
         }
     }
 
@@ -99,7 +104,7 @@ class FindHighlighter constructor(val editText : EditText, val toolbarEditText :
         }
     }
 
-    fun scrollToIndex(index : Int)
+    private fun scrollToIndex(index : Int)
     {
         scrollView.post {
 
