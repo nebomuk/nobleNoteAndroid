@@ -13,7 +13,7 @@ import android.util.Log
 import android.view.*
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_editor.*
-import kotlinx.android.synthetic.main.text_formatting_toolbar.view.*
+import kotlinx.android.synthetic.main.layout_text_formatting.view.*
 import kotlinx.android.synthetic.main.toolbar.*
 import kotlinx.android.synthetic.main.toolbar_find_in_text.*
 import kotlinx.android.synthetic.main.toolbar_find_in_text.view.*
@@ -216,7 +216,7 @@ class NoteEditorActivity : Activity() {
 
         MenuHelper.addCopyToClipboard(this,menu,{editor_edit_text.text})
 
-        val textFormattingToolbar = LayoutInflater.from(this).inflate(R.layout.text_formatting_toolbar, null)
+        val textFormattingToolbar = LayoutInflater.from(this).inflate(R.layout.layout_text_formatting, null)
 
         val undoItem = menu.add(R.string.action_undo)
                 .setIcon(R.drawable.ic_undo_black_24dp)
