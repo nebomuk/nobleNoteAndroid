@@ -6,7 +6,9 @@ import android.content.DialogInterface
 import android.support.design.widget.Snackbar
 import android.text.InputFilter
 import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.Toast
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
@@ -27,47 +29,62 @@ object Dialogs {
     fun showNewNoteDialog(activity: Activity, fileCreated : (f : File) -> Unit) {
 
         FileHelper.checkMountStateAndPermission(activity,
-        {
-            val dialogBuilder = AlertDialog.Builder(activity)
+                {
+                    val dialogBuilder = AlertDialog.Builder(activity)
 
-            dialogBuilder.setTitle(R.string.newNote)
-            dialogBuilder.setMessage(R.string.enterName)
+                    dialogBuilder.setTitle(R.string.newNote)
+                    dialogBuilder.setMessage(R.string.enterName)
 
-            // Set an EditText view to get user input
-            val input = EditText(activity)
-            input.filters = arrayOf<InputFilter>(FileNameFilter())
+                    // Set an EditText view to get user input
+                    val input = EditText(activity)
+                    input.filters = arrayOf<InputFilter>(FileNameFilter())
 
-            // dont propose a name that already exists
-            var proposed = File(Pref.currentFolderPath.value, activity.getString(R.string.newNote))
-            var counter = 0
-            while (proposed.exists()) {
-                proposed = File("${proposed.absoluteFile} (${++counter})")
-            }
-            input.setText(proposed.name)
-            input.setSelection(input.text.length)
-            dialogBuilder.setView(input)
-            dialogBuilder.setPositiveButton(
-                    android.R.string.ok) { dialog, whichButton ->
-                val newName = input.text.trim()
-                val newFile = File(Pref.currentFolderPath.value, newName.toString())
-                try {
-                    if (newFile.createNewFile()) {
-                        fileCreated(newFile)
-                    } else
-                    // error occured
-                    {
-                        Toast.makeText(activity, R.string.noteNotCreated, Toast.LENGTH_SHORT).show()
+                    // dont propose a name that already exists
+                    var proposed = File(Pref.currentFolderPath.value, activity.getString(R.string.newNote))
+                    var counter = 0
+                    while (proposed.exists()) {
+                        proposed = File("${proposed.absoluteFile} (${++counter})")
                     }
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
-            }
+                    input.setText(proposed.name)
+                    input.setSelection(input.text.length)
+                    dialogBuilder.setView(wrapWithMargins(input))
+                    dialogBuilder.setPositiveButton(
+                            android.R.string.ok) { dialog, whichButton ->
+                        val newName = input.text.trim()
+                        val newFile = File(Pref.currentFolderPath.value, newName.toString())
+                        try {
+                            if (newFile.createNewFile()) {
+                                fileCreated(newFile)
+                            } else
+                            // error occured
+                            {
+                                Toast.makeText(activity, R.string.noteNotCreated, Toast.LENGTH_SHORT).show()
+                            }
+                        } catch (e: IOException) {
+                            e.printStackTrace()
+                        }
+                    }
 
-            // does nothing but creates a button
-            dialogBuilder.setNegativeButton(android.R.string.cancel, null)
+                    // does nothing but creates a button
+                    dialogBuilder.setNegativeButton(android.R.string.cancel, null)
 
-            dialogBuilder.show()
-        });
+                    dialogBuilder.show()
+                });
+    }
+
+    /**
+     * wraps the given EditText in a FrameLayout and adds margins on the sides
+     */
+    private fun wrapWithMargins(input : EditText) : FrameLayout
+    {
+        val container = FrameLayout(input.context)
+        val paramss = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        val margin = ScreenUtil.dpToPx(input.context,16);
+        paramss.marginStart = margin;
+        paramss.marginEnd = margin;
+        input.layoutParams = paramss;
+        container.addView(input);
+        return container;
     }
 
     @JvmStatic
@@ -92,7 +109,7 @@ object Dialogs {
                     }
                     input.setText(proposed.name)
                     input.setSelection(input.text.length)
-                    dialogBuilder.setView(input)
+                    dialogBuilder.setView(wrapWithMargins(input))
 
                     dialogBuilder.setPositiveButton(
                             android.R.string.ok) { dialog, whichButton ->
@@ -140,7 +157,7 @@ object Dialogs {
                     input.filters = arrayOf(FileNameFilter())
                     input.setText(file.name)
                     input.setSelection(input.text.length)
-                    dialogBuilder.setView(input)
+                    dialogBuilder.setView(wrapWithMargins(input))
 
                     dialogBuilder.setPositiveButton(
                             android.R.string.ok) { dialog, whichButton ->
@@ -192,7 +209,7 @@ object Dialogs {
 
                     dialogBuilder.show()
                 }
-        ,onFailure = { onNotRenamed() });
+                ,onFailure = { onNotRenamed() });
     }
 
 
