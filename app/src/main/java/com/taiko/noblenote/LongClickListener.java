@@ -29,6 +29,7 @@ import java.util.Iterator;
  * @author Taiko-G780
  *
  */
+@Deprecated
 public class LongClickListener implements ListView.OnItemLongClickListener
 {
 	private ActionMode mActionMode;

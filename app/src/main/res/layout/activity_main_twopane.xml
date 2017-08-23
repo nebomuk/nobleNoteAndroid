@@ -71,14 +71,14 @@
         </LinearLayout>
     </android.support.v4.widget.SwipeRefreshLayout>
 
-
+<!-- menu requires match_parent so that close on click outside works-->
     <com.github.clans.fab.FloatingActionMenu
         android:id="@+id/fab_menu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_gravity="bottom|right"
-        android:layout_marginBottom="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_marginRight="@dimen/fab_margin"
         fab:menu_colorNormal="@color/colorAccent"
         fab:menu_colorPressed="@color/primary_pressed"
         fab:menu_colorRipple="@color/ripple"

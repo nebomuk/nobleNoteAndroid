@@ -13,6 +13,8 @@ import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
 
 
+
+
 class MainActivity : Activity()
 {
 
@@ -77,7 +79,7 @@ class MainActivity : Activity()
 
         if(mTwoPane)
         {
-
+            fab_menu.setClosedOnTouchOutside(true)
 
             mCompositeSubscription += fab_menu_note.clicks().subscribe {
                 Dialogs.showNewNoteDialog(this) {app.uiCommunicator.createFileClick.onNext(it)}
