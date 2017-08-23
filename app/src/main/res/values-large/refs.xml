@@ -1,3 +1,3 @@
 <resources>
-    <item type="layout" name="activity_folder_list">@layout/activity_main_twopane</item>
+    <item type="layout" name="activity_main">@layout/activity_main_twopane</item>
 </resources>

@@ -3,6 +3,7 @@ package com.taiko.noblenote
 import android.app.Activity
 import android.os.Bundle
 import android.os.Handler
+import android.support.v4.widget.SwipeRefreshLayout
 import android.transition.Fade
 import android.view.View
 import com.jakewharton.rxbinding.view.clicks
@@ -17,8 +18,8 @@ class MainActivity : Activity()
 
     var mTwoPane: Boolean = false
 
-    val compositeSubscription = CompositeSubscription()
-    lateinit var mainToolbarController : MainToolbarController
+    private val mCompositeSubscription = CompositeSubscription()
+    lateinit var mMainToolbarController: MainToolbarController
 
     public companion object {
         @JvmField val ARG_TWO_PANE = "two_pane"
@@ -57,7 +58,7 @@ class MainActivity : Activity()
             window.enterTransition = fade
         }
 
-        mTwoPane = findViewById<View>(R.id.item_detail_container) != null
+        mTwoPane = findViewById<View>(R.id.item_detail_container) != null // two pane uses the refs.xml reference to reference activity_main_twopane.xml as activity_main.xml
 
 //        setSupportActionBar(toolbar) // required to make styling working, activity options menu callbacks now have to be used
 
@@ -69,22 +70,28 @@ class MainActivity : Activity()
         fragmentManager.beginTransaction().add(R.id.item_master_container, FolderListFragment()).commit()
 
         val app = application as MainApplication
-        compositeSubscription += app.uiCommunicator.folderSelected.subscribe { onFolderSelected(it.absolutePath) }
-        compositeSubscription += app.uiCommunicator.fileSelected.mergeWith(app.uiCommunicator.createFileClick).subscribe { NoteListFragment.startNoteEditor(this,it, NoteEditorActivity.READ_WRITE) }
+        mCompositeSubscription += app.uiCommunicator.folderSelected.subscribe { onFolderSelected(it.absolutePath) }
+        mCompositeSubscription += app.uiCommunicator.fileSelected.mergeWith(app.uiCommunicator.createFileClick).subscribe { NoteListFragment.startNoteEditor(this,it, NoteEditorActivity.READ_WRITE) }
+
+
 
         if(mTwoPane)
         {
-            compositeSubscription += fab_menu_note.clicks().subscribe {
+
+
+            mCompositeSubscription += fab_menu_note.clicks().subscribe {
                 Dialogs.showNewNoteDialog(this) {app.uiCommunicator.createFileClick.onNext(it)}
+                fab_menu.close(true);
             }
 
-            compositeSubscription += fab_menu_folder.clicks().subscribe {
+            mCompositeSubscription += fab_menu_folder.clicks().subscribe {
                 Dialogs.showNewFolderDialog(this,{app.uiCommunicator.createFolderClick.onNext(it)})
+                fab_menu.close(true);
             }
         }
         else
         {
-            compositeSubscription += fab.clicks().subscribe {
+            mCompositeSubscription += fab.clicks().subscribe {
                 if(fragmentManager.backStackEntryCount > 0)
                 {
                     Dialogs.showNewNoteDialog(this, {app.uiCommunicator.createFileClick.onNext(it)})
@@ -96,12 +103,14 @@ class MainActivity : Activity()
             }
         }
 
-        mainToolbarController = MainToolbarController(this)
+        mMainToolbarController = MainToolbarController(this)
 
         val handler = Handler();
 
-        swipe_refresh.setOnRefreshListener {
-            handler.postDelayed({swipe_refresh.isRefreshing = false},500)
+        val swipeRefreshLayout = findViewById<SwipeRefreshLayout>(R.id.swipe_refresh);
+
+        swipeRefreshLayout.setOnRefreshListener {
+            handler.postDelayed({swipeRefreshLayout.isRefreshing = false},500)
             app.uiCommunicator.swipeRefresh.onNext(Unit)
 
         }
@@ -109,7 +118,7 @@ class MainActivity : Activity()
 
     override fun onBackPressed() {
         // close search
-        if(!mainToolbarController.onBackPressed())
+        if(!mMainToolbarController.onBackPressed())
         {
             super.onBackPressed();
         }
@@ -117,7 +126,7 @@ class MainActivity : Activity()
 
     override fun onDestroy() {
         super.onDestroy()
-        compositeSubscription.clear()
+        mCompositeSubscription.clear()
     }
 
     /**

@@ -5,7 +5,29 @@
     android:orientation="vertical"
     >
 
-    <include layout="@layout/toolbar"/>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="@dimen/elevation_toolbar"
+        android:clipToPadding="false"
+        android:outlineProvider="bounds"
+        >
+
+        <include layout="@layout/toolbar"/>
+        <com.miguelcatalan.materialsearchview.MaterialSearchView
+            android:id="@+id/search_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elevation="@dimen/elevation_toolbar"
+            />
+        <ViewStub
+            android:id="@+id/cab_stub"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            android:elevation="@dimen/elevation_toolbar"
+            />
+
+    </FrameLayout>
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -13,39 +35,53 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-<LinearLayout
-    android:orientation="horizontal"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
-    android:divider="?android:attr/dividerHorizontal"
-    android:showDividers="middle"
-    tools:context=".FolderListActivity">
-
-    <FrameLayout
-        android:id="@+id/item_master_container"
-        android:layout_width="0dp"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        >
 
-    <FrameLayout android:id="@+id/item_detail_container"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="3"
-                 >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:divider="?android:attr/dividerHorizontal"
+            android:orientation="horizontal"
+            android:showDividers="middle"
+            tools:context=".FolderListActivity">
+
+            <FrameLayout
+                android:id="@+id/item_master_container"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+
+            <FrameLayout
+                android:id="@+id/item_detail_container"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                >
 
 
-    </FrameLayout>
+            </FrameLayout>
 
-</LinearLayout>
+        </LinearLayout>
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+
     <com.github.clans.fab.FloatingActionMenu
-        android:id="@+id/menu"
+        android:id="@+id/fab_menu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
         android:layout_marginBottom="8dp"
         android:layout_marginRight="8dp"
+        fab:menu_colorNormal="@color/colorAccent"
+        fab:menu_colorPressed="@color/primary_pressed"
+        fab:menu_colorRipple="@color/ripple"
         >
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/fab_menu_folder"
@@ -57,7 +93,7 @@
             android:src="@drawable/ic_folder_24dp"
             fab:fab_size="mini"
             fab:fab_label="@string/newNotebook"
-            fab:fab_colorNormal="@color/colorPrimary"
+            fab:fab_colorNormal="@color/colorAccent"
             fab:fab_colorPressed="@color/primary_pressed"
             fab:fab_colorRipple="@color/ripple"/>
         <com.github.clans.fab.FloatingActionButton
@@ -70,7 +106,7 @@
             android:src="@drawable/ic_insert_drive_file_24dp"
             fab:fab_size="mini"
             fab:fab_label="@string/newNote"
-            fab:fab_colorNormal="@color/colorPrimary"
+            fab:fab_colorNormal="@color/colorAccent"
             fab:fab_colorPressed="@color/primary_pressed"
             fab:fab_colorRipple="@color/ripple"/>
     </com.github.clans.fab.FloatingActionMenu>
