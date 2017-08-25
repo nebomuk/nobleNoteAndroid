@@ -14,10 +14,13 @@ import java.util.*
  */
 class ListController(val activity: MainActivity,  val recyclerView: RecyclerView)
 {
-    public var isHtmlActionAvailable = false // show html source action
+    var isTwoPaneFolderList: Boolean = false; // folder list in two pane, colors each list item when clicked
+    var isHtmlActionAvailable = false // show html source action
+
 
     private var mActionMode : ActionMode? = null
     private val adapter : RecyclerFileAdapter = recyclerView.adapter as RecyclerFileAdapter;
+
     private val mFileActionModeCallback = FileActionModeCallback(activity);
 
     /**
@@ -82,6 +85,9 @@ class ListController(val activity: MainActivity,  val recyclerView: RecyclerView
         adapter.itemClicks()
                 .doOnNext { KLog.i("item click: " + it) }
                 .subscribe {
+
+
+
             if(mActionMode != null)
             {
 
@@ -103,6 +109,12 @@ class ListController(val activity: MainActivity,  val recyclerView: RecyclerView
 
                 }
 
+            }
+            else
+            {
+                if(isTwoPaneFolderList) {
+                    adapter.selectedFolderIndex = it;
+                }
             }
         }
     }

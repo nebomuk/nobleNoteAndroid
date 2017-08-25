@@ -18,7 +18,7 @@ import rx.subscriptions.CompositeSubscription
 class MainActivity : Activity()
 {
 
-    var mTwoPane: Boolean = false
+    var twoPane: Boolean = false
 
     private val mCompositeSubscription = CompositeSubscription()
     lateinit var mMainToolbarController: MainToolbarController
@@ -31,12 +31,12 @@ class MainActivity : Activity()
 
             val arguments = Bundle()
             arguments.putString(NoteListFragment.ARG_FOLDER_PATH, path)
-            arguments.putBoolean(MainActivity.ARG_TWO_PANE, mTwoPane)
+            arguments.putBoolean(MainActivity.ARG_TWO_PANE, twoPane)
             val fragment = NoteListFragment()
             fragment.arguments = arguments
             Pref.currentFolderPath.onNext(path);
 
-        if (mTwoPane) {
+        if (twoPane) {
             fragmentManager.beginTransaction().replace(R.id.item_detail_container, fragment).commit()
         } else {
             fragmentManager.beginTransaction().add(R.id.item_master_container, fragment).addToBackStack(null).commit();
@@ -60,7 +60,7 @@ class MainActivity : Activity()
             window.enterTransition = fade
         }
 
-        mTwoPane = findViewById<View>(R.id.item_detail_container) != null // two pane uses the refs.xml reference to reference activity_main_twopane.xml as activity_main.xml
+        twoPane = findViewById<View>(R.id.item_detail_container) != null // two pane uses the refs.xml reference to reference activity_main_twopane.xml as activity_main.xml
 
 //        setSupportActionBar(toolbar) // required to make styling working, activity options menu callbacks now have to be used
 
@@ -77,7 +77,7 @@ class MainActivity : Activity()
 
 
 
-        if(mTwoPane)
+        if(twoPane)
         {
             fab_menu.setClosedOnTouchOutside(true)
 

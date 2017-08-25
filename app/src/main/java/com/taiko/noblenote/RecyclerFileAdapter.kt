@@ -4,6 +4,8 @@ import android.app.Activity
 import android.databinding.ObservableArrayList
 import android.graphics.Color
 import android.os.Handler
+import android.support.annotation.ColorInt
+import android.support.v4.graphics.ColorUtils
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -25,12 +27,17 @@ import java.util.*
  */
 class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
 
-    private val mFiles: ObservableArrayList<FileItem>
+    private val mFiles: ObservableArrayList<FileItem> = ObservableArrayList()
 
     private val mClickSubject : PublishSubject<Int> = PublishSubject()
     private val mLongClickSubject : PublishSubject<Int> = PublishSubject()
 
     private val mWeakReferenceOnListChangedCallback: WeakReferenceOnListChangedCallback
+
+    // initialized with a context in onAttachedToRecyclerView
+    @ColorInt private var mSelectionColor: Int = 0
+
+    @ColorInt private var mSelectedFolderColor: Int = 0; // selected folder highlight in two pane layout
 
     fun itemClicks(): Observable<Int> = mClickSubject.asObservable();
 
@@ -47,6 +54,21 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
         mHandler.postDelayed({ mFiles.addAll(FileHelper.listFilesSorted(value, filter).map { FileItem(it,false) }) },0)
         field = value
     }*/
+
+
+
+    // selected folder in two-pane layout, selects the given index
+    var selectedFolderIndex: Int = RecyclerView.NO_POSITION
+        set(value) {
+            if(!isValidIndex(value))
+                return;
+
+            val oldValue = field;
+            field = value
+
+            notifyItemChanged(oldValue);
+            notifyItemChanged(field);
+        };
 
     // reloads the file list by adding, removing files from the observable file list
     fun refresh(activity: Activity)
@@ -79,19 +101,18 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
 
     private val mHandler = Handler()
 
+
     init {
        // path = argPath
-        mFiles = ObservableArrayList()
         mWeakReferenceOnListChangedCallback = WeakReferenceOnListChangedCallback(this);
         mFiles.addOnListChangedCallback(mWeakReferenceOnListChangedCallback)
 
         //rx.Observable.interval(3,TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe { mFiles.add(File(Pref.rootPath,"test " + it)) }
     }
 
-    private var mSelectionColor: Int = 0
-
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-        mSelectionColor = recyclerView.context.resources.getColor(R.color.listHighlight)
+        mSelectionColor = recyclerView.context.resources.getColor(R.color.md_grey_200)
+        mSelectedFolderColor = recyclerView.context.resources.getColor(R.color.listHighlight)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -119,6 +140,9 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
 
     fun setSelected(pos : Int, isSelected: Boolean)
     {
+        if(!isValidIndex(pos))
+            return;
+
         if( mFiles[pos].isSelected == isSelected)
             return;
 
@@ -127,7 +151,7 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
     }
 
     fun isSelected(pos : Int): Boolean {
-        if(pos < 0 || pos > mFiles.size -1)
+        if(!isValidIndex(pos))
             return false;
 
         return mFiles[pos].isSelected;
@@ -143,6 +167,11 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
 
     }
 
+
+    private fun isValidIndex(pos : Int) : Boolean
+    {
+        return pos > 0 || pos < mFiles.size -1;
+    }
 
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -161,10 +190,34 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
                 .doOnNext{ KLog.i("item long click pos: " + position )}
                 .subscribe { mLongClickSubject.onNext(position) }
 
-        holder.itemView.outer_layout.setBackgroundColor(if(fileItem.isSelected) mSelectionColor else Color.TRANSPARENT)
+
+
+        holder.itemView.outer_layout.setBackgroundColor(getBackgroundColor(position))
 
     }
 
+    /**
+     * @return the ColorInt background color depending on the selection state and folder clicked state (in two pane mode)
+     */
+    @ColorInt
+    private fun getBackgroundColor(position : Int):  Int {
+        var backgroundColor = Color.TRANSPARENT;
+        val fileItem = mFiles[position]
+        if(fileItem.isSelected && position == selectedFolderIndex && selectedFolderIndex != RecyclerView.NO_POSITION)
+        {
+            val alphaed = ColorUtils.setAlphaComponent(mSelectionColor,150);
+            backgroundColor = ColorUtils.compositeColors(alphaed, mSelectedFolderColor);
+        }
+        else if(fileItem.isSelected)
+        {
+            backgroundColor = mSelectionColor
+        }
+        else if(position == selectedFolderIndex && selectedFolderIndex != RecyclerView.NO_POSITION)
+        {
+            backgroundColor = mSelectedFolderColor
+        }
+        return backgroundColor;
+    }
 
 
 

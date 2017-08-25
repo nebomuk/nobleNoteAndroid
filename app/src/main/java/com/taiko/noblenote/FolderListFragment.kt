@@ -60,6 +60,7 @@ class FolderListFragment : Fragment() {
         rv.layoutManager = LinearLayoutManager(activity)
 
         val listController = ListController(activity as MainActivity,rv)
+        listController.isTwoPaneFolderList = (activity as MainActivity).twoPane;
 
         val app = (activity.application as MainApplication)
         mCompositeSubscription += listController.itemClicks()
