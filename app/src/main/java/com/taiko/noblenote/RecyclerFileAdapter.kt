@@ -63,12 +63,18 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
             if(!isValidIndex(value))
                 return;
 
-            val oldValue = field;
-            field = value
+            field = value;
 
-            notifyItemChanged(oldValue);
+            val indexOfOldValue = mFiles.indexOfFirst { it.isSelectedFolder }
+            if(indexOfOldValue != -1)
+            {
+                mFiles[indexOfOldValue].isSelectedFolder = false;
+                notifyItemChanged(indexOfOldValue);
+            }
+            mFiles[field].isSelectedFolder = true;
             notifyItemChanged(field);
-        };
+        }
+    get() =  mFiles.indexOfFirst { it.isSelectedFolder }
 
     // reloads the file list by adding, removing files from the observable file list
     fun refresh(activity: Activity)
@@ -203,7 +209,7 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
     private fun getBackgroundColor(position : Int):  Int {
         var backgroundColor = Color.TRANSPARENT;
         val fileItem = mFiles[position]
-        if(fileItem.isSelected && position == selectedFolderIndex && selectedFolderIndex != RecyclerView.NO_POSITION)
+        if(fileItem.isSelected && fileItem.isSelectedFolder)
         {
             val alphaed = ColorUtils.setAlphaComponent(mSelectionColor,150);
             backgroundColor = ColorUtils.compositeColors(alphaed, mSelectedFolderColor);
@@ -212,7 +218,7 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
         {
             backgroundColor = mSelectionColor
         }
-        else if(position == selectedFolderIndex && selectedFolderIndex != RecyclerView.NO_POSITION)
+        else if(fileItem.isSelectedFolder)
         {
             backgroundColor = mSelectedFolderColor
         }
@@ -225,7 +231,7 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
         return mFiles.size
     }
 
-    data class FileItem(val file : File,var isSelected: Boolean) : Comparable<FileItem> {
+    data class FileItem(val file : File,var isSelected: Boolean, var isSelectedFolder : Boolean = false) : Comparable<FileItem> {
         override fun compareTo(other: FileItem): Int {
             return this.file.name.compareTo(other.file.name)
         }

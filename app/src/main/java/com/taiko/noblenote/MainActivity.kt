@@ -114,6 +114,7 @@ class MainActivity : Activity()
         swipeRefreshLayout.setOnRefreshListener {
             handler.postDelayed({swipeRefreshLayout.isRefreshing = false},500)
             app.uiCommunicator.swipeRefresh.onNext(Unit)
+            KLog.v("SwipeToRefresh");
 
         }
     }
@@ -139,14 +140,15 @@ class MainActivity : Activity()
         if(b)
         {
             this.fab?.visibility = View.VISIBLE;
-            this.fab_menu_folder?.visibility = View.VISIBLE;
-            this.fab_menu_note?.visibility = View.VISIBLE;
+            this.fab_menu?.visibility = View.VISIBLE;
         }
         else
         {
             this.fab?.visibility = View.INVISIBLE;
-            this.fab_menu_folder?.visibility = View.INVISIBLE;
-            this.fab_menu_note?.visibility = View.INVISIBLE;
+            this.fab_menu?.close(false);
+            this.fab_menu?.visibility = View.INVISIBLE;
+/*            this.fab_menu_folder?.visibility = View.INVISIBLE;
+            this.fab_menu_note?.visibility = View.INVISIBLE;*/
         }
     }
 

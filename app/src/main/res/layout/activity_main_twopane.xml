@@ -1,5 +1,7 @@
+<!-- this overrides  activity_main.xml via  refs.xml-->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:orientation="vertical"
@@ -39,7 +41,6 @@
         android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
         >
 
         <LinearLayout
@@ -82,7 +83,7 @@
         fab:menu_colorNormal="@color/colorAccent"
         fab:menu_colorPressed="@color/primary_pressed"
         fab:menu_colorRipple="@color/ripple"
-        >
+        tools:ignore="RtlHardcoded">
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/fab_menu_folder"
             android:layout_width="wrap_content"

@@ -71,7 +71,15 @@ class FolderListFragment : Fragment() {
 
         mCompositeSubscription += app.uiCommunicator.createFolderClick.subscribe { recyclerFileAdapter.addFile(it) }
 
-        mCompositeSubscription += app.uiCommunicator.swipeRefresh.subscribe { recyclerFileAdapter.refresh(activity) }
+        mCompositeSubscription += app.uiCommunicator.swipeRefresh.subscribe( {
+            if (activity != null) {
+                recyclerFileAdapter.refresh(activity)
+            }
+        },
+            {
+                KLog.e("exception in swipe refresh",it);
+
+            });
 
     }
 
