@@ -100,7 +100,7 @@ class NoteListFragment : Fragment() {
                 .doOnNext { Log.d("","item pos clicked: " + it) }
                 .subscribe { app.eventBus.fileSelected.onNext(recyclerFileAdapter.getItem(it)) }
 
-        app.eventBus.createFileClick.subscribe { recyclerFileAdapter.addFile(it) }
+        mCompositeSubscription += app.eventBus.createFileClick.subscribe { recyclerFileAdapter.addFile(it) }
 
         mCompositeSubscription += app.eventBus.swipeRefresh.subscribe( {
             if(activity != null)

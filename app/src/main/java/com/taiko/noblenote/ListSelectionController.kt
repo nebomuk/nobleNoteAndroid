@@ -14,7 +14,7 @@ import java.util.*
  */
 class ListSelectionController(val activity: MainActivity, val recyclerView: RecyclerView)
 {
-    var isTwoPaneFolderList: Boolean = false; // folder list in two pane, colors each list item when clicked
+    var isTwoPane: Boolean = false; // folder list in two pane, colors each list item when clicked
     var isHtmlActionAvailable = false // show html source action
 
 
@@ -113,7 +113,7 @@ class ListSelectionController(val activity: MainActivity, val recyclerView: Recy
             }
             else
             {
-                if(isTwoPaneFolderList) {
+                if(isTwoPane) {
                     adapter.selectFolderOnClick = true;
                 }
             }

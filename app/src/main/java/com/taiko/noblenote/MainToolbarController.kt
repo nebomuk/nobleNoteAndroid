@@ -15,7 +15,10 @@ import com.tbruyelle.rxpermissions.RxPermissions
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.toolbar.*
 import rx.Observable
+import rx.lang.kotlin.plusAssign
 import rx.schedulers.Schedulers
+import rx.subscriptions.CompositeSubscription
+import rx.subscriptions.Subscriptions
 import rx_activity_result.RxActivityResult
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -25,6 +28,8 @@ import java.util.concurrent.TimeUnit
  */
 class MainToolbarController(val mainActivity: MainActivity)
 {
+    private val mCompositeSubscription : CompositeSubscription = CompositeSubscription();
+
     init {
 
         mainActivity.toolbar.inflateMenu(R.menu.menu_main)
@@ -42,6 +47,12 @@ class MainToolbarController(val mainActivity: MainActivity)
             true;
         }
 
+        mCompositeSubscription.add(Subscriptions.create {
+            mainActivity.toolbar.setOnMenuItemClickListener(null);
+            mainActivity.search_view.setOnSearchViewListener(null);
+
+        })
+
         initSearch(mainActivity.toolbar.menu);
 
 
@@ -53,7 +64,7 @@ class MainToolbarController(val mainActivity: MainActivity)
         filePickerDialogIntent.putExtra(FilePickerActivity.THEME_TYPE, ThemeType.ACTIVITY);
         filePickerDialogIntent.putExtra(FilePickerActivity.REQUEST, Request.DIRECTORY);
 
-        Observable.concat(RxPermissions(mainActivity).request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        mCompositeSubscription += Observable.concat(RxPermissions(mainActivity).request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .map {
                     if (it) RxActivityResult.on(mainActivity).startIntent(filePickerDialogIntent) else Observable.empty()
                 }).subscribe {
@@ -97,7 +108,7 @@ class MainToolbarController(val mainActivity: MainActivity)
 
         val queryTextObs = mainActivity.search_view.queryTextChanges().share();
 
-        queryTextObs.filter { it.isSubmit }.subscribe {
+        mCompositeSubscription += queryTextObs.filter { it.isSubmit }.subscribe {
             showSearchResults(it.text);
         }
 
@@ -154,5 +165,10 @@ class MainToolbarController(val mainActivity: MainActivity)
             mainActivity.setFabVisible(true);
         }
         return handled;
+    }
+
+    fun destroy()
+    {
+        mCompositeSubscription.clear();
     }
 }

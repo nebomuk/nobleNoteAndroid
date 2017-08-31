@@ -21,7 +21,7 @@ class MainActivity : Activity()
     var twoPane: Boolean = false
 
     private val mCompositeSubscription = CompositeSubscription()
-    lateinit var mMainToolbarController: MainToolbarController
+    private var mMainToolbarController: MainToolbarController? = null
 
 
 
@@ -95,7 +95,7 @@ class MainActivity : Activity()
 
     override fun onBackPressed() {
         // close search
-        if(!mMainToolbarController.onBackPressed())
+        if(mMainToolbarController != null && !mMainToolbarController!!.onBackPressed())
         {
             super.onBackPressed();
         }
@@ -104,6 +104,8 @@ class MainActivity : Activity()
     override fun onDestroy() {
         super.onDestroy()
         mCompositeSubscription.clear()
+        mMainToolbarController?.destroy();
+        mMainToolbarController = null;
     }
 
     /**
