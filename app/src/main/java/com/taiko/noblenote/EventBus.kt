@@ -9,10 +9,9 @@ import java.io.File
  *
  * event bus to communicate between different ui components
  */
-class UICommunicator
+class EventBus
 {
-    public val  folderSelected : PublishSubject<File> = PublishSubject();
-    public val  fileSelected : PublishSubject<File> = PublishSubject();
+    val  fileSelected : PublishSubject<File> = PublishSubject();
     val newFolderClick : PublishSubject<Unit> = PublishSubject();
     val newFileClick : PublishSubject<Unit> = PublishSubject();
     val createFileClick: PublishSubject<File> = PublishSubject()

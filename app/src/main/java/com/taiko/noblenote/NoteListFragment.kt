@@ -46,6 +46,8 @@ class NoteListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
+        mTwoPane = (activity as MainActivity).twoPane
+
         val rv = view.recycler_view
         //rv.itemAnimator = SlideInLeftAnimator();
 
@@ -54,11 +56,7 @@ class NoteListFragment : Fragment() {
         recyclerFileAdapter = RecyclerFileAdapter()
         recyclerFileAdapter.filter = fileFilter
 
-        if (arguments.containsKey(MainActivity.ARG_TWO_PANE)) {
-            mTwoPane = arguments.getBoolean(MainActivity.ARG_TWO_PANE)
-        }
-
-        if(arguments.containsKey(ARG_QUERY_TEXT))
+        if(arguments != null &&  arguments.containsKey(ARG_QUERY_TEXT))
         {
             tv_file_list_empty.setText(R.string.no_results_found);
             tv_title_search_results.visibility = View.VISIBLE;
@@ -85,7 +83,8 @@ class NoteListFragment : Fragment() {
         {
             tv_file_list_empty.setText(R.string.notebook_is_empty);
 
-            mCompositeSubscription += Pref.currentFolderPath.subscribe { recyclerFileAdapter.path = File(it) }
+            recyclerFileAdapter.path = File(Pref.currentFolderPath.value);
+//            recyclerFileAdapter.refresh(activity)
         }
 
         rv.adapter = recyclerFileAdapter
@@ -99,20 +98,18 @@ class NoteListFragment : Fragment() {
 
         mCompositeSubscription += listController.itemClicks()
                 .doOnNext { Log.d("","item pos clicked: " + it) }
-                .subscribe { app.uiCommunicator.fileSelected.onNext(recyclerFileAdapter.getItem(it)) }
+                .subscribe { app.eventBus.fileSelected.onNext(recyclerFileAdapter.getItem(it)) }
 
-        app.uiCommunicator.createFileClick.subscribe { recyclerFileAdapter.addFile(it) }
+        app.eventBus.createFileClick.subscribe { recyclerFileAdapter.addFile(it) }
 
-        mCompositeSubscription += app.uiCommunicator.swipeRefresh.subscribe( {
+        mCompositeSubscription += app.eventBus.swipeRefresh.subscribe( {
             if(activity != null)
             {
                 recyclerFileAdapter.refresh(activity)
             }
-
         },
         {
             KLog.e("exception in swipe refresh",it);
-
         });
     }
 
@@ -122,9 +119,6 @@ class NoteListFragment : Fragment() {
     }
 
     companion object {
-
-        @JvmStatic
-        val ARG_FOLDER_PATH = "folder_path" // used to display the contents of a folder
 
         @JvmStatic
         val ARG_QUERY_TEXT = "query_text" // used to display results of a full text search

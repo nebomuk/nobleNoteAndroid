@@ -130,7 +130,6 @@ class MainToolbarController(val mainActivity: MainActivity)
         val frag = NoteListFragment()
         val arguments = Bundle()
         arguments.putString(NoteListFragment.ARG_QUERY_TEXT,queryText.toString())
-        arguments.putBoolean(MainActivity.ARG_TWO_PANE, mainActivity.twoPane)
         frag.arguments = arguments;
         mainActivity.fragmentManager.beginTransaction().add(R.id.item_master_container,frag).addToBackStack(FRAGMENT_SEARCH_RESULT).commit();
 

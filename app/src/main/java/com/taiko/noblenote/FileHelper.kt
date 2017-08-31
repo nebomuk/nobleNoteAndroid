@@ -29,6 +29,7 @@ object FileHelper {
 
                     while (true) {
                         val line = br.readLine()
+                        @Suppress("FoldInitializerAndIfToElvis")
                         if(line == null)
                         {
                             break;

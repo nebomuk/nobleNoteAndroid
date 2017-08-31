@@ -23,7 +23,7 @@ import java.io.FileFilter
 class FolderListFragment : Fragment() {
 
     private val mActivatedPosition = ListView.INVALID_POSITION
-    private val mTwoPane = false
+    private var mTwoPane = false
     private val mCompositeSubscription = CompositeSubscription()
 
 
@@ -39,6 +39,8 @@ class FolderListFragment : Fragment() {
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
 
+        mTwoPane = (activity as MainActivity).twoPane
+
         val rv = view?.recycler_view as RecyclerView
         rv.itemAnimator = DefaultItemAnimator();
 
@@ -51,27 +53,23 @@ class FolderListFragment : Fragment() {
 
         recyclerFileAdapter = RecyclerFileAdapter()
         recyclerFileAdapter.filter = folderFilter
-        mCompositeSubscription += Pref.rootPath.skip(1).subscribe {
-            recyclerFileAdapter.path = File(it)
-            recyclerFileAdapter.refresh(activity)
-        }
 
         rv.adapter = recyclerFileAdapter
         rv.layoutManager = LinearLayoutManager(activity)
 
         val listController = ListController(activity as MainActivity,rv)
-        listController.isTwoPaneFolderList = (activity as MainActivity).twoPane;
+        listController.isTwoPaneFolderList = mTwoPane;
 
         val app = (activity.application as MainApplication)
         mCompositeSubscription += listController.itemClicks()
                 .doOnNext { KLog.d("item pos clicked: " + it) }
-                .subscribe { app.uiCommunicator.folderSelected.onNext(recyclerFileAdapter.getItem(it)) }
+                .subscribe { Pref.currentFolderPath.onNext(recyclerFileAdapter.getItem(it).absolutePath) }
 
 
 
-        mCompositeSubscription += app.uiCommunicator.createFolderClick.subscribe { recyclerFileAdapter.addFile(it) }
+        mCompositeSubscription += app.eventBus.createFolderClick.subscribe { recyclerFileAdapter.addFile(it) }
 
-        mCompositeSubscription += app.uiCommunicator.swipeRefresh.subscribe( {
+        mCompositeSubscription += app.eventBus.swipeRefresh.subscribe( {
             if (activity != null) {
                 recyclerFileAdapter.refresh(activity)
             }
@@ -86,6 +84,13 @@ class FolderListFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         recyclerFileAdapter.refresh(activity);
+
+        if(mTwoPane)
+        {
+            val index = recyclerFileAdapter.indexOf(File(Pref.currentFolderPath.value))
+            recyclerFileAdapter.selectedFolderIndex = index;
+        }
+
     }
 
     override fun onDestroyView() {

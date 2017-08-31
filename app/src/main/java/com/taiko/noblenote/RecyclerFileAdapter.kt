@@ -56,6 +56,11 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
     }*/
 
 
+    fun indexOf(file : File) : Int
+    {
+        return mFiles.indexOfFirst { it.file.canonicalPath.compareTo(file.canonicalPath) == 0 } // this comparison does not work with search results where path are different
+    }
+
 
     // selected folder in two-pane layout, selects the given index
     var selectedFolderIndex: Int = RecyclerView.NO_POSITION
@@ -231,9 +236,9 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
         return mFiles.size
     }
 
-    data class FileItem(val file : File,var isSelected: Boolean, var isSelectedFolder : Boolean = false) : Comparable<FileItem> {
+    private data class FileItem(val file : File,var isSelected: Boolean, var isSelectedFolder : Boolean = false) : Comparable<FileItem> {
         override fun compareTo(other: FileItem): Int {
-            return this.file.name.compareTo(other.file.name)
+            return this.file.name.compareTo(other.file.name) // this must also work for search results where the path is not the same
         }
     }
 
