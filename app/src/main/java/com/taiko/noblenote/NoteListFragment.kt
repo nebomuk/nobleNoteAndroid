@@ -79,11 +79,11 @@ class NoteListFragment : Fragment() {
                                 })
             }
         }
-        else // use current folder path and display the contents
+        else if(arguments != null && arguments.containsKey(ARG_FOLDER_PATH)) // use current folder path and display the contents
         {
             tv_file_list_empty.setText(R.string.notebook_is_empty);
 
-            recyclerFileAdapter.path = File(Pref.currentFolderPath.value);
+            recyclerFileAdapter.path = File(arguments.getString(ARG_FOLDER_PATH));
 //            recyclerFileAdapter.refresh(activity)
         }
 
@@ -92,7 +92,7 @@ class NoteListFragment : Fragment() {
 
         val app = (activity.application as MainApplication)
 
-        val listController = ListController(activity as MainActivity,rv)
+        val listController = ListSelectionController(activity as MainActivity,rv)
         listController.isHtmlActionAvailable = true;
 
 
@@ -122,6 +122,9 @@ class NoteListFragment : Fragment() {
 
         @JvmStatic
         val ARG_QUERY_TEXT = "query_text" // used to display results of a full text search
+
+        @JvmStatic
+        val ARG_FOLDER_PATH = "folder_path";
 
         // start the note editor
         @JvmStatic

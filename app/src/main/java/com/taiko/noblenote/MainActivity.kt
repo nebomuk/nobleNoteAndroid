@@ -23,16 +23,7 @@ class MainActivity : Activity()
     private val mCompositeSubscription = CompositeSubscription()
     lateinit var mMainToolbarController: MainToolbarController
 
-    public fun onCurrentFolderChanged(path: String) {
 
-            val fragment = NoteListFragment()
-
-        if (twoPane) {
-            fragmentManager.beginTransaction().replace(R.id.item_detail_container, fragment).commit()
-        } else {
-            fragmentManager.beginTransaction().add(R.id.item_master_container, fragment).addToBackStack(null).commit();
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +47,6 @@ class MainActivity : Activity()
         fragmentManager.beginTransaction().add(R.id.item_master_container, FolderListFragment()).commit()
 
         val app = application as MainApplication
-        mCompositeSubscription += Pref.currentFolderPath.subscribe { onCurrentFolderChanged(it) }
         mCompositeSubscription += app.eventBus.fileSelected.mergeWith(app.eventBus.createFileClick).subscribe { NoteListFragment.startNoteEditor(this,it, NoteEditorActivity.READ_WRITE) }
 
 

@@ -11,7 +11,7 @@ import rx.subjects.PublishSubject
 /***
  * contextual action mode for files
  *
- * just an rx java adapter, most stuff is done in ListController
+ * just an rx java adapter, most stuff is done in ListSelectionController
  */
 class FileActionModeCallback(val mContext : Context) : ActionMode.Callback
 

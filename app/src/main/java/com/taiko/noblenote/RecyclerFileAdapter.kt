@@ -3,7 +3,6 @@ package com.taiko.noblenote
 import android.app.Activity
 import android.databinding.ObservableArrayList
 import android.graphics.Color
-import android.os.Handler
 import android.support.annotation.ColorInt
 import android.support.v4.graphics.ColorUtils
 import android.support.v7.widget.RecyclerView
@@ -31,6 +30,7 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
 
     private val mClickSubject : PublishSubject<Int> = PublishSubject()
     private val mLongClickSubject : PublishSubject<Int> = PublishSubject()
+    private val mSelectedFolderSubject : PublishSubject<Int> = PublishSubject();
 
     private val mWeakReferenceOnListChangedCallback: WeakReferenceOnListChangedCallback
 
@@ -42,6 +42,8 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
     fun itemClicks(): Observable<Int> = mClickSubject.asObservable();
 
     fun itemLongClicks(): Observable<Int> = mLongClickSubject.asObservable();
+
+    fun selectedFolder() : Observable<Int> = mSelectedFolderSubject.asObservable().distinctUntilChanged();
 
     val selectedFiles : List<File>
         get() = mFiles.filter { it.isSelected }.map { it.file }
@@ -55,6 +57,37 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
         field = value
     }*/
 
+    var selectFolderOnClick : Boolean = false
+    set(value) {
+        if(value == field)
+        {
+            return;
+        }
+        field = value;
+
+        if(field && selectedFolderIndex == RecyclerView.NO_POSITION)
+        {
+            selectedFolderIndex = 0; // try to select first if any
+        }
+    }
+
+
+    init {
+        // path = argPath
+        mWeakReferenceOnListChangedCallback = WeakReferenceOnListChangedCallback(this);
+        mFiles.addOnListChangedCallback(mWeakReferenceOnListChangedCallback)
+
+        itemClicks().subscribe {
+            if(selectFolderOnClick)
+            {
+                selectedFolderIndex = it;
+            }
+        }
+
+        //rx.Observable.interval(3,TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe { mFiles.add(File(Pref.rootPath,"test " + it)) }
+    }
+
+
 
     fun indexOf(file : File) : Int
     {
@@ -63,21 +96,30 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
 
 
     // selected folder in two-pane layout, selects the given index
-    var selectedFolderIndex: Int = RecyclerView.NO_POSITION
+    private var selectedFolderIndex: Int = RecyclerView.NO_POSITION
         set(value) {
             if(!isValidIndex(value))
-                return;
-
-            field = value;
-
-            val indexOfOldValue = mFiles.indexOfFirst { it.isSelectedFolder }
-            if(indexOfOldValue != -1)
             {
+                field = RecyclerView.NO_POSITION;
+            }
+
+            else
+            {
+                field = value;
+
+                val indexOfOldValue = mFiles.indexOfFirst { it.isSelectedFolder }
+                if(indexOfOldValue != -1)
+                {
                 mFiles[indexOfOldValue].isSelectedFolder = false;
                 notifyItemChanged(indexOfOldValue);
+                }
+                mFiles[field].isSelectedFolder = true;
+                notifyItemChanged(field);
+
             }
-            mFiles[field].isSelectedFolder = true;
-            notifyItemChanged(field);
+
+            mSelectedFolderSubject.onNext(field);
+
         }
     get() =  mFiles.indexOfFirst { it.isSelectedFolder }
 
@@ -86,40 +128,45 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
     {
         FileHelper.checkMountStateAndPermission(activity,
                 {
-            val newFileList = FileHelper.listFilesSorted(path,filter);
-            // add files that arent contained in the list
-            for (newFile in newFileList)
-            {
-                if(!mFiles.any { it.file.name == newFile.name })
-                {
-                    addFile(newFile)
+                    val newFileList = FileHelper.listFilesSorted(path, filter);
+                    // add files that arent contained in the list
+                    for (newFile in newFileList) {
+                        if (!mFiles.any { it.file.name == newFile.name }) {
+                            addFile(newFile)
+                        }
+                    }
+                    // remove files
+                    val iter = mFiles.listIterator();
+                    while (iter.hasNext()) {
+                        val file = iter.next();
+                        if (!newFileList.any { it.name == file.file.name }) {
+                            iter.remove();
+                        }
+                    }
+                    updateFolderSelection()
+
                 }
-            }
-            // remove files
-            val iter = mFiles.listIterator();
-            while (iter.hasNext())
-            {
-                val file = iter.next();
-                if(!newFileList.any { it.name == file.file.name })
-                {
-                    iter.remove();
-                }
-            }
-        }
         );
 
     }
 
-    private val mHandler = Handler()
+    // when folder selection is enabled, selects at least one folder
+    // or sends a -1 RecyclerView.NO_POSITION when  mFiles is empty
+    private fun updateFolderSelection()
+    {
+        if(selectFolderOnClick) {
+            if (selectedFolderIndex == RecyclerView.NO_POSITION && mFiles.size > 0) {
+                selectedFolderIndex = 0; // try select first
+            }
+            else if(mFiles.size == 0)
+            {
+                selectedFolderIndex = RecyclerView.NO_POSITION;
+            }
+        }
 
-
-    init {
-       // path = argPath
-        mWeakReferenceOnListChangedCallback = WeakReferenceOnListChangedCallback(this);
-        mFiles.addOnListChangedCallback(mWeakReferenceOnListChangedCallback)
-
-        //rx.Observable.interval(3,TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe { mFiles.add(File(Pref.rootPath,"test " + it)) }
     }
+
+
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         mSelectionColor = recyclerView.context.resources.getColor(R.color.md_grey_200)
@@ -138,14 +185,25 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
     fun removeSelected()
     {
         mFiles.removeAll { it.isSelected }
+
+        updateFolderSelection()
     }
 
     fun addFile(f : File)
     {
         mFiles.addSorted( FileItem(f,false), { lhs, rhs -> Collator.getInstance().compare(lhs.file.name, rhs.file.name) })
+
+        updateFolderSelection()
     }
 
-    fun getItem(pos : Int) : File = mFiles[pos].file
+    fun getItem(pos : Int) : File? {
+        if(isValidIndex(pos))
+        {
+            return mFiles[pos].file
+        }
+        else
+            return null;
+    }
 
 
 
@@ -181,7 +239,7 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
 
     private fun isValidIndex(pos : Int) : Boolean
     {
-        return pos > 0 || pos < mFiles.size -1;
+        return pos >= 0 && pos <= mFiles.size -1;
     }
 
 

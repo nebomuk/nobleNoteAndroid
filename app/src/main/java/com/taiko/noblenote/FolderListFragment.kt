@@ -57,13 +57,46 @@ class FolderListFragment : Fragment() {
         rv.adapter = recyclerFileAdapter
         rv.layoutManager = LinearLayoutManager(activity)
 
-        val listController = ListController(activity as MainActivity,rv)
+        val listController = ListSelectionController(activity as MainActivity,rv)
         listController.isTwoPaneFolderList = mTwoPane;
 
         val app = (activity.application as MainApplication)
-        mCompositeSubscription += listController.itemClicks()
-                .doOnNext { KLog.d("item pos clicked: " + it) }
-                .subscribe { Pref.currentFolderPath.onNext(recyclerFileAdapter.getItem(it).absolutePath) }
+
+        if(mTwoPane)
+        {
+            recyclerFileAdapter.selectFolderOnClick =true
+            mCompositeSubscription += recyclerFileAdapter.selectedFolder().subscribe {
+                if(it == RecyclerView.NO_POSITION)
+                {
+                    val noteFragment = fragmentManager.findFragmentById(R.id.item_detail_container);
+                    if(noteFragment != null)
+                    {
+                        fragmentManager.beginTransaction().remove(noteFragment).commit();
+                    }
+                }
+                else
+                {
+                    val item = recyclerFileAdapter.getItem(it)
+                    if(item != null) {
+                        Pref.currentFolderPath.onNext(item.absolutePath)
+                        showNoteFragment(item.absolutePath)
+                    }
+
+                }
+            }
+
+        }
+        else {
+            mCompositeSubscription += listController.itemClicks()
+                    .subscribe {
+                        val item = recyclerFileAdapter.getItem(it);
+                        if (item != null) {
+                            Pref.currentFolderPath.onNext(item.absolutePath)
+                            showNoteFragment(item.absolutePath)
+                        }
+
+                    }
+        }
 
 
 
@@ -83,13 +116,11 @@ class FolderListFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
+
+
         recyclerFileAdapter.refresh(activity);
 
-        if(mTwoPane)
-        {
-            val index = recyclerFileAdapter.indexOf(File(Pref.currentFolderPath.value))
-            recyclerFileAdapter.selectedFolderIndex = index;
-        }
+
 
     }
 
@@ -97,6 +128,20 @@ class FolderListFragment : Fragment() {
         super.onDestroyView()
         mCompositeSubscription.clear()
 
+    }
+
+    fun showNoteFragment(folderPath : String) {
+
+        val fragment = NoteListFragment()
+        val arguments = Bundle()
+        arguments.putString(NoteListFragment.ARG_FOLDER_PATH,folderPath)
+        fragment.arguments = arguments
+
+        if (mTwoPane) {
+            fragmentManager.beginTransaction().replace(R.id.item_detail_container, fragment).commit()
+        } else {
+            fragmentManager.beginTransaction().add(R.id.item_master_container, fragment).addToBackStack(null).commit();
+        }
     }
 
 

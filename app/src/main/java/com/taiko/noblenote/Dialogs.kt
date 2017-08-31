@@ -28,9 +28,20 @@ object Dialogs {
     @JvmStatic
     fun showNewNoteDialog(activity: Activity, fileCreated : (f : File) -> Unit) {
 
-        FileHelper.checkMountStateAndPermission(activity,
-                {
-                    val dialogBuilder = AlertDialog.Builder(activity)
+        FileHelper.checkMountStateAndPermission(activity,{
+            val
+                 dialogBuilder = AlertDialog.Builder(activity)
+
+                    val rootContents = File(Pref.rootPath.value).listFiles();
+                    if(rootContents == null || rootContents.isEmpty())
+                    {
+                        dialogBuilder.setTitle(R.string.title_noNotebookExists)
+                        dialogBuilder.setMessage(R.string.noNotebookExists)
+                        dialogBuilder.setPositiveButton(
+                                android.R.string.ok,null)
+                        dialogBuilder.show();
+                        return@checkMountStateAndPermission;
+                    }
 
                     dialogBuilder.setTitle(R.string.newNote)
                     dialogBuilder.setMessage(R.string.enterName)

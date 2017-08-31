@@ -12,7 +12,7 @@ import java.util.*
 /***
  * handles file list selection and contextual toolbar actions
  */
-class ListController(val activity: MainActivity,  val recyclerView: RecyclerView)
+class ListSelectionController(val activity: MainActivity, val recyclerView: RecyclerView)
 {
     var isTwoPaneFolderList: Boolean = false; // folder list in two pane, colors each list item when clicked
     var isHtmlActionAvailable = false // show html source action
@@ -90,6 +90,7 @@ class ListController(val activity: MainActivity,  val recyclerView: RecyclerView
 
             if(mActionMode != null)
             {
+                adapter.selectFolderOnClick = false;
 
                 toggleSelection(it)
 
@@ -113,7 +114,7 @@ class ListController(val activity: MainActivity,  val recyclerView: RecyclerView
             else
             {
                 if(isTwoPaneFolderList) {
-                    adapter.selectedFolderIndex = it;
+                    adapter.selectFolderOnClick = true;
                 }
             }
         }
