@@ -25,7 +25,7 @@ class MainActivity : Activity()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        super.onCreate(null) // do not save instance state because we create fragments manually with updates filesystem state
 
         setContentView(R.layout.activity_main)
 
@@ -43,7 +43,8 @@ class MainActivity : Activity()
 //        setSupportActionBar(toolbar) // required to make styling working, activity options menu callbacks now have to be used
 
 
-        fragmentManager.beginTransaction().add(R.id.item_master_container, FolderListFragment()).commit()
+        // replaces existing fragments that have been retaind in saveInstanceState
+        fragmentManager.beginTransaction().replace(R.id.item_master_container, FolderListFragment()).commit()
 
         val app = application as MainApplication
         mCompositeSubscription += app.eventBus.fileSelected.mergeWith(app.eventBus.createFileClick).subscribe { NoteListFragment.startNoteEditor(this,it, NoteEditorActivity.READ_WRITE) }

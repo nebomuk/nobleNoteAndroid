@@ -126,6 +126,13 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
     // reloads the file list by adding, removing files from the observable file list
     fun refresh(activity: Activity)
     {
+        if(activity == null)
+        {
+            KLog.w("RecyclerFileAdapter.refresh failed: argument activity is null");
+            return;
+        }
+
+
         FileHelper.checkMountStateAndPermission(activity,
                 {
                     val newFileList = FileHelper.listFilesSorted(path, filter);

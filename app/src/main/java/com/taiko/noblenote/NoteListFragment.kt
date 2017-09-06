@@ -118,6 +118,12 @@ class NoteListFragment : Fragment() {
         recyclerFileAdapter.refresh(activity);
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        mCompositeSubscription.clear();
+
+    }
+
     companion object {
 
         @JvmStatic
