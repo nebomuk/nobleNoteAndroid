@@ -90,7 +90,7 @@ class FolderListController(private var fragment: Fragment, recyclerView: Recycle
         };
     }
 
-    fun showNoteFragment(folderPath: String) {
+    private fun showNoteFragment(folderPath: String) {
 
         val noteFragment = NoteListFragment()
         val arguments = Bundle()
@@ -106,10 +106,12 @@ class FolderListController(private var fragment: Fragment, recyclerView: Recycle
 
     fun onStart()
     {
-        recyclerFileAdapter.refresh(fragment.activity);
+        mCompositeSubscription += Pref.rootPath.subscribe {
+            recyclerFileAdapter.path = File(it);
+            recyclerFileAdapter.refresh(fragment.activity); }
     }
 
-    fun destroy()
+    fun onDestroyView()
     {
         mCompositeSubscription.clear();
     }

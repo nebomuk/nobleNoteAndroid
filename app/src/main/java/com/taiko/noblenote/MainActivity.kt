@@ -11,8 +11,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main_twopane.*
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
-
-
+import rx.subscriptions.Subscriptions
 
 
 class MainActivity : Activity()
@@ -87,10 +86,11 @@ class MainActivity : Activity()
 
         swipeRefreshLayout.setOnRefreshListener {
             handler.postDelayed({swipeRefreshLayout.isRefreshing = false},500)
-            app.eventBus.swipeRefresh.onNext(Unit)
+             app.eventBus.swipeRefresh.onNext(Unit)
             KLog.v("SwipeToRefresh");
-
         }
+
+        mCompositeSubscription += Subscriptions.create { swipeRefreshLayout.setOnRefreshListener(null);  }
     }
 
     override fun onBackPressed() {
@@ -104,7 +104,7 @@ class MainActivity : Activity()
     override fun onDestroy() {
         super.onDestroy()
         mCompositeSubscription.clear()
-        mMainToolbarController?.destroy();
+        mMainToolbarController?.onDestroy();
         mMainToolbarController = null;
     }
 
@@ -123,8 +123,6 @@ class MainActivity : Activity()
             this.fab?.visibility = View.INVISIBLE;
             this.fab_menu?.close(false);
             this.fab_menu?.visibility = View.INVISIBLE;
-/*            this.fab_menu_folder?.visibility = View.INVISIBLE;
-            this.fab_menu_note?.visibility = View.INVISIBLE;*/
         }
     }
 

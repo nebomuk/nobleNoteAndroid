@@ -70,12 +70,16 @@ class ListSelectionController(val activity: MainActivity, val recyclerView: Recy
         mFileActionModeCallback.onDestroy.subscribe {
             adapter.clearSelection()
             mActionMode = null
+            if(isTwoPane) {
+                adapter.selectFolderOnClick = true;
+            }
             activity.setFabVisible(true);
         }
 
         adapter.itemLongClicks().subscribe {
 
             mActionMode = activity.startActionMode(mFileActionModeCallback);
+            adapter.selectFolderOnClick = false;
             mActionMode?.menu?.findItem(R.id.actionShowHtml)?.isVisible = isHtmlActionAvailable
             adapter.setSelected(it,true);
             activity.setFabVisible(false);
@@ -86,11 +90,8 @@ class ListSelectionController(val activity: MainActivity, val recyclerView: Recy
                 .doOnNext { KLog.i("item click: " + it) }
                 .subscribe {
 
-
-
             if(mActionMode != null)
             {
-                adapter.selectFolderOnClick = false;
 
                 toggleSelection(it)
 
@@ -110,12 +111,6 @@ class ListSelectionController(val activity: MainActivity, val recyclerView: Recy
 
                 }
 
-            }
-            else
-            {
-                if(isTwoPane) {
-                    adapter.selectFolderOnClick = true;
-                }
             }
         }
     }

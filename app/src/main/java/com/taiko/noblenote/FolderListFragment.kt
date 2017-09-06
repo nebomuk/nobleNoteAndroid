@@ -39,7 +39,7 @@ class FolderListFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        mFolderListController?.destroy()
+        mFolderListController?.onDestroyView()
         mFolderListController = null;
 
     }

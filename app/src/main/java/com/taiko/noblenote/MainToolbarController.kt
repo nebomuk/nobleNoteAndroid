@@ -167,7 +167,7 @@ class MainToolbarController(val mainActivity: MainActivity)
         return handled;
     }
 
-    fun destroy()
+    fun onDestroy()
     {
         mCompositeSubscription.clear();
     }
