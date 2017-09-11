@@ -3,9 +3,11 @@ package com.taiko.noblenote
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Environment
+import android.support.design.widget.Snackbar
+import android.support.v4.content.ContextCompat
 import android.util.Log
-import android.widget.Toast
 import com.tbruyelle.rxpermissions.RxPermissions
 import rx.Observable
 import java.io.*
@@ -140,15 +142,48 @@ object FileHelper {
         return fileList
     }
 
+
+    /**
+     * check without requesting permission
+     */
+    @JvmStatic
+    fun checkFilePermission(context: Context) : Boolean
+    {
+
+
+        val permRes = ContextCompat.checkSelfPermission(context,Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if(Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED)
+        {
+            KLog.d("getExternalStorageState() != MEDIA_MOUNTED");
+            return false;
+        }
+
+        if(Pref.isInternalStorage) {
+            return true
+        }
+
+        val res = permRes == PackageManager.PERMISSION_GRANTED
+        if(!res)
+        {
+            KLog.d("Permission WRITE_EXTERNAL_STORAGE not granted");
+        }
+        return res;
+    }
+
     /**
      * checks write permission and sd card mount state
      * and invokes the callback when evertything is true
      */
     @JvmStatic
-    fun checkMountStateAndPermission(activity: Activity, onSuccess: () -> Unit, onFailure : () -> Unit = {})
+    fun requestFilePermission(activity: Activity, onSuccess: () -> Unit, onFailure : () -> Unit = {})
     {
-        RxPermissions(activity).request(Manifest.permission.WRITE_EXTERNAL_STORAGE).subscribe({
-            if(it) {
+
+        val permissionRequest = RxPermissions(activity).request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
+       permissionRequest.subscribe({
+
+           if(it) {
+
 
                 if(Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED)
                 {
@@ -158,14 +193,13 @@ object FileHelper {
                 {
                     onFailure();
                     KLog.d("getExternalStorageState() != MEDIA_MOUNTED");
-                    Toast.makeText(activity,R.string.msg_external_storage_not_mounted, Toast.LENGTH_LONG).show();
+
                 }
             }
             else
             {
                 onFailure();
                 KLog.d("Permission WRITE_EXTERNAL_STORAGE not granted");
-                Toast.makeText(activity,R.string.msg_external_storage_permission_denied, Toast.LENGTH_LONG).show();
             }
         }, {
             KLog.e("exception in RxPermissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE)", it);

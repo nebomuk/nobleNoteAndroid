@@ -109,7 +109,7 @@ class NoteEditorActivity : Activity() {
     private fun reload() {
         // load file contents and parse html thread
 
-        FileHelper.checkMountStateAndPermission(this,onSuccess = {
+        FileHelper.requestFilePermission(this,onSuccess = {
 
             mCompositeSubscription += FileHelper.readFile(filePath, this, parseHtml = openMode != HTML) // don't parse html if it should display the html source of the note
                     .subscribeOn(Schedulers.io())
@@ -145,10 +145,10 @@ class NoteEditorActivity : Activity() {
         // does nothing if open mode is set to read only
 
         // if not focusable, changes can not be made
-        if (focusable && editor_edit_text.isModified)
+        if (focusable && editor_edit_text.isModified && FileHelper.checkFilePermission(this))
         // then save the note
         {
-            FileHelper.checkMountStateAndPermission(this, onSuccess = {
+
                 FileHelper.writeFile(filePath = filePath, text = editor_edit_text.textHTML)
                         .subscribeOn(Schedulers.io())
                         .subscribe {
@@ -157,11 +157,6 @@ class NoteEditorActivity : Activity() {
                             editor_edit_text.isModified = false
                             runOnUiThread { Toast.makeText(this.applicationContext, R.string.noteSaved, Toast.LENGTH_SHORT).show() }
                         }
-            }
-                    ,
-                    onFailure = {
-                        finish();
-                    });
         }
     }
 

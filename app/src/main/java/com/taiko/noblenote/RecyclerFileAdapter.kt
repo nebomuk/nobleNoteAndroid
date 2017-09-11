@@ -1,6 +1,6 @@
 package com.taiko.noblenote
 
-import android.app.Activity
+import android.content.Context
 import android.databinding.ObservableArrayList
 import android.graphics.Color
 import android.support.annotation.ColorInt
@@ -124,37 +124,35 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
     get() =  mFiles.indexOfFirst { it.isSelectedFolder }
 
     // reloads the file list by adding, removing files from the observable file list
-    fun refresh(activity: Activity)
+    fun refresh(context: Context)
     {
-        if(activity == null)
+        if(context == null)
         {
-            KLog.w("RecyclerFileAdapter.refresh failed: argument activity is null");
+            KLog.w("RecyclerFileAdapter.refresh failed: argument context is null");
             return;
         }
 
 
-        FileHelper.checkMountStateAndPermission(activity,
-                {
-                    val newFileList = FileHelper.listFilesSorted(path, filter);
-                    // add files that arent contained in the list
-                    for (newFile in newFileList) {
-                        if (!mFiles.any { it.file.name == newFile.name }) {
-                            addFile(newFile)
-                        }
-                    }
-                    // remove files
-                    val iter = mFiles.listIterator();
-                    while (iter.hasNext()) {
-                        val file = iter.next();
-                        if (!newFileList.any { it.name == file.file.name }) {
-                            iter.remove();
-                        }
-                    }
-                    updateFolderSelection()
-
+        if(FileHelper.checkFilePermission(context))
+        {
+            val newFileList = FileHelper.listFilesSorted(path, filter);
+            // add files that arent contained in the list
+            for (newFile in newFileList) {
+                if (!mFiles.any { it.file.name == newFile.name }) {
+                    addFile(newFile)
                 }
-        );
+            }
+            // remove files
+            val iter = mFiles.listIterator();
+            while (iter.hasNext()) {
+                val file = iter.next();
+                if (!newFileList.any { it.name == file.file.name }) {
+                    iter.remove();
+                }
+            }
+            updateFolderSelection()
 
+        }
     }
 
     // when folder selection is enabled, selects at least one folder

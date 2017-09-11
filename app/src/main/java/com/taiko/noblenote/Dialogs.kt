@@ -28,7 +28,8 @@ object Dialogs {
     @JvmStatic
     fun showNewNoteDialog(activity: Activity, fileCreated : (f : File) -> Unit) {
 
-        FileHelper.checkMountStateAndPermission(activity,{
+        if(FileHelper.checkFilePermission(activity))
+        {
             val
                  dialogBuilder = AlertDialog.Builder(activity)
 
@@ -40,7 +41,7 @@ object Dialogs {
                         dialogBuilder.setPositiveButton(
                                 android.R.string.ok,null)
                         dialogBuilder.show();
-                        return@checkMountStateAndPermission;
+                        return;
                     }
 
                     dialogBuilder.setTitle(R.string.newNote)
@@ -80,7 +81,7 @@ object Dialogs {
                     dialogBuilder.setNegativeButton(android.R.string.cancel, null)
 
                     dialogBuilder.show()
-                });
+                };
     }
 
     /**
@@ -101,7 +102,7 @@ object Dialogs {
     @JvmStatic
     fun showNewFolderDialog(activity: Activity, folderCreated : (f : File) -> Unit) {
 
-        FileHelper.checkMountStateAndPermission(activity,
+        if(FileHelper.checkFilePermission(activity))
                 {
                     val dialogBuilder = AlertDialog.Builder(activity)
 
@@ -137,7 +138,7 @@ object Dialogs {
                     dialogBuilder.setNegativeButton(android.R.string.cancel, null)
 
                     dialogBuilder.show();
-                });
+                };
     }
 
     /**
@@ -147,8 +148,8 @@ object Dialogs {
     fun showRenameDialog(activity : Activity, rootView: View, file: File, onRenamed : (renamedFile: File) -> Unit, onNotRenamed : () -> Unit)
     {
 
-        FileHelper.checkMountStateAndPermission(activity,
-                onSuccess = {
+        if(FileHelper.checkFilePermission(activity))
+                {
 
                     val dialogBuilder = AlertDialog.Builder(rootView.context)
 
@@ -220,7 +221,9 @@ object Dialogs {
 
                     dialogBuilder.show()
                 }
-                ,onFailure = { onNotRenamed() });
+        else {
+            onNotRenamed();
+        }
     }
 
 

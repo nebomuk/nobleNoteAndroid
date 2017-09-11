@@ -21,7 +21,9 @@ public class MainApplication extends Application
             // You should not init your app in this process.
             return;
         }
-        LeakCanary.install(this);
+        //LeakCanary.install(this);
+        // the default LeakDirectoryProvider writes to Downloads, must manually delete the created folder
+
 
         super.onCreate();
         RxActivityResult.register(this);

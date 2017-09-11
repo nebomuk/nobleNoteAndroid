@@ -1,20 +1,18 @@
 package com.taiko.noblenote
 
-import android.Manifest
 import android.app.Activity
 import android.app.FragmentManager
 import android.content.Intent
 import android.os.Bundle
+import android.os.Environment
+import android.support.design.widget.Snackbar
 import android.view.Menu
-import android.widget.Toast
 import com.github.developerpaul123.filepickerlibrary.FilePickerActivity
 import com.github.developerpaul123.filepickerlibrary.enums.Request
 import com.github.developerpaul123.filepickerlibrary.enums.ThemeType
 import com.miguelcatalan.materialsearchview.MaterialSearchView
-import com.tbruyelle.rxpermissions.RxPermissions
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.toolbar.*
-import rx.Observable
 import rx.lang.kotlin.plusAssign
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
@@ -32,7 +30,6 @@ class MainToolbarController(val mainActivity: MainActivity)
 
     init {
 
-        mainActivity.toolbar.inflateMenu(R.menu.menu_main)
         mainActivity.toolbar.setOnMenuItemClickListener {
 
             val item = it
@@ -64,18 +61,26 @@ class MainToolbarController(val mainActivity: MainActivity)
         filePickerDialogIntent.putExtra(FilePickerActivity.THEME_TYPE, ThemeType.ACTIVITY);
         filePickerDialogIntent.putExtra(FilePickerActivity.REQUEST, Request.DIRECTORY);
 
-        mCompositeSubscription += Observable.concat(RxPermissions(mainActivity).request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .map {
-                    if (it) RxActivityResult.on(mainActivity).startIntent(filePickerDialogIntent) else Observable.empty()
-                }).subscribe {
 
-            if ((it.resultCode() == Activity.RESULT_OK)) {
-                val path = it.data().getStringExtra(FilePickerActivity.FILE_EXTRA_DATA_PATH)
-                Pref.rootPath.onNext(path)
-                Toast.makeText(mainActivity, mainActivity.getString(R.string.msg_directory_selected) + " " + Pref.rootPath.value, Toast.LENGTH_LONG).show();
-
-            }
+        val rootView = mainActivity.window.decorView.rootView;
+        if(Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED)
+        {
+            Snackbar.make(rootView,R.string.msg_external_storage_not_mounted, Snackbar.LENGTH_LONG).show();
+            return;
         }
+
+        FileHelper.requestFilePermission(mainActivity,onSuccess = {
+            RxActivityResult.on(mainActivity).startIntent(filePickerDialogIntent).subscribe {
+
+                if ((it.resultCode() == Activity.RESULT_OK)) {
+                    val path = it.data().getStringExtra(FilePickerActivity.FILE_EXTRA_DATA_PATH)
+                    Pref.rootPath.onNext(path)
+                    Snackbar.make(mainActivity.coordinator_layout, mainActivity.getString(R.string.msg_directory_selected) + " " + Pref.rootPath.value, Snackbar.LENGTH_LONG).show();
+
+                }
+            }
+
+        });
     }
 
 

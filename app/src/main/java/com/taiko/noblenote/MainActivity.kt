@@ -3,12 +3,15 @@ package com.taiko.noblenote
 import android.app.Activity
 import android.os.Bundle
 import android.os.Handler
+import android.support.design.widget.CoordinatorLayout
+import android.support.design.widget.Snackbar
 import android.support.v4.widget.SwipeRefreshLayout
 import android.transition.Fade
 import android.view.View
 import com.jakewharton.rxbinding.view.clicks
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main_twopane.*
+import kotlinx.android.synthetic.main.toolbar.*
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
 import rx.subscriptions.Subscriptions
@@ -27,9 +30,11 @@ class MainActivity : Activity()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(null) // do not save instance state because we create fragments manually with updates filesystem state
 
+        KLog.v("onCreate");
+
         setContentView(R.layout.activity_main)
 
-    // https://stackoverflow.com/questions/26600263/how-do-i-prevent-the-status-bar-and-navigation-bar-from-animating-during-an-acti
+        // https://stackoverflow.com/questions/26600263/how-do-i-prevent-the-status-bar-and-navigation-bar-from-animating-during-an-acti
         if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.LOLLIPOP) {
             val fade = Fade()
             fade.excludeTarget(android.R.id.statusBarBackground, true)
@@ -40,9 +45,33 @@ class MainActivity : Activity()
 
         twoPane = findViewById<View>(R.id.item_detail_container) != null // two pane uses the refs.xml reference to reference activity_main_twopane.xml as activity_main.xml
 
-//        setSupportActionBar(toolbar) // required to make styling working, activity options menu callbacks now have to be used
+
+        toolbar.inflateMenu(R.menu.menu_main)
+
+        //        setSupportActionBar(toolbar) // required to make styling working, activity options menu callbacks now have to be used
 
 
+
+        if(Pref.isInternalStorage)
+        {
+            setupUi();
+        }
+        else {
+            FileHelper.requestFilePermission(this, onSuccess = { setupUi() },
+                    onFailure = {
+                        Snackbar.make(findViewById<CoordinatorLayout>(R.id.coordinator_layout), R.string.msg_external_storage_permission_denied, Snackbar.LENGTH_LONG).show();
+                        Pref.rootPath.onNext(Pref.fallbackRootPath);
+                        setupUi();
+                    });
+        }
+
+    }
+
+
+    private fun setupUi()
+    {
+
+        clearSubscriptions();
         // replaces existing fragments that have been retaind in saveInstanceState
         fragmentManager.beginTransaction().replace(R.id.item_master_container, FolderListFragment()).commit()
 
@@ -87,14 +116,17 @@ class MainActivity : Activity()
 
         swipeRefreshLayout.setOnRefreshListener {
             handler.postDelayed({swipeRefreshLayout.isRefreshing = false},500)
-             app.eventBus.swipeRefresh.onNext(Unit)
+            app.eventBus.swipeRefresh.onNext(Unit)
             KLog.v("SwipeToRefresh");
         }
 
         mCompositeSubscription += Subscriptions.create { swipeRefreshLayout.setOnRefreshListener(null);  }
+
     }
 
+
     override fun onBackPressed() {
+
         // close search
         if(mMainToolbarController != null && !mMainToolbarController!!.onBackPressed())
         {
@@ -104,6 +136,10 @@ class MainActivity : Activity()
 
     override fun onDestroy() {
         super.onDestroy()
+        clearSubscriptions()
+    }
+
+    private fun clearSubscriptions() {
         mCompositeSubscription.clear()
         mMainToolbarController?.onDestroy();
         mMainToolbarController = null;
