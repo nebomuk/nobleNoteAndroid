@@ -61,11 +61,9 @@ class MainToolbarController(val mainActivity: MainActivity)
         filePickerDialogIntent.putExtra(FilePickerActivity.THEME_TYPE, ThemeType.ACTIVITY);
         filePickerDialogIntent.putExtra(FilePickerActivity.REQUEST, Request.DIRECTORY);
 
-
-        val rootView = mainActivity.window.decorView.rootView;
         if(Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED)
         {
-            Snackbar.make(rootView,R.string.msg_external_storage_not_mounted, Snackbar.LENGTH_LONG).show();
+            Snackbar.make(mainActivity.coordinator_layout,R.string.msg_external_storage_not_mounted, Snackbar.LENGTH_LONG).show();
             return;
         }
 
@@ -79,8 +77,10 @@ class MainToolbarController(val mainActivity: MainActivity)
 
                 }
             }
-
-        });
+        },
+                onFailure = {
+                    Snackbar.make(mainActivity.coordinator_layout,R.string.msg_external_storage_permission_denied,Snackbar.LENGTH_LONG).show();
+                });
     }
 
 
@@ -172,7 +172,7 @@ class MainToolbarController(val mainActivity: MainActivity)
         return handled;
     }
 
-    fun onDestroy()
+    fun clearSubscriptions()
     {
         mCompositeSubscription.clear();
     }

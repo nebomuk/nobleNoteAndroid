@@ -1,16 +1,23 @@
 package com.taiko.noblenote
 
 import android.app.Activity
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.Snackbar
+import android.support.v4.app.ActivityCompat
 import android.support.v4.widget.SwipeRefreshLayout
 import android.transition.Fade
 import android.view.View
 import com.jakewharton.rxbinding.view.clicks
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main_twopane.*
+import kotlinx.android.synthetic.main.activity_main_twopane.fab_menu
+import kotlinx.android.synthetic.main.activity_main_twopane.fab_menu_folder
+import kotlinx.android.synthetic.main.activity_main_twopane.fab_menu_note
 import kotlinx.android.synthetic.main.toolbar.*
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
@@ -24,13 +31,38 @@ class MainActivity : Activity()
 
     private val mCompositeSubscription = CompositeSubscription()
     private var mMainToolbarController: MainToolbarController? = null
+    private val mPermissionRequestCode = 0xA;
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>?, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
+        if(requestCode != 0xA)
+        {
+            return;
+        }
+
+        if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+            KLog.d(this::class.java.simpleName + " permission granted");
+            // permission was granted
+            setupUi();
+
+        } else {
+
+            KLog.d(this::class.java.simpleName + " permission denied, setting root path to internal storage");
+
+            Snackbar.make(coordinator_layout, getString(R.string.msg_external_storage_permission_denied) + " "
+                    + getString(R.string.msg_switching_internal_storage), Snackbar.LENGTH_LONG).show();
+            Pref.rootPath.onNext(Pref.fallbackRootPath);
+            setupUi();
+        }
+        return;
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(null) // do not save instance state because we create fragments manually with updates filesystem state
-
-        KLog.v("onCreate");
+        KLog.d(this::class.java.simpleName + ".onCreate()");
 
         setContentView(R.layout.activity_main)
 
@@ -45,7 +77,6 @@ class MainActivity : Activity()
 
         twoPane = findViewById<View>(R.id.item_detail_container) != null // two pane uses the refs.xml reference to reference activity_main_twopane.xml as activity_main.xml
 
-
         toolbar.inflateMenu(R.menu.menu_main)
 
         //        setSupportActionBar(toolbar) // required to make styling working, activity options menu callbacks now have to be used
@@ -56,13 +87,37 @@ class MainActivity : Activity()
         {
             setupUi();
         }
-        else {
-            FileHelper.requestFilePermission(this, onSuccess = { setupUi() },
-                    onFailure = {
-                        Snackbar.make(findViewById<CoordinatorLayout>(R.id.coordinator_layout), R.string.msg_external_storage_permission_denied, Snackbar.LENGTH_LONG).show();
-                        Pref.rootPath.onNext(Pref.fallbackRootPath);
-                        setupUi();
-                    });
+        else
+        {
+            if(FileHelper.checkFilePermission(this))
+            {
+                setupUi();
+            }
+            else if(Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED && !Pref.isInternalStorage)
+            {
+                Snackbar.make(coordinator_layout,getString(R.string.msg_external_storage_not_mounted) + " "
+                        + getString(R.string.msg_switching_internal_storage),Snackbar.LENGTH_LONG);
+                Pref.rootPath.onNext(Pref.fallbackRootPath);
+
+                setupUi();
+            }
+            else
+            {
+                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), mPermissionRequestCode);
+            }
+        }
+
+        val intentFilter = IntentFilter(Intent.ACTION_MEDIA_REMOVED);
+        intentFilter.addAction(Intent.ACTION_MEDIA_EJECT);
+
+        // switch to internal storage when sd unmounted
+        mCompositeSubscription += RxBroadcastReceiver.create(this, intentFilter).filter { !Pref.isInternalStorage }.subscribe {
+
+
+            Snackbar.make(coordinator_layout,getString(R.string.msg_external_storage_not_mounted) + " "
+             + getString(R.string.msg_switching_internal_storage), Snackbar.LENGTH_LONG).show();
+            Pref.rootPath.onNext(Pref.fallbackRootPath);
+            setupUi();
         }
 
     }
@@ -70,6 +125,7 @@ class MainActivity : Activity()
 
     private fun setupUi()
     {
+        KLog.d(this::class.java.simpleName + ".setupUi()");
 
         clearSubscriptions();
         // replaces existing fragments that have been retaind in saveInstanceState
@@ -136,12 +192,13 @@ class MainActivity : Activity()
 
     override fun onDestroy() {
         super.onDestroy()
+        KLog.d(this::class.java.simpleName + ".onDestroy()");
         clearSubscriptions()
     }
 
     private fun clearSubscriptions() {
         mCompositeSubscription.clear()
-        mMainToolbarController?.onDestroy();
+        mMainToolbarController?.clearSubscriptions();
         mMainToolbarController = null;
     }
 

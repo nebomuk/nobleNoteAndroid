@@ -3,10 +3,14 @@ package com.taiko.noblenote
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.support.design.widget.Snackbar
+import android.support.v4.app.ActivityCompat
 import android.support.v4.view.MenuItemCompat
 import android.text.InputType
 import android.util.Log
@@ -26,17 +30,14 @@ import rx.subscriptions.CompositeSubscription
 import java.io.File
 
 
-
-
-
 class NoteEditorActivity : Activity() {
 
 
     private val TAG = this.javaClass.simpleName
 
-    private var focusable = true // if set to false, the note is opened in read only mode
-    private lateinit var filePath : String;
-    private lateinit var openMode: String;
+    private var mFocusable = true // if set to false, the note is opened in read only mode
+    private lateinit var mFilePath: String;
+    private lateinit var mOpenMode: String;
     private var lastModified: Long = 0
     private var mFormattingMenuItem: MenuItem? = null
     private val mCompositeSubscription : CompositeSubscription = CompositeSubscription();
@@ -45,10 +46,42 @@ class NoteEditorActivity : Activity() {
 
     private lateinit var  mFindInTextToolbarController: FindInTextToolbarController
 
+    private val mPermissionRequestCode = 0xEA;
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if(requestCode != mPermissionRequestCode)
+        {
+            return;
+        }
+
+        if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+            KLog.d(this::class.java.simpleName + " permission granted, reloading file");
+            // permission was granted
+            reload()
+
+        } else {
+
+            KLog.d(this::class.java.simpleName + " permission denied, finish() and setting root path to internal storage");
+            // permission denied
+            Toast.makeText(this, R.string.msg_external_storage_permission_denied, Toast.LENGTH_SHORT).show();
+            Pref.rootPath.onNext(Pref.fallbackRootPath);
+            editor_edit_text.isModified = false; // avoid attempts so save the file in onStop
+            finish(); // permission denied or sd not mounted, finish editor activity and show the empty file list of the parent activity
+        }
+        return;
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         //requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 
         super.onCreate(savedInstanceState)
+
+        KLog.d(this::class.java.simpleName + ".onCreate()");
+
         //This has to be called before setContentVie
 
         window.requestFeature(Window.FEATURE_ACTION_MODE_OVERLAY)
@@ -77,26 +110,43 @@ class NoteEditorActivity : Activity() {
 
         val extras = intent.extras ?: return
 
-        filePath = extras.getString(ARG_FILE_PATH)
-        openMode = extras.getString(ARG_OPEN_MODE)
-        focusable = !(openMode == HTML || openMode == READ_ONLY) // no editing if html source should be shown
+        mFilePath = extras.getString(ARG_FILE_PATH)
+        mOpenMode = extras.getString(ARG_OPEN_MODE)
+        mFocusable = !(mOpenMode == HTML || mOpenMode == READ_ONLY) // no editing if html source should be shown
 
-        //getActionBar().setTitle(new File(filePath).getName());
+        //getActionBar().setTitle(new File(mFilePath).getName());
 
-        lastModified = File(filePath).lastModified()
-        reload()
+        if(!Pref.isInternalStorage)
+        {
+
+            if(!FileHelper.checkFilePermission(this))
+            {
+                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), mPermissionRequestCode);
+            }
+        }
+
+        val intentFilter = IntentFilter(Intent.ACTION_MEDIA_REMOVED);
+        intentFilter.addAction(Intent.ACTION_MEDIA_EJECT);
+
+        // switch to internal storage when sd unmounted
+        mCompositeSubscription += RxBroadcastReceiver.create(this, intentFilter).filter { !Pref.isInternalStorage }.subscribe {
+            Toast.makeText(this,getString(R.string.msg_external_storage_not_mounted) + " "
+                    + getString(R.string.msg_switching_internal_storage), Snackbar.LENGTH_LONG).show();
+            editor_edit_text.isModified = false; // avoid attempts so save the file in onStop
+            Pref.rootPath.onNext(Pref.fallbackRootPath);
+            finish();
+        }
+
 
     }
 
     public override fun onStart() {
         super.onStart()
+        KLog.d(this::class.java.simpleName + ".onStart()");
 
-        if (File(filePath).lastModified() > lastModified) {
+        if (FileHelper.checkFilePermission(this) && File(mFilePath).lastModified() > lastModified) {
             reload()
-            lastModified = File(filePath).lastModified()
-            Snackbar.make(layout_root, R.string.noteReloaded, Snackbar.LENGTH_SHORT).show()
         }
-
         // fix selection & formatting for Honeycomb and newer devices
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             editor_edit_text.customSelectionActionModeCallback = SelectionActionModeCallback(editor_edit_text)
@@ -108,10 +158,9 @@ class NoteEditorActivity : Activity() {
      */
     private fun reload() {
         // load file contents and parse html thread
+        KLog.d(this::class.java.simpleName + ".reload()");
 
-        FileHelper.requestFilePermission(this,onSuccess = {
-
-            mCompositeSubscription += FileHelper.readFile(filePath, this, parseHtml = openMode != HTML) // don't parse html if it should display the html source of the note
+            mCompositeSubscription += FileHelper.readFile(mFilePath, this, parseHtml = mOpenMode != HTML) // don't parse html if it should display the html source of the note
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({
@@ -127,29 +176,34 @@ class NoteEditorActivity : Activity() {
                             mFindInTextToolbarController.showToolbar()
                         }
 
+                        if(lastModified != 0L) // 0 is initial value when loading the first time, so we do not show the "reloaded" snackbar
+                        {
+                            Snackbar.make(layout_root, R.string.noteReloaded, Snackbar.LENGTH_SHORT).show()
+                        }
+
+                        lastModified = File(mFilePath).lastModified()
+
                     }, {
-                        Log.e(TAG, it.message)
-                        Snackbar.make(layout_root!!, R.string.file_loading_error, Snackbar.LENGTH_LONG).show()
+                        KLog.e(this::class.java.simpleName + " " + it.message)
+                        Toast.makeText(this, R.string.file_loading_error, Toast.LENGTH_SHORT).show()
+                        finish();
 
-                    })
-        },
-                onFailure = {
-                    finish(); // permission denied or sd not mounted, finish editor activity and show the empty file list of the parent activity
-                });
-
+                    });
     }
 
     public override fun onStop() {
         super.onStop()
 
+        KLog.d(this::class.java.simpleName + ".onStop()");
+
         // does nothing if open mode is set to read only
 
-        // if not focusable, changes can not be made
-        if (focusable && editor_edit_text.isModified && FileHelper.checkFilePermission(this))
+        // if not mFocusable, changes can not be made
+        if (mFocusable && editor_edit_text.isModified && FileHelper.checkFilePermission(this))
         // then save the note
         {
 
-                FileHelper.writeFile(filePath = filePath, text = editor_edit_text.textHTML)
+                FileHelper.writeFile(filePath = mFilePath, text = editor_edit_text.textHTML)
                         .subscribeOn(Schedulers.io())
                         .subscribe {
 
@@ -296,7 +350,7 @@ class NoteEditorActivity : Activity() {
 
 
 
-        editor_edit_text.isFocusable = focusable // read only if not focusable
+        editor_edit_text.isFocusable = mFocusable // read only if not mFocusable
 
         //item.expandActionView(); // show text formatting toolbar by default
 
@@ -309,6 +363,8 @@ class NoteEditorActivity : Activity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        KLog.d(this::class.java.simpleName + ".onDestroy()");
+
         mCompositeSubscription.clear();
     }
 

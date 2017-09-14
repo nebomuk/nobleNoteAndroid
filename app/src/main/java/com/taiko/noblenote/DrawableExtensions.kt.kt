@@ -9,5 +9,7 @@ import android.support.v4.graphics.drawable.DrawableCompat
 
 fun Drawable?.setTintCompat(context : Context, @ColorInt color : Int)
 {
-    DrawableCompat.setTint(this!!, ContextCompat.getColor(context,color));
+    if(this != null) {
+        DrawableCompat.setTint(this, ContextCompat.getColor(context, color));
+    }
 }

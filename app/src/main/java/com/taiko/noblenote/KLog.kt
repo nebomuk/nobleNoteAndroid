@@ -5,7 +5,7 @@ import android.util.Log
 // simple kotlin logging
 object KLog {
     
-    private val Tag = "";
+    private val Tag = "KLog";
 
     @JvmStatic fun v(message: String) {
         Log.v(Tag, message)
