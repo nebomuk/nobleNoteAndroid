@@ -13,7 +13,6 @@ import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.view.MenuItemCompat
 import android.text.InputType
-import android.util.Log
 import android.view.*
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_editor.*
@@ -199,7 +198,7 @@ class NoteEditorActivity : Activity() {
         // does nothing if open mode is set to read only
 
         // if not mFocusable, changes can not be made
-        if (mFocusable && editor_edit_text.isModified && FileHelper.checkFilePermission(this))
+        if (!isChangingConfigurations &&  mFocusable && editor_edit_text.isModified && FileHelper.checkFilePermission(this))
         // then save the note
         {
 
