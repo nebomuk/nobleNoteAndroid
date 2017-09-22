@@ -4,6 +4,6 @@ build
 app/build
 app/app.iml
 local.properties
-nobleNoteAndroid.iml
+
 *.iml
 
