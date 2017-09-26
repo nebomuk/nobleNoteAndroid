@@ -10,6 +10,7 @@ import java.io.File
  */
 object Pref : KotprefModel()
 {
+    // constants
     val fallbackRootPath = File(context.filesDir.absolutePath,"/nn").absolutePath;
 
     // backing prefs
@@ -23,6 +24,9 @@ object Pref : KotprefModel()
     // reactive prefs
     val rootPath : BehaviorSubject<String> = BehaviorSubject(mRootPath);
     val currentFolderPath : BehaviorSubject<String> = BehaviorSubject(mCurrentFolderPath);
+
+    // other prefs
+    var isAutoSaveEnabled : Boolean by booleanPrefVar(default = true) // file autosave onStop
 
     init {
         // update backing prefs

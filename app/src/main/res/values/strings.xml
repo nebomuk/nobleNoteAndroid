@@ -46,6 +46,7 @@
     <string name="action_redo">Redo</string>
     <string name="action_undo">Undo</string>
     <string name="action_copy_to_clipboard">Copy to clipboard</string>
+    <string name="action_auto_save">Auto save</string>
     <string name="msg_copied_to_clipboard">Note copied to clipboard</string>
     <string name="msg_items_removed">Items removed</string>
     <string name="msg_directory_selected">Directory Selected:</string>

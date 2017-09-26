@@ -95,7 +95,7 @@ class NoteEditorActivity : Activity() {
 
 
 
-        createToolbarMenu(toolbar.menu)
+        populateMenu(toolbar.menu)
 
 
         mFindInTextToolbarController = FindInTextToolbarController(this);
@@ -198,7 +198,7 @@ class NoteEditorActivity : Activity() {
         // does nothing if open mode is set to read only
 
         // if not mFocusable, changes can not be made
-        if (!isChangingConfigurations &&  mFocusable && editor_edit_text.isModified && FileHelper.checkFilePermission(this))
+        if (Pref.isAutoSaveEnabled &&  !isChangingConfigurations &&  mFocusable && editor_edit_text.isModified && FileHelper.checkFilePermission(this))
         // then save the note
         {
 
@@ -259,7 +259,7 @@ class NoteEditorActivity : Activity() {
     }
 
 
-    private fun createToolbarMenu(menu: Menu): Boolean {
+    private fun populateMenu(menu: Menu): Boolean {
 
 
         MenuHelper.addCopyToClipboard(this,menu,{editor_edit_text.text})
@@ -334,6 +334,16 @@ class NoteEditorActivity : Activity() {
             true
         }
 
+        val autoSaveItem = menu.add(R.string.action_auto_save)
+                .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER)
+                .setCheckable(true)
+                .setEnabled(mFocusable)
+                .setChecked(Pref.isAutoSaveEnabled)
+                .setOnMenuItemClickListener {
+                    it.isChecked = !it.isChecked;
+                    Pref.isAutoSaveEnabled = it.isChecked
+                    true
+                }
 
 
 
