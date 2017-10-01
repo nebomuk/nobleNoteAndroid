@@ -141,10 +141,10 @@ class NoteListFragment : Fragment() {
                 return
             }
 
-            val intent = Intent(activity, NoteEditorActivity::class.java)
-            intent.putExtra(NoteEditorActivity.ARG_FILE_PATH, file.path)
-            intent.putExtra(NoteEditorActivity.ARG_OPEN_MODE, argOpenMode)
-            intent.putExtra(NoteEditorActivity.ARG_QUERY_TEXT,argQueryText);
+            val intent = Intent(activity, EditorActivity::class.java)
+            intent.putExtra(EditorActivity.ARG_FILE_PATH, file.path)
+            intent.putExtra(EditorActivity.ARG_OPEN_MODE, argOpenMode)
+            intent.putExtra(EditorActivity.ARG_QUERY_TEXT,argQueryText);
             activity.startActivity(intent);
         }
     }

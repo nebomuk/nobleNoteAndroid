@@ -17,7 +17,7 @@ import rx.subscriptions.CompositeSubscription
 /**
  * handles visib
  */
-class FindInTextToolbarController(val activity : NoteEditorActivity) {
+class FindInTextToolbarController(val activity : EditorActivity) {
 
     private val mCompositeSubscription : CompositeSubscription = CompositeSubscription();
     private lateinit var mFindHighlighter: FindHighlighter
@@ -76,12 +76,12 @@ class FindInTextToolbarController(val activity : NoteEditorActivity) {
     private fun setArrowDownEnabled(b : Boolean)
     {
         activity.toolbar_find_in_text.arrow_down.isEnabled = b;
-        activity.toolbar_find_in_text.arrow_down.drawable.setTintCompat(activity,NoteEditorActivity.getColorForState(b));
+        activity.toolbar_find_in_text.arrow_down.drawable.setTintCompat(activity, EditorActivity.getColorForState(b));
     }
     private fun setArrowUpEnabled(b : Boolean)
     {
         activity.toolbar_find_in_text.arrow_up.isEnabled = b;
-        activity.toolbar_find_in_text.arrow_up.drawable.setTintCompat(activity,NoteEditorActivity.getColorForState(b));
+        activity.toolbar_find_in_text.arrow_up.drawable.setTintCompat(activity, EditorActivity.getColorForState(b));
     }
 
     private fun showToolbarWithoutMove() {

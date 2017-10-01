@@ -84,7 +84,7 @@ public class TextViewUndoRedo {
     /**
      * Can undo be performed?
      */
-    public boolean getCanUndo() {
+    private boolean getCanUndo() {
         return (mEditHistory.mmPosition > 1);
     }
 
@@ -121,7 +121,7 @@ public class TextViewUndoRedo {
     /**
      * Can redo be performed?
      */
-    public boolean getCanRedo() {
+    private boolean getCanRedo() {
         return (mEditHistory.mmPosition < mEditHistory.mmHistory.size());
     }
 

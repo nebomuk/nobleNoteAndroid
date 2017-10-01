@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Environment
-import android.support.design.widget.Snackbar
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import com.tbruyelle.rxpermissions.RxPermissions

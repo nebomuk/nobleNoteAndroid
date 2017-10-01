@@ -9,7 +9,7 @@
         android:layout_height="match_parent"
         android:orientation="horizontal" >
 
-        <!-- the buttons' texts are set programatically in NoteEditorActivity.java -->
+        <!-- the buttons' texts are set programatically in EditorActivity.java -->
         <ToggleButton
             android:id="@+id/btnToggleBold"
             android:layout_width="50dip"

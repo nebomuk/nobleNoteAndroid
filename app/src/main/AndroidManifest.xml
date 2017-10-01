@@ -21,7 +21,7 @@
             </intent-filter>
         </activity>
         <!-- android:theme="@style/Theme.Styled" -->
-        <activity android:name="com.taiko.noblenote.NoteEditorActivity">
+        <activity android:name="com.taiko.noblenote.EditorActivity">
         </activity>
         <activity
             android:name="com.taiko.noblenote.RenameDialogActivity"

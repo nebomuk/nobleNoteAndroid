@@ -54,7 +54,7 @@ class ListSelectionController(val activity: MainActivity, val recyclerView: Recy
 
             val selectedFile = adapter.selectedFiles.firstOrNull()
             if (selectedFile != null) {
-                NoteListFragment.startNoteEditor(activity,selectedFile,NoteEditorActivity.HTML)
+                NoteListFragment.startNoteEditor(activity,selectedFile, EditorActivity.HTML)
                 mActionMode?.finish()
             }
         }

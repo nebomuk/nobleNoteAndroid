@@ -11,12 +11,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
-import android.support.v4.view.MenuItemCompat
-import android.text.InputType
 import android.view.*
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_editor.*
-import kotlinx.android.synthetic.main.layout_text_formatting.view.*
 import kotlinx.android.synthetic.main.toolbar.*
 import kotlinx.android.synthetic.main.toolbar_find_in_text.*
 import kotlinx.android.synthetic.main.toolbar_find_in_text.view.*
@@ -29,7 +26,7 @@ import rx.subscriptions.CompositeSubscription
 import java.io.File
 
 
-class NoteEditorActivity : Activity() {
+class EditorActivity : Activity() {
 
 
     private val TAG = this.javaClass.simpleName
@@ -96,6 +93,9 @@ class NoteEditorActivity : Activity() {
 
 
         populateMenu(toolbar.menu)
+
+        editor_edit_text.isTextWatcherEnabled = false
+        editor_edit_text.isFocusable = mFocusable // read only if not mFocusable
 
 
         mFindInTextToolbarController = FindInTextToolbarController(this);
@@ -209,13 +209,14 @@ class NoteEditorActivity : Activity() {
                             lastModified = it
                             editor_edit_text.isModified = false
                             runOnUiThread { Toast.makeText(this.applicationContext, R.string.noteSaved, Toast.LENGTH_SHORT).show() }
+
                         }
         }
     }
 
     private fun showExitDialog(runnable: Runnable) {
         if (editor_edit_text.isModified) {
-            val builder = AlertDialog.Builder(this@NoteEditorActivity)
+            val builder = AlertDialog.Builder(this@EditorActivity)
             builder.setMessage(R.string.dialogDiscardKeepEditing)
                     .setPositiveButton(R.string.discard) { dialog, id ->
                         editor_edit_text.isModified = false//  does not get saved
@@ -234,8 +235,13 @@ class NoteEditorActivity : Activity() {
     }
 
     override fun onBackPressed() {
-        if (mFormattingMenuItem!!.isActionViewExpanded) {
-            super.onBackPressed()
+
+
+        if (mFormattingMenuItem != null) {
+            if(mFormattingMenuItem!!.isActionViewExpanded)
+            {
+                super.onBackPressed()
+            }
 
         }
         else if(toolbar_find_in_text.visibility == View.VISIBLE)
@@ -243,7 +249,7 @@ class NoteEditorActivity : Activity() {
             mFindInTextToolbarController.hideToolbar();
         }
         else {
-            showExitDialog(Runnable { super@NoteEditorActivity.onBackPressed() })
+            showExitDialog(Runnable { super@EditorActivity.onBackPressed() })
         }
 
     }
@@ -259,12 +265,11 @@ class NoteEditorActivity : Activity() {
     }
 
 
-    private fun populateMenu(menu: Menu): Boolean {
+    private fun populateMenu(menu: Menu)  {
 
 
         MenuHelper.addCopyToClipboard(this,menu,{editor_edit_text.text})
 
-        val textFormattingToolbar = LayoutInflater.from(this).inflate(R.layout.layout_text_formatting, null)
 
         val undoItem = menu.add(R.string.action_undo)
                 .setIcon(R.drawable.ic_undo_black_24dp)
@@ -303,26 +308,7 @@ class NoteEditorActivity : Activity() {
 
 
 
-        mFormattingMenuItem = menu.add("FormattingToolbar").setIcon(R.drawable.ic_action_btn_show_text_formatting_toolbar)
-                .setActionView(textFormattingToolbar)
-        mFormattingMenuItem!!.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS or MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
-
-
-        // disable auto complete if the text formatting toolbar is shown, because auto-complete's underlining interferes
-        // with the text formatting's underline
-        MenuItemCompat.setOnActionExpandListener(mFormattingMenuItem,  (object : MenuItemCompat.OnActionExpandListener {
-            override fun onMenuItemActionExpand(item: MenuItem): Boolean {
-                editor_edit_text.isTextWatcherEnabled = true
-                editor_edit_text.inputType = editor_edit_text.inputType or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-                return true
-            }
-
-            override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
-                editor_edit_text.isTextWatcherEnabled = false // this disables "on-typing" text formatting by DroidWriterEditText
-                editor_edit_text.inputType = editor_edit_text.inputType and InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS.inv()
-                return true
-            }
-        }));
+        //mFormattingMenuItem = MenuHelper.addTextFormatting(this,menu,editor_edit_text);
 
 
 
@@ -334,7 +320,7 @@ class NoteEditorActivity : Activity() {
             true
         }
 
-        val autoSaveItem = menu.add(R.string.action_auto_save)
+        menu.add(R.string.action_auto_save)
                 .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER)
                 .setCheckable(true)
                 .setEnabled(mFocusable)
@@ -347,23 +333,8 @@ class NoteEditorActivity : Activity() {
 
 
 
-        editor_edit_text.setSingleLine(false)
-        editor_edit_text.isTextWatcherEnabled = false
-
-
-        editor_edit_text.setBoldToggleButton(textFormattingToolbar.btnToggleBold)
-
-        editor_edit_text.setItalicsToggleButton(textFormattingToolbar.btnToggleItalic)
-
-        editor_edit_text.setUnderlineToggleButton(textFormattingToolbar.btnToggleUnderline)
-
-
-
-        editor_edit_text.isFocusable = mFocusable // read only if not mFocusable
-
         //item.expandActionView(); // show text formatting toolbar by default
 
-        return super.onCreateOptionsMenu(menu)
     }
 
 

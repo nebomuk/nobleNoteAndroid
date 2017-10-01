@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
-import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.widget.SwipeRefreshLayout
@@ -132,7 +131,7 @@ class MainActivity : Activity()
         fragmentManager.beginTransaction().replace(R.id.item_master_container, FolderListFragment()).commit()
 
         val app = application as MainApplication
-        mCompositeSubscription += app.eventBus.fileSelected.mergeWith(app.eventBus.createFileClick).subscribe { NoteListFragment.startNoteEditor(this,it, NoteEditorActivity.READ_WRITE) }
+        mCompositeSubscription += app.eventBus.fileSelected.mergeWith(app.eventBus.createFileClick).subscribe { NoteListFragment.startNoteEditor(this,it, EditorActivity.READ_WRITE) }
 
 
 
