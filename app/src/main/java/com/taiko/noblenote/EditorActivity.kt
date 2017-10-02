@@ -124,6 +124,7 @@ class EditorActivity : Activity() {
             }
         }
 
+
         val intentFilter = IntentFilter(Intent.ACTION_MEDIA_REMOVED);
         intentFilter.addAction(Intent.ACTION_MEDIA_EJECT);
 
