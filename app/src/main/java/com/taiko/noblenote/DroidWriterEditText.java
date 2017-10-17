@@ -1,8 +1,10 @@
 package com.taiko.noblenote;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.Spannable;
@@ -512,6 +514,34 @@ public class DroidWriterEditText extends CABEditText {
 
 		public void onTextChanged(CharSequence s, int start, int before, int count) {
 			// Unused
+		}
+
+	}
+
+	/**
+	 * according to
+	 * https://stackoverflow.com/questions/8709261/how-to-perform-redo-undo-operation-in-edittext
+	 * fixes a double-undo issue with physical keyboards when using Android >= 23
+	 */
+	@Override
+	public boolean onTextContextMenuItem(int id) {
+
+		if(Build.VERSION.SDK_INT >= 23)
+		{
+			int ID_UNDO, ID_REDO;
+
+			try {
+				ID_UNDO = android.R.id.undo;
+				ID_REDO = android.R.id.redo;
+			} catch (Resources.NotFoundException e) {
+				ID_UNDO = 16908338; // 0x1020032
+				ID_REDO = 16908339; // 0x1020033
+			}
+			return !((id == ID_UNDO) || (id == ID_REDO)) && super.onTextContextMenuItem(id);
+		}
+		else
+		{
+			return super.onTextContextMenuItem(id);
 		}
 	}
 }

@@ -10,6 +10,7 @@ import android.util.TypedValue
  */
 object ScreenUtil {
 
+    @JvmStatic
     fun dpToPx(context : Context, dp : Int): Int {
         val r = context.getResources()
         val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 14f, r.getDisplayMetrics())

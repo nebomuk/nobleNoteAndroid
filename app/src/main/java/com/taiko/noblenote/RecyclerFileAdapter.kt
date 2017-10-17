@@ -257,12 +257,12 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
         holder.mCompositeSubscription += holder.itemView.inner_layout
                 .clicks()
                 .doOnNext{ KLog.i("item click pos: " + position )}
-                .subscribe { mClickSubject.onNext(position) }
+                .subscribe { mClickSubject.onNext(holder.layoutPosition) }
 
         holder.mCompositeSubscription += holder.itemView.inner_layout
                 .longClicks()
                 .doOnNext{ KLog.i("item long click pos: " + position )}
-                .subscribe { mLongClickSubject.onNext(position) }
+                .subscribe { mLongClickSubject.onNext(holder.layoutPosition) }
 
 
 

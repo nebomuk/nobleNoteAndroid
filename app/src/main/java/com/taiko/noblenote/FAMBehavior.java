@@ -18,9 +18,12 @@ import com.github.clans.fab.FloatingActionMenu;
 @SuppressWarnings("unused")
 public class FAMBehavior extends CoordinatorLayout.Behavior<View> // generic specialization must match the first coordinator layout's child's type
 {
+    private final Context mContext;
     private float mTranslationY;
 
+
     public FAMBehavior(Context context, AttributeSet attrs) {
+        mContext = context;
     }
 
     @Override
@@ -30,11 +33,14 @@ public class FAMBehavior extends CoordinatorLayout.Behavior<View> // generic spe
     }
 
     @Override
-    public boolean onDependentViewChanged(CoordinatorLayout parent, View child, View dependency)
+    public boolean onDependentViewChanged(CoordinatorLayout coordinatorLayout, View child, View snackbarDependency)
     {
-        if (dependency instanceof Snackbar.SnackbarLayout) {
-            FloatingActionMenu fabMenu = parent.findViewById(R.id.fab_menu);
-            this.updateTranslation(parent, fabMenu, dependency);
+        if (snackbarDependency instanceof Snackbar.SnackbarLayout) {
+            FloatingActionMenu fabMenu = coordinatorLayout.findViewById(R.id.fab_menu);
+            if(isSnackbarOverlappingFab(coordinatorLayout,snackbarDependency))
+            {
+                this.updateTranslation(coordinatorLayout, fabMenu, snackbarDependency);
+            }
         }
 
         return false;
@@ -65,6 +71,17 @@ public class FAMBehavior extends CoordinatorLayout.Behavior<View> // generic spe
 
             this.mTranslationY = translationY;
         }
+
+    }
+
+    private boolean isSnackbarOverlappingFab(CoordinatorLayout coordinatorLayout, View snackbar) {
+
+
+        snackbar.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+
+        int fabWidth = ScreenUtil.dpToPx(mContext,30);
+        int fabMargin = mContext.getResources().getDimensionPixelSize(R.dimen.fab_margin);
+        return snackbar.getMeasuredWidth() >= (coordinatorLayout.getMeasuredWidth() - fabMargin - fabWidth);
 
     }
 }

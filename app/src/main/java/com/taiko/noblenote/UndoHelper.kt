@@ -16,24 +16,33 @@ object UndoHelper {
 
     val handler: Handler = Handler(Looper.getMainLooper())
 
-
     /**
      *  remove files from the fs with undo snackbar and a callback when the undo action has been executed
       */
     @JvmStatic
     fun remove(files: List<File>, snackbarRootView: View, onUndo: () -> Unit) {
-        val tempDir = createTempDir(directory = File(Pref.rootPath.value))
+
+        val cacheDir = if (Pref.isInternalStorage) snackbarRootView.context.cacheDir else snackbarRootView.context.externalCacheDir
+        val tempDir = createTempDir(directory = cacheDir)
 
         files.toObservable()
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         // onNext
                         {
+                            var res = false
                             if (it.isDirectory) {
-                                FileHelper.directoryMove(it, File(tempDir, it.name))
+                                res = FileHelper.directoryMove(it, File(tempDir, it.name))
+
                             } else if (it.isFile) {
-                                FileHelper.fileMoveWithParent(it, tempDir)
+                                res = FileHelper.fileMoveWithParent(it, tempDir)
                             }
+
+                            if(!res)
+                            {
+                                KLog.d("Could not move $it to temporary directory for later removal");
+                            }
+
                         },
                         {},
                         // onCompleted
@@ -52,7 +61,11 @@ object UndoHelper {
                                                                     // onNext
                                                                     {
                                                                         // move the files back to its original destination
-                                                                        FileHelper.directoryMove(tempDir, File(Pref.rootPath.value))
+                                                                        val b = FileHelper.directoryMove(tempDir, File(Pref.rootPath.value))
+                                                                        if(!b)
+                                                                        {
+                                                                            KLog.d("Could not move temporarily removed directory $tempDir back to original destination");
+                                                                        }
                                                                     },
                                                                     {},
                                                                     // onCompleted
@@ -68,7 +81,11 @@ object UndoHelper {
                                                     KLog.i("Removing files")
                                                     // timeout/dimissed, remove the files permanently
                                                     Observable.just(Unit).subscribeOn(Schedulers.io()).subscribe {
-                                                        tempDir.deleteRecursively()
+                                                        val b = tempDir.deleteRecursively();
+                                                        if(!b)
+                                                        {
+                                                            KLog.d("Could not remove all files in $tempDir");
+                                                        }
                                                     }
 
                                                 }
