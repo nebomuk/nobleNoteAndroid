@@ -109,21 +109,21 @@ object FileHelper {
      * moves the file including it's immediate parent directory
      */
     @JvmStatic
-    fun fileMoveWithParent(oldFile : File, newRoot : File)
-    {
+    fun fileMoveWithParent(oldFile : File, newRoot : File): Boolean {
         if(oldFile.parentFile == null)
         {
             Log.d("","parent file missing: $oldFile");
         }
 
         val newDir = File(newRoot,oldFile.parentFile.name);
+        var res = false;
         if(!newDir.exists())
         {
-            newDir.mkdirs();
+            res = newDir.mkdirs();
         }
         val newFile = File(newDir,oldFile.name);
-        oldFile.renameTo(newFile);
-
+        res = res && oldFile.renameTo(newFile);
+        return res
     }
 
     /**
