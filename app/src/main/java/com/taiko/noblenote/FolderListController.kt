@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import kotlinx.android.synthetic.main.toolbar.*
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
 import java.io.File
@@ -99,8 +100,10 @@ class FolderListController(private var fragment: Fragment, recyclerView: Recycle
 
         if (mTwoPane) {
             fragment.fragmentManager.beginTransaction().replace(R.id.item_detail_container, noteFragment).commit()
+            fragment.activity.toolbar.title = null; // clear title after orientation change
         } else {
             fragment.fragmentManager.beginTransaction().add(R.id.item_master_container, noteFragment).addToBackStack(null).commit();
+            fragment.activity.toolbar.title = File(folderPath).nameWithoutExtension
         }
     }
 

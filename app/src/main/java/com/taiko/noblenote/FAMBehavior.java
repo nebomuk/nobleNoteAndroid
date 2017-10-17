@@ -35,12 +35,10 @@ public class FAMBehavior extends CoordinatorLayout.Behavior<View> // generic spe
     @Override
     public boolean onDependentViewChanged(CoordinatorLayout coordinatorLayout, View child, View snackbarDependency)
     {
-        if (snackbarDependency instanceof Snackbar.SnackbarLayout) {
+        if (snackbarDependency instanceof Snackbar.SnackbarLayout
+                && isSnackbarOverlappingFab(coordinatorLayout,snackbarDependency)) {
             FloatingActionMenu fabMenu = coordinatorLayout.findViewById(R.id.fab_menu);
-            if(isSnackbarOverlappingFab(coordinatorLayout,snackbarDependency))
-            {
-                this.updateTranslation(coordinatorLayout, fabMenu, snackbarDependency);
-            }
+            this.updateTranslation(coordinatorLayout, fabMenu, snackbarDependency);
         }
 
         return false;
@@ -48,11 +46,12 @@ public class FAMBehavior extends CoordinatorLayout.Behavior<View> // generic spe
 
     // handle snackbar dismissed
     @Override
-    public void onDependentViewRemoved(CoordinatorLayout parent, View child, View dependency)
+    public void onDependentViewRemoved(CoordinatorLayout coordinatorLayout, View child, View snackbarDependency)
     {
-        if (dependency instanceof Snackbar.SnackbarLayout) {
-            FloatingActionMenu fabMenu = parent.findViewById(R.id.fab_menu);
-            this.updateTranslation(parent, fabMenu, dependency);
+        if (snackbarDependency instanceof Snackbar.SnackbarLayout
+                && isSnackbarOverlappingFab(coordinatorLayout,snackbarDependency)) {
+            FloatingActionMenu fabMenu = coordinatorLayout.findViewById(R.id.fab_menu);
+            this.updateTranslation(coordinatorLayout, fabMenu, snackbarDependency);
         }
     }
 

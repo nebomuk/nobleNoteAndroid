@@ -91,6 +91,8 @@ class EditorActivity : Activity() {
         progress_bar_file_loading.indeterminateDrawable = MaterialIndeterminateProgressDrawable.create(this)
 
 
+        toolbar.setNavigationIcon(R.drawable.ic_close_black_24dp)
+        toolbar.setNavigationOnClickListener { showExitDialog() }
 
         populateMenu(toolbar.menu)
 
@@ -215,14 +217,14 @@ class EditorActivity : Activity() {
         }
     }
 
-    private fun showExitDialog(runnable: Runnable) {
+    private fun showExitDialog() {
         if (editor_edit_text.isModified) {
             val builder = AlertDialog.Builder(this@EditorActivity)
             builder.setMessage(R.string.dialogDiscardKeepEditing)
                     .setPositiveButton(R.string.discard) { dialog, id ->
                         editor_edit_text.isModified = false//  does not get saved
                         val handler = Handler()
-                        handler.post(runnable)
+                        handler.post { finish() }
                     }
                     .setNegativeButton(R.string.keepEditing, null)
             // Create the AlertDialog object and return it
@@ -231,7 +233,7 @@ class EditorActivity : Activity() {
         // no modification, do not ask to save the document
         {
             editor_edit_text.isModified = false//  does not get saved
-            runnable.run()
+            finish();
         }
     }
 
@@ -250,14 +252,14 @@ class EditorActivity : Activity() {
             mFindInTextToolbarController.hideToolbar();
         }
         else {
-            showExitDialog(Runnable { super@EditorActivity.onBackPressed() })
+            showExitDialog()
         }
 
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
-            showExitDialog(Runnable { finish() })
+            showExitDialog()
             return true
         }
 

@@ -24,9 +24,8 @@ import java.util.concurrent.TimeUnit
 /***
  * controller class for the MainActivity
  */
-class MainToolbarController(val mainActivity: MainActivity)
-{
-    private val mCompositeSubscription : CompositeSubscription = CompositeSubscription();
+class MainToolbarController(val mainActivity: MainActivity) {
+    private val mCompositeSubscription: CompositeSubscription = CompositeSubscription();
 
     init {
 
@@ -37,8 +36,7 @@ class MainToolbarController(val mainActivity: MainActivity)
             val itemId = item?.itemId
 
             // show directory chooser dialog
-            if(itemId == R.id.action_rootPath)
-            {
+            if (itemId == R.id.action_rootPath) {
                 startFolderPicker()
             }
             true;
@@ -50,9 +48,41 @@ class MainToolbarController(val mainActivity: MainActivity)
 
         })
 
+        mainActivity.fragmentManager.addOnBackStackChangedListener {
+            if(mainActivity.fragmentManager.backStackEntryCount > 0)
+            {
+                setBackNavigationIconEnabled(true)
+                val fragment = mainActivity.fragmentManager.findFragmentById(R.id.item_master_container);
+                val title = fragment?.arguments?.getString(NoteListFragment.ARG_FOLDER_PATH,null).orEmpty();
+                mainActivity.toolbar.title = File(title).name;
+            }
+            else
+            {
+                setBackNavigationIconEnabled(false)
+                mainActivity.toolbar.title = null;
+
+            }
+        }
+
         initSearch(mainActivity.toolbar.menu);
 
 
+    }
+
+    private fun setBackNavigationIconEnabled(value : Boolean)
+    {
+        if(value)
+        {
+            mainActivity.toolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp)
+            mainActivity.toolbar.setNavigationOnClickListener {
+                mainActivity.fragmentManager.popBackStack()
+            }
+        }
+        else
+        {
+            mainActivity.toolbar.setNavigationIcon(null);
+            mainActivity.toolbar.setNavigationOnClickListener(null)
+        }
     }
 
     private fun startFolderPicker()
