@@ -3,13 +3,13 @@ package com.taiko.noblenote
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
+import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.Snackbar
 import android.text.InputFilter
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.FrameLayout
-import android.widget.Toast
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
@@ -26,12 +26,14 @@ import java.io.IOException
 object Dialogs {
 
     @JvmStatic
-    fun showNewNoteDialog(activity: Activity, fileCreated : (f : File) -> Unit) {
+    fun showNewNoteDialog(layout: CoordinatorLayout, fileCreated: (f : File) -> Unit) {
 
-        if(FileHelper.checkFilePermission(activity))
+        val context = layout.context;
+
+        if(FileHelper.checkFilePermission(context))
         {
             val
-                 dialogBuilder = AlertDialog.Builder(activity)
+                 dialogBuilder = AlertDialog.Builder(context)
 
                     val rootContents = File(Pref.rootPath.value).listFiles();
                     if(rootContents == null || rootContents.isEmpty())
@@ -48,11 +50,11 @@ object Dialogs {
                     dialogBuilder.setMessage(R.string.enterName)
 
                     // Set an EditText view to get user input
-                    val input = EditText(activity)
+                    val input = EditText(context)
                     input.filters = arrayOf<InputFilter>(FileNameFilter())
 
                     // dont propose a name that already exists
-                    var proposed = File(Pref.currentFolderPath.value, activity.getString(R.string.newNote))
+                    var proposed = File(Pref.currentFolderPath.value, context.getString(R.string.newNote))
                     var counter = 0
                     while (proposed.exists()) {
                         proposed = File("${proposed.absoluteFile} (${++counter})")
@@ -65,12 +67,16 @@ object Dialogs {
                         val newName = input.text.trim()
                         val newFile = File(Pref.currentFolderPath.value, newName.toString())
                         try {
-                            if (newFile.createNewFile()) {
+                            if(newFile.exists())
+                            {
+                                Snackbar.make(layout, R.string.notCreatedNoteExists, Snackbar.LENGTH_LONG).show()
+                            }
+                            else if (newFile.createNewFile()) {
                                 fileCreated(newFile)
                             } else
                             // error occured
                             {
-                                Toast.makeText(activity, R.string.noteNotCreated, Toast.LENGTH_SHORT).show()
+                                Snackbar.make(layout, R.string.noteNotCreated, Snackbar.LENGTH_SHORT).show()
                             }
                         } catch (e: IOException) {
                             e.printStackTrace()
@@ -100,24 +106,26 @@ object Dialogs {
     }
 
     @JvmStatic
-    fun showNewFolderDialog(activity: Activity, folderCreated : (f : File) -> Unit) {
+    fun showNewFolderDialog(layout: CoordinatorLayout,  folderCreated: (f : File) -> Unit) {
 
-        if(FileHelper.checkFilePermission(activity))
+        val context = layout.context;
+
+        if(FileHelper.checkFilePermission(context))
                 {
-                    val dialogBuilder = AlertDialog.Builder(activity)
+                    val dialogBuilder = AlertDialog.Builder(context)
 
                     dialogBuilder.setTitle(R.string.newNotebook)
                     dialogBuilder.setMessage(R.string.enterName)
 
                     // Set an EditText view to get user input
-                    val input = EditText(activity)
+                    val input = EditText(context)
                     input.filters = arrayOf<InputFilter>(FileNameFilter())
 
-                    val proposedDirPath = File(Pref.rootPath.value, activity.getString(R.string.newNotebook)).absolutePath
+                    val proposedDirPath = File(Pref.rootPath.value, context.getString(R.string.newNotebook)).absolutePath
                     var proposed = File(proposedDirPath)
                     var counter = 0
                     while (proposed.exists()) {
-                        proposed = File("$proposedDirPath  (${++counter})")
+                        proposed = File("$proposedDirPath (${++counter})")
                     }
                     input.setText(proposed.name)
                     input.setSelection(input.text.length)
@@ -127,8 +135,12 @@ object Dialogs {
                             android.R.string.ok) { dialog, whichButton ->
                         val newName = input.text.trim()
                         val dir = File(Pref.rootPath.value, newName.toString())
-                        if (!dir.mkdirs()) {
-                            Toast.makeText(activity, R.string.notebookNotCreated, Toast.LENGTH_SHORT).show()
+                        if(dir.exists())
+                        {
+                            Snackbar.make(layout, R.string.notCreatedNotebookExists, Snackbar.LENGTH_LONG).show()
+                        }
+                        else if (!dir.mkdirs()) {
+                            Snackbar.make(layout, R.string.notebookNotCreated, Snackbar.LENGTH_LONG).show()
                         } else {
                             folderCreated(dir)
                         }
@@ -183,7 +195,7 @@ object Dialogs {
                         }
 
                         if (newFile.exists()) {
-                            Snackbar.make(rootView, msgExists, Snackbar.LENGTH_SHORT).show()
+                            Snackbar.make(rootView, msgExists, Snackbar.LENGTH_LONG).show()
                             onNotRenamed();
                             return@setPositiveButton
                         }
@@ -206,7 +218,7 @@ object Dialogs {
                                 .subscribe {
                                     val renamed = it;
                                     if (!renamed) {
-                                        Snackbar.make(rootView, msgNotRenamed, Snackbar.LENGTH_SHORT).show()
+                                        Snackbar.make(rootView, msgNotRenamed, Snackbar.LENGTH_LONG).show()
                                         onNotRenamed();
 
                                     } else {

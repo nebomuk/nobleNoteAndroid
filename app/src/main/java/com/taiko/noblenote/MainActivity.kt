@@ -140,12 +140,12 @@ class MainActivity : Activity()
             fab_menu.setClosedOnTouchOutside(true)
 
             mCompositeSubscription += fab_menu_note.clicks().subscribe {
-                Dialogs.showNewNoteDialog(this) {app.eventBus.createFileClick.onNext(it)}
+                Dialogs.showNewNoteDialog(this.coordinator_layout) {app.eventBus.createFileClick.onNext(it)}
                 fab_menu.close(true);
             }
 
             mCompositeSubscription += fab_menu_folder.clicks().subscribe {
-                Dialogs.showNewFolderDialog(this,{app.eventBus.createFolderClick.onNext(it)})
+                Dialogs.showNewFolderDialog(this.coordinator_layout,{app.eventBus.createFolderClick.onNext(it)})
                 fab_menu.close(true);
             }
         }
@@ -154,11 +154,11 @@ class MainActivity : Activity()
             mCompositeSubscription += fab.clicks().subscribe {
                 if(fragmentManager.backStackEntryCount > 0)
                 {
-                    Dialogs.showNewNoteDialog(this, {app.eventBus.createFileClick.onNext(it)})
+                    Dialogs.showNewNoteDialog(coordinator_layout, {app.eventBus.createFileClick.onNext(it)})
                 }
                 else
                 {
-                    Dialogs.showNewFolderDialog(this, {app.eventBus.createFolderClick.onNext(it)})
+                    Dialogs.showNewFolderDialog(coordinator_layout, {app.eventBus.createFolderClick.onNext(it)})
                 }
             }
         }
