@@ -49,7 +49,7 @@ class FindInTextToolbarController(val activity : EditorActivity) {
 
         mCompositeSubscription+= activity.editor_edit_text.textChanges().subscribe {
             mFindHighlighter.onEditorTextChanged();
-            mFindHighlighter.highlight();
+            mFindHighlighter.highlightWithoutScroll();
             updateArrows();
         }
 

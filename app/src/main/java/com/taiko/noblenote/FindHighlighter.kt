@@ -73,20 +73,33 @@ class FindHighlighter constructor(val editText : EditText, val toolbarEditText :
 
     fun highlight()
     {
-        if(mSearchString.isNullOrBlank() || mIndices.isEmpty()) // cannot highlight zero length, so simply clear the highlighting
+        highlightInternal { scrollToIndex(it)  }
+    }
+
+    fun highlightWithoutScroll()
+    {
+        highlightInternal {  }
+    }
+
+    private fun highlightInternal(scrollFunction : (index : Int)-> Unit)
+    {
+        if(mSearchString.isBlank() || mIndices.isEmpty()) // cannot highlight zero length, so simply clear the highlighting
         {
             clearHighlight();
         }
-        else if (mCurrentIndicesIndex >= 0 && mCurrentIndicesIndex < mIndices.size) {
+        else if (mCurrentIndicesIndex >= 0 && mCurrentIndicesIndex < mIndices.size)
+        {
             val index = mIndices[mCurrentIndicesIndex];
             editText.text.setSpan(highlightSpan,index , index + mSearchString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
             if(toolbarEditText.visibility == View.VISIBLE)
             {
-                scrollToIndex(index)
+                scrollFunction(index)
             }
         }
     }
+
+
 
     fun movePrevious()
     {
