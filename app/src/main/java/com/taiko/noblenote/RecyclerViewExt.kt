@@ -37,7 +37,9 @@ class ClickDetectorItemTouchListener(val recyclerView: RecyclerView,
 
 ) : RecyclerView.OnItemTouchListener, GestureDetector.SimpleOnGestureListener() {
 
-    val gestureDetector: GestureDetectorCompat = GestureDetectorCompat(recyclerView.context, this)
+    private  val log = loggerFor();
+
+    private val gestureDetector: GestureDetectorCompat = GestureDetectorCompat(recyclerView.context, this)
 
     override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
     }
@@ -56,7 +58,7 @@ class ClickDetectorItemTouchListener(val recyclerView: RecyclerView,
             val position = recyclerView.getChildAdapterPosition(view)
             val id = recyclerView.getChildItemId(view)
 
-            KLog.i("onSingleTapUp position: " + position)
+            log.i("onSingleTapUp position: " + position)
 
             if (position >= 0) {
                     listener.onNext(position)

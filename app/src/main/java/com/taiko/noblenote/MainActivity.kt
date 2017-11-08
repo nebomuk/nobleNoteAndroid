@@ -25,6 +25,8 @@ import rx.subscriptions.Subscriptions
 
 class MainActivity : Activity()
 {
+    private val log = loggerFor();
+
 
     var twoPane: Boolean = false
 
@@ -42,13 +44,13 @@ class MainActivity : Activity()
 
         if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-            KLog.d(this::class.java.simpleName + " permission granted");
+            log.d(" permission granted");
             // permission was granted
             setupUi();
 
         } else {
 
-            KLog.d(this::class.java.simpleName + " permission denied, setting root path to internal storage");
+            log.d(" permission denied, setting root path to internal storage");
 
             Snackbar.make(coordinator_layout, getString(R.string.msg_external_storage_permission_denied) + " "
                     + getString(R.string.msg_switching_internal_storage), Snackbar.LENGTH_LONG).show();
@@ -61,7 +63,7 @@ class MainActivity : Activity()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(null) // do not save instance state because we create fragments manually with updates filesystem state
-        KLog.d(this::class.java.simpleName + ".onCreate()");
+        log.d(".onCreate()");
 
         setContentView(R.layout.activity_main)
 
@@ -124,7 +126,7 @@ class MainActivity : Activity()
 
     private fun setupUi()
     {
-        KLog.d(this::class.java.simpleName + ".setupUi()");
+        log.d(".setupUi()");
 
         clearSubscriptions();
         // replaces existing fragments that have been retaind in saveInstanceState
@@ -172,7 +174,7 @@ class MainActivity : Activity()
         swipeRefreshLayout.setOnRefreshListener {
             handler.postDelayed({swipeRefreshLayout.isRefreshing = false},500)
             app.eventBus.swipeRefresh.onNext(Unit)
-            KLog.v("SwipeToRefresh");
+            log.v("SwipeToRefresh");
         }
 
         mCompositeSubscription += Subscriptions.create { swipeRefreshLayout.setOnRefreshListener(null);  }
@@ -191,7 +193,7 @@ class MainActivity : Activity()
 
     override fun onDestroy() {
         super.onDestroy()
-        KLog.d(this::class.java.simpleName + ".onDestroy()");
+        log.d(".onDestroy()");
         clearSubscriptions()
     }
 

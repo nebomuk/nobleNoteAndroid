@@ -109,7 +109,7 @@ class NoteListFragment : Fragment() {
             }
         },
         {
-            KLog.e("exception in swipe refresh",it);
+            log.e("exception in swipe refresh",it);
         });
     }
 
@@ -126,6 +126,8 @@ class NoteListFragment : Fragment() {
 
     companion object {
 
+        private val log = loggerFor()
+
         @JvmStatic
         val ARG_QUERY_TEXT = "query_text" // used to display results of a full text search
 
@@ -137,7 +139,7 @@ class NoteListFragment : Fragment() {
         fun startNoteEditor(activity: Context, file: File, argOpenMode : String, argQueryText : String = "") {
             if(!file.isFile)
             {
-                KLog.w("startNoteEditor failed: $file is not a text file");
+                log.w("startNoteEditor failed: $file is not a text file");
                 return
             }
 

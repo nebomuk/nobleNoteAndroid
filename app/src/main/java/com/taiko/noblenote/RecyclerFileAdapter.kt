@@ -26,6 +26,8 @@ import java.util.*
  */
 class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
 
+    private val log = loggerFor()
+
     private val mFiles: ObservableArrayList<FileItem> = ObservableArrayList()
 
     private val mClickSubject : PublishSubject<Int> = PublishSubject()
@@ -128,7 +130,7 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
     {
         if(context == null)
         {
-            KLog.w("RecyclerFileAdapter.refresh failed: argument context is null");
+            log.w("RecyclerFileAdapter.refresh failed: argument context is null");
             return;
         }
 
@@ -256,12 +258,12 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
 
         holder.mCompositeSubscription += holder.itemView.inner_layout
                 .clicks()
-                .doOnNext{ KLog.i("item click pos: " + position )}
+                .doOnNext{ log.i("item click pos: " + position )}
                 .subscribe { mClickSubject.onNext(holder.layoutPosition) }
 
         holder.mCompositeSubscription += holder.itemView.inner_layout
                 .longClicks()
-                .doOnNext{ KLog.i("item long click pos: " + position )}
+                .doOnNext{ log.i("item long click pos: " + position )}
                 .subscribe { mLongClickSubject.onNext(holder.layoutPosition) }
 
 

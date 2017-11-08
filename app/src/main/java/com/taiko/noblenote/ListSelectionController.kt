@@ -14,6 +14,8 @@ import java.util.*
  */
 class ListSelectionController(val activity: MainActivity, val recyclerView: RecyclerView)
 {
+    private val log = loggerFor()
+
     var isTwoPane: Boolean = false; // folder list in two pane, colors each list item when clicked
     var isHtmlActionAvailable = false // show html source action
 
@@ -87,7 +89,7 @@ class ListSelectionController(val activity: MainActivity, val recyclerView: Recy
 
 
         adapter.itemClicks()
-                .doOnNext { KLog.i("item click: " + it) }
+                .doOnNext { log.i("item click: " + it) }
                 .subscribe {
 
             if(mActionMode != null)

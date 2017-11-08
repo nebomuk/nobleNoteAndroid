@@ -15,9 +15,11 @@ import java.util.*
 
 
 /**
- * Created by taiko000
+ * contains utilites related to file and directory writing, moving and removing
  */
 object FileHelper {
+
+    private val log = loggerFor()
 
 
     @JvmStatic
@@ -40,7 +42,7 @@ object FileHelper {
                     }
                 }
             } catch (exception: IOException) {
-                KLog.e("Could not load file",exception)
+                log.e("Could not load file",exception)
             }
 
             // do slow html parsing
@@ -71,7 +73,7 @@ object FileHelper {
                 it.onNext(lastModified)
                 it.onCompleted()
             } catch (e: IOException) {
-                KLog.e("Could not save file",e)
+                log.e("Could not save file",e)
                 it.onError(e)
             }
 
@@ -153,7 +155,7 @@ object FileHelper {
         val permRes = ContextCompat.checkSelfPermission(context,Manifest.permission.WRITE_EXTERNAL_STORAGE);
         if(Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED)
         {
-            KLog.d("getExternalStorageState() != MEDIA_MOUNTED");
+            log.d("getExternalStorageState() != MEDIA_MOUNTED");
             return false;
         }
 
@@ -164,7 +166,7 @@ object FileHelper {
         val res = permRes == PackageManager.PERMISSION_GRANTED
         if(!res)
         {
-            KLog.d("Permission WRITE_EXTERNAL_STORAGE not granted");
+            log.d("Permission WRITE_EXTERNAL_STORAGE not granted");
         }
         return res;
     }
@@ -191,17 +193,17 @@ object FileHelper {
                 else
                 {
                     onFailure();
-                    KLog.d("getExternalStorageState() != MEDIA_MOUNTED");
+                    log.d("getExternalStorageState() != MEDIA_MOUNTED");
 
                 }
             }
             else
             {
                 onFailure();
-                KLog.d("Permission WRITE_EXTERNAL_STORAGE not granted");
+                log.d("Permission WRITE_EXTERNAL_STORAGE not granted");
             }
         }, {
-            KLog.e("exception in RxPermissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE)", it);
+            log.e("exception in RxPermissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE)", it);
             onFailure();
         });
     }

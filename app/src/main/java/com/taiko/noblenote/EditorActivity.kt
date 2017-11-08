@@ -29,7 +29,7 @@ import java.io.File
 class EditorActivity : Activity() {
 
 
-    private val TAG = this.javaClass.simpleName
+    private val log = loggerFor()
 
     private var mFocusable = true // if set to false, the note is opened in read only mode
     private lateinit var mFilePath: String;
@@ -54,13 +54,13 @@ class EditorActivity : Activity() {
 
         if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-            KLog.d(this::class.java.simpleName + " permission granted, reloading file");
+            log.d( " permission granted, reloading file");
             // permission was granted
             reload()
 
         } else {
 
-            KLog.d(this::class.java.simpleName + " permission denied, finish() and setting root path to internal storage");
+            log.d( " permission denied, finish() and setting root path to internal storage");
             // permission denied
             Toast.makeText(this, R.string.msg_external_storage_permission_denied, Toast.LENGTH_SHORT).show();
             Pref.rootPath.onNext(Pref.fallbackRootPath);
@@ -76,7 +76,7 @@ class EditorActivity : Activity() {
 
         super.onCreate(savedInstanceState)
 
-        KLog.d(this::class.java.simpleName + ".onCreate()");
+        log.d( ".onCreate()");
 
         //This has to be called before setContentVie
 
@@ -133,7 +133,7 @@ class EditorActivity : Activity() {
         // switch to internal storage when sd unmounted
         mCompositeSubscription += RxBroadcastReceiver.create(this, intentFilter).filter { !Pref.isInternalStorage }.subscribe {
             Toast.makeText(this,getString(R.string.msg_external_storage_not_mounted) + " "
-                    + getString(R.string.msg_switching_internal_storage), Snackbar.LENGTH_LONG).show();
+                    + getString(R.string.msg_switching_internal_storage), Toast.LENGTH_LONG).show();
             editor_edit_text.isModified = false; // avoid attempts so save the file in onStop
             Pref.rootPath.onNext(Pref.fallbackRootPath);
             finish();
@@ -144,7 +144,7 @@ class EditorActivity : Activity() {
 
     public override fun onStart() {
         super.onStart()
-        KLog.d(this::class.java.simpleName + ".onStart()");
+        log.d( ".onStart()");
 
         if (FileHelper.checkFilePermission(this) && File(mFilePath).lastModified() > lastModified) {
             reload()
@@ -160,7 +160,7 @@ class EditorActivity : Activity() {
      */
     private fun reload() {
         // load file contents and parse html thread
-        KLog.d(this::class.java.simpleName + ".reload()");
+        log.d( ".reload()");
 
             mCompositeSubscription += FileHelper.readFile(mFilePath, this, parseHtml = mOpenMode != HTML) // don't parse html if it should display the html source of the note
                     .subscribeOn(Schedulers.io())
@@ -186,7 +186,7 @@ class EditorActivity : Activity() {
                         lastModified = File(mFilePath).lastModified()
 
                     }, {
-                        KLog.e(this::class.java.simpleName + " " + it.message)
+                        log.e(it.message)
                         Toast.makeText(this, R.string.file_loading_error, Toast.LENGTH_SHORT).show()
                         finish();
 
@@ -196,7 +196,7 @@ class EditorActivity : Activity() {
     public override fun onStop() {
         super.onStop()
 
-        KLog.d(this::class.java.simpleName + ".onStop()");
+        log.d( ".onStop()");
 
         // does nothing if open mode is set to read only
 
@@ -346,7 +346,7 @@ class EditorActivity : Activity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        KLog.d(this::class.java.simpleName + ".onDestroy()");
+        log.d( ".onDestroy()");
 
         mCompositeSubscription.clear();
     }
