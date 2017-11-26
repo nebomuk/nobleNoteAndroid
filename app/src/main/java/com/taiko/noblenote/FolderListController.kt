@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.view.View
+import kotlinx.android.synthetic.main.fragment_file_list.view.*
 import kotlinx.android.synthetic.main.toolbar.*
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
@@ -14,7 +16,7 @@ import java.io.FileFilter
 /**
  * Created by taiko
  */
-class FolderListController(private var fragment: Fragment, recyclerView: RecyclerView) {
+class FolderListController(private var fragment: Fragment, view: View) {
 
     private var mTwoPane = false
     private val mCompositeSubscription = CompositeSubscription()
@@ -24,6 +26,8 @@ class FolderListController(private var fragment: Fragment, recyclerView: Recycle
 
     init {
         mTwoPane = (fragment.activity as MainActivity).twoPane
+
+        val recyclerView = view.recycler_view;
 
         recyclerView.itemAnimator = DefaultItemAnimator();
 
@@ -35,7 +39,10 @@ class FolderListController(private var fragment: Fragment, recyclerView: Recycle
         val folderFilter = FileFilter { pathname -> pathname.isDirectory && !pathname.isHidden }
 
         recyclerFileAdapter = RecyclerFileAdapter()
+
         recyclerFileAdapter.filter = folderFilter
+
+        recyclerFileAdapter.applyEmptyView(view.empty_list_switcher,R.id.text_empty,R.id.recycler_view)
 
         recyclerView.adapter = recyclerFileAdapter
         recyclerView.layoutManager = LinearLayoutManager(fragment.activity)
@@ -118,5 +125,7 @@ class FolderListController(private var fragment: Fragment, recyclerView: Recycle
     {
         mCompositeSubscription.clear();
     }
+
+
 
 }

@@ -63,6 +63,7 @@
     <string name="find_in_text">find in text</string>
     <string name="search_hint">Search</string>
     <string name="title_search_results">All Results</string>
+    <string name="list_empty">Empty</string>
 
 
 </resources>

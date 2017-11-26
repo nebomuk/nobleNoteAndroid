@@ -1,6 +1,7 @@
 package com.taiko.noblenote
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
@@ -21,11 +22,11 @@ import kotlinx.android.synthetic.main.toolbar.*
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
 import rx.subscriptions.Subscriptions
+import java.io.File
 
 
 class MainActivity : Activity()
 {
-    private val log = loggerFor();
 
 
     var twoPane: Boolean = false
@@ -133,7 +134,7 @@ class MainActivity : Activity()
         fragmentManager.beginTransaction().replace(R.id.item_master_container, FolderListFragment()).commit()
 
         val app = application as MainApplication
-        mCompositeSubscription += app.eventBus.fileSelected.mergeWith(app.eventBus.createFileClick).subscribe { NoteListFragment.startNoteEditor(this,it, EditorActivity.READ_WRITE) }
+        mCompositeSubscription += app.eventBus.fileSelected.mergeWith(app.eventBus.createFileClick).subscribe { startNoteEditor(this,it, EditorActivity.READ_WRITE) }
 
 
 
@@ -220,5 +221,29 @@ class MainActivity : Activity()
             this.fab_menu?.visibility = View.INVISIBLE;
         }
     }
+
+    companion object {
+        private val log = loggerFor();
+
+
+        @JvmStatic
+                // start the note editor
+        fun startNoteEditor(activity : Context, file: File, argOpenMode : String, argQueryText : String = "") {
+            if(!file.isFile)
+            {
+                log.w("startNoteEditor failed: $file is not a file");
+                return
+            }
+
+            val intent = Intent(activity, EditorActivity::class.java)
+            intent.putExtra(EditorActivity.ARG_FILE_PATH, file.path)
+            intent.putExtra(EditorActivity.ARG_OPEN_MODE, argOpenMode)
+            intent.putExtra(EditorActivity.ARG_QUERY_TEXT,argQueryText);
+            activity.startActivity(intent);
+        }
+
+    }
+
+
 
 }

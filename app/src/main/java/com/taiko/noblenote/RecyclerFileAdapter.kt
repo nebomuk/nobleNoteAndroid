@@ -4,14 +4,17 @@ import android.content.Context
 import android.databinding.ObservableArrayList
 import android.graphics.Color
 import android.support.annotation.ColorInt
+import android.support.annotation.IdRes
 import android.support.v4.graphics.ColorUtils
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ViewSwitcher
 import com.jakewharton.rxbinding.view.clicks
 import com.jakewharton.rxbinding.view.longClicks
 import kotlinx.android.synthetic.main.recycler_file_item.view.*
 import rx.Observable
+import rx.android.schedulers.AndroidSchedulers
 import rx.lang.kotlin.PublishSubject
 import rx.lang.kotlin.plusAssign
 import rx.subjects.PublishSubject
@@ -19,6 +22,7 @@ import java.io.File
 import java.io.FileFilter
 import java.text.Collator
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 /**
  * file system adapter, can be configured inside onViewCreated or onCreate
@@ -46,6 +50,8 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
     fun itemLongClicks(): Observable<Int> = mLongClickSubject.asObservable();
 
     fun selectedFolder() : Observable<Int> = mSelectedFolderSubject.asObservable().distinctUntilChanged();
+
+    fun itemCountChanged() : Observable<Int> = mFiles.toRxObservable().map { it.count() }
 
     val selectedFiles : List<File>
         get() = mFiles.filter { it.isSelected }.map { it.file }
@@ -323,6 +329,22 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
         var index = Collections.binarySearch<T>(this,mt, c)
         if (index < 0) index = index.inv()
         add(index, mt)
+    }
+
+    fun applyEmptyView(switcher : ViewSwitcher, @IdRes emptyViewId : Int, @IdRes  recyclerViewId : Int)
+    {
+        itemCountChanged()
+                .throttleLast(250, TimeUnit.MILLISECONDS) // avoid interfering with the rv item animation
+                .observeOn(AndroidSchedulers.mainThread()).subscribe {
+
+            if(it > 0 && switcher.nextView.id == recyclerViewId) {
+                switcher.showNext()
+            }
+            else if(it == 0 && switcher.nextView.id == emptyViewId)
+            {
+                switcher.showNext()
+            }
+        }
     }
 
 }

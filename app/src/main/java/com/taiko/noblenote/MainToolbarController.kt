@@ -156,7 +156,7 @@ class MainToolbarController(val mainActivity: MainActivity) {
         mainActivity.search_view.setAdapter(mSearchAdapter)
         mainActivity.search_view.setOnItemClickListener { adapterView, view, i, l ->
             val item = adapterView.adapter.getItem(i) as File;
-            NoteListFragment.startNoteEditor(mainActivity,item, EditorActivity.READ_WRITE,mainActivity.search_view.queryText.toString());
+            MainActivity.startNoteEditor(mainActivity,item, EditorActivity.READ_WRITE,mainActivity.search_view.queryText.toString());
             mainActivity.search_view.closeSearch();
         }
 //        // requires some manifest stuff https://stackoverflow.com/questions/27378981/how-to-use-searchview-in-toolbar-android

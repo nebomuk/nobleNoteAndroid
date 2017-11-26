@@ -6,7 +6,7 @@
               android:background="@color/lightGray"
     >
 
-    <!-- list empty indicator -->
+    <!-- list empty indicator  when fragment is used for search results-->
     <TextView
         android:id="@+id/tv_file_list_empty"
         android:visibility="gone"
@@ -31,8 +31,24 @@
         android:layout_marginBottom="8dp"
         android:gravity="top|center_horizontal"/>
 
+    <ViewSwitcher
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/empty_list_switcher"
+        >
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
+
         android:layout_height="match_parent"/>
+        <!-- list empty indicator used by RecyclerFileAdapter  when there are no files in the given folder-->
+        <TextView android:id="@+id/text_empty"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:text="@string/list_empty"
+                  android:gravity="center"
+            />
+
+    </ViewSwitcher>
 </LinearLayout>

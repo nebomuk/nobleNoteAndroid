@@ -7,7 +7,6 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 
 /**
- * Created by Taiko on 03.11.2016.
  *
  * based on
  *
