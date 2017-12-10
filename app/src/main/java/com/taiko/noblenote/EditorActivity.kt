@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -90,10 +91,19 @@ class EditorActivity : Activity() {
         progress_bar_file_loading.progressDrawable = MaterialProgressDrawable.create(this)
         progress_bar_file_loading.indeterminateDrawable = MaterialIndeterminateProgressDrawable.create(this)
 
+        // hide soft keyboard by default
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
 
-        toolbar.setNavigationIcon(R.drawable.ic_close_black_24dp)
-        toolbar.setNavigationOnClickListener { showExitDialog() }
+        // uncomment to enable close button
+/*        toolbar.setNavigationIcon(R.drawable.ic_close_black_24dp)
+        toolbar.setNavigationOnClickListener { showExitDialog() }*/
 
+        val extras = intent.extras ?: return
+        mFilePath = extras.getString(ARG_FILE_PATH)
+        mOpenMode = extras.getString(ARG_OPEN_MODE)
+        mFocusable = !(mOpenMode == HTML || mOpenMode == READ_ONLY) // no editing if html source should be shown
+
+        toolbar.title = File(mFilePath).nameWithoutExtension
         populateMenu(toolbar.menu)
 
         editor_edit_text.isTextWatcherEnabled = false
@@ -101,21 +111,6 @@ class EditorActivity : Activity() {
 
 
         mFindInTextToolbarController = FindInTextToolbarController(this);
-
-        //setActionBar(toolbar);
-
-        //getActionBar().setDisplayHomeAsUpEnabled(true);
-
-        // hide soft keyboard by default
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
-
-        val extras = intent.extras ?: return
-
-        mFilePath = extras.getString(ARG_FILE_PATH)
-        mOpenMode = extras.getString(ARG_OPEN_MODE)
-        mFocusable = !(mOpenMode == HTML || mOpenMode == READ_ONLY) // no editing if html source should be shown
-
-        //getActionBar().setTitle(new File(mFilePath).getName());
 
         if(!Pref.isInternalStorage)
         {
@@ -273,9 +268,20 @@ class EditorActivity : Activity() {
 
         MenuHelper.addCopyToClipboard(this,menu,{editor_edit_text.text})
 
+        var showAsActionFlags : Int;
+
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE || ScreenUtil.isTablet(this)){
+            showAsActionFlags = MenuItem.SHOW_AS_ACTION_ALWAYS;
+        }
+        else
+        {
+            showAsActionFlags = MenuItem.SHOW_AS_ACTION_NEVER;
+        }
+
 
         val undoItem = menu.add(R.string.action_undo)
                 .setIcon(R.drawable.ic_undo_black_24dp)
+                .setShowAsActionFlags(showAsActionFlags)
                 .setAlphabeticShortcut('Z')
                 .setOnMenuItemClickListener {
             mUndoRedo.undo();
@@ -290,11 +296,10 @@ class EditorActivity : Activity() {
             undoItem.isEnabled = it;
             undoItem.icon = draw
          }
-        undoItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-
 
         val redoItem = menu.add(R.string.action_redo)
                 .setIcon(R.drawable.ic_redo_black_24dp)
+                .setShowAsActionFlags(showAsActionFlags)
                 .setAlphabeticShortcut('Y')
                 .setOnMenuItemClickListener {
                     mUndoRedo.redo();
@@ -307,8 +312,6 @@ class EditorActivity : Activity() {
             redoItem.isEnabled = it;
             redoItem.icon = draw
         }
-        redoItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-
 
 
         //mFormattingMenuItem = MenuHelper.addTextFormatting(this,menu,editor_edit_text);

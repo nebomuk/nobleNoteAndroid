@@ -21,7 +21,7 @@ object MenuHelper {
     fun addCopyToClipboard(ctx: Context, menu: Menu, textSource: () -> CharSequence) {
         val itemCopyToClipboard = menu.add(R.string.action_copy_to_clipboard)
                 .setIcon(R.drawable.ic_action_content_copy)
-                .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_IF_ROOM)
+                .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER)
         itemCopyToClipboard.setOnMenuItemClickListener {
             if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
                 val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as android.text.ClipboardManager
