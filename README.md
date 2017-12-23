@@ -1,10 +1,20 @@
 # nobleNoteAndroid
 
-nobleNote for Android tablets and phones is a cross-platform application to manage notes in a simle two pane layout.
+nobleNote for Android is a simple note taking app. 
 
 Notes can be put into notebooks and notes are saved as html files on the sd card or the internal storage. 
-It is compatible to the nobleNote desktop application for Linux, Windows and Mac os x. 
+It is compatible to the [nobleNote](https://github.com/hakaishi/nobleNote) desktop application for Linux, Windows and macOS.
+The integrated text editor offers some rich text formatting options when text is selected. The nobleNote desktop application offers a full fledged rich text editor. 
 
+It requires at least Android 4.4 to run. 
+
+## Sync notes between desktop and mobile devices
+
+1.) Install [nobleNote](https://github.com/hakaishi/nobleNote) on your Linux/Windows/macOS device and find the folder containing the nobleNote notebooks. 
+
+2.) In nobleNoteAndroid, select a folder on the external storage (sd-card) using the overflow menu on the main screen.
+
+3.) Use a sync software of your choice (e.g. [Syncthing](https://syncthing.net), Dropbox) to sync the folder containining the notebooks with the same folder on your Linux/Windows/macOS device. nobleNote will detect when notes have been changed on the file system and reload them automatically. 
 
 ## Screenshots
 
