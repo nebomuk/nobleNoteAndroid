@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">testapp</string>
+    <string name="app_name">nobleNote</string>
     <string name="edit_message">Edit</string>
     <string name="emptyNoteHint">Click to enter text</string>
     <string name="notes">Notes</string>

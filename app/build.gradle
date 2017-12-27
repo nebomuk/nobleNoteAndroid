@@ -16,10 +16,10 @@ android {
     compileSdkVersion 26
     buildToolsVersion "26.0.2"
     defaultConfig {
-        applicationId "com.taiko.noblenote"
+        applicationId "de.blogspot.noblenoteandroid"
         minSdkVersion 19
         targetSdkVersion 26
-        versionCode 2
+        versionCode 3
         versionName '0.1.3'
         signingConfig signingConfigs.debugsigning
     }
