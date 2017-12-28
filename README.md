@@ -8,6 +8,9 @@ The integrated text editor offers some rich text formatting options when text is
 
 It requires at least Android 4.4 to run. 
 
+<a href='https://play.google.com/store/apps/details?id=de.blogspot.noblenoteandroid'><img alt='Get it on Google Play' 
+src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' height=90px /></a>
+
 ## Sync notes between desktop and mobile devices
 
 1.) Install [nobleNote](https://github.com/hakaishi/nobleNote) on your Linux/Windows/macOS device and find the folder containing the nobleNote notebooks. 
