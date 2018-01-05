@@ -182,7 +182,7 @@ class EditorActivity : Activity() {
 
                     }, {
                         log.e(it.message)
-                        Toast.makeText(this, R.string.file_loading_error, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, R.string.msg_file_loading_error, Toast.LENGTH_SHORT).show()
                         finish();
 
                     });

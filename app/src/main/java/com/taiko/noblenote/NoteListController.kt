@@ -15,25 +15,27 @@ import java.io.FileFilter
 class NoteListController(private var fragment: Fragment, view: View)
 {
 
-    private lateinit var recyclerFileAdapter: RecyclerFileAdapter
+    private val recyclerFileAdapter: RecyclerFileAdapter
+    private val listSelectionController : ListSelectionController
 
     private var mCompositeSubscription: CompositeSubscription = CompositeSubscription()
 
     init {
 
-        val rv = view.recycler_view
-        //rv.itemAnimator = SlideInLeftAnimator();
+        val recyclerView = view.recycler_view
+        //recyclerView.itemAnimator = SlideInLeftAnimator();
 
         val fileFilter = FileFilter { pathname -> pathname.isFile && !pathname.isHidden }
 
-        recyclerFileAdapter = RecyclerFileAdapter()
-        recyclerFileAdapter.filter = fileFilter
 
-        recyclerFileAdapter.applyEmptyView(view.empty_list_switcher,R.id.text_empty,R.id.recycler_view)
+        var path : File;
+
 
 
         if(fragment.arguments != null &&  fragment.arguments.containsKey(NoteListFragment.ARG_QUERY_TEXT))
         {
+            recyclerFileAdapter = RecyclerFileAdapter(File(""));
+
             view.tv_file_list_empty.setText(R.string.no_results_found);
             view.tv_title_search_results.visibility = View.VISIBLE;
 
@@ -43,7 +45,7 @@ class NoteListController(private var fragment: Fragment, view: View)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe( {
-                            recyclerFileAdapter.addFile(File(it))
+                            recyclerFileAdapter.addFileName(File(it).name)
                         },
 
                                 {},
@@ -55,28 +57,35 @@ class NoteListController(private var fragment: Fragment, view: View)
                                 })
             }
         }
-        else if(fragment.arguments != null && fragment.arguments.containsKey(NoteListFragment.ARG_FOLDER_PATH)) // use current folder path and display the contents
+        else
         {
             view.tv_file_list_empty.setText(R.string.notebook_is_empty);
 
-            recyclerFileAdapter.path = File(fragment.arguments.getString(NoteListFragment.ARG_FOLDER_PATH));
+            path = File(fragment.arguments.getString(NoteListFragment.ARG_FOLDER_PATH));
+
+            recyclerFileAdapter = RecyclerFileAdapter(path)
 //            recyclerFileAdapter.refresh(activity)
         }
 
-        rv.adapter = recyclerFileAdapter
-        rv.layoutManager = LinearLayoutManager(fragment.activity)
+
+        recyclerFileAdapter.filter = fileFilter
+
+        recyclerFileAdapter.applyEmptyView(view.empty_list_switcher,R.id.text_empty,R.id.recycler_view)
+
+        recyclerView.adapter = recyclerFileAdapter
+        recyclerView.layoutManager = LinearLayoutManager(fragment.activity)
 
         val app = (fragment.activity.application as MainApplication)
 
-        val listController = ListSelectionController(fragment.activity as MainActivity,rv)
-        listController.isHtmlActionAvailable = true;
+        listSelectionController = ListSelectionController(fragment.activity as MainActivity,recyclerFileAdapter)
+        listSelectionController.isHtmlActionAvailable = true;
 
 
-        mCompositeSubscription += listController.itemClicks()
+        mCompositeSubscription += listSelectionController.itemClicks()
                 .doOnNext { Log.d("","item pos clicked: " + it) }
                 .subscribe { app.eventBus.fileSelected.onNext(recyclerFileAdapter.getItem(it)) }
 
-        mCompositeSubscription += app.eventBus.createFileClick.subscribe { recyclerFileAdapter.addFile(it) }
+        mCompositeSubscription += app.eventBus.createFileClick.subscribe { recyclerFileAdapter.addFileName(it.name) }
 
         mCompositeSubscription += app.eventBus.swipeRefresh.subscribe( {
             if(fragment.activity != null)
@@ -87,6 +96,13 @@ class NoteListController(private var fragment: Fragment, view: View)
                 {
                     log.e("exception in swipe refresh",it);
                 });
+
+        mCompositeSubscription += FileClipboard.pastedFileNames.subscribe {
+            for (fileName : String in it)
+            {
+                recyclerFileAdapter.addFileName(fileName)
+            };
+        }
     }
 
 
@@ -98,8 +114,8 @@ class NoteListController(private var fragment: Fragment, view: View)
 
     fun onDestroyView()
     {
-
         mCompositeSubscription.clear();
+        listSelectionController.clearSubscriptions()
     }
 
 

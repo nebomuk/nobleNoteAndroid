@@ -22,7 +22,8 @@ class FolderListController(private var fragment: Fragment, view: View) {
     private val mCompositeSubscription = CompositeSubscription()
 
 
-    private  var recyclerFileAdapter: RecyclerFileAdapter
+    private  val recyclerFileAdapter: RecyclerFileAdapter
+    private val listSelectionController: ListSelectionController;
 
     init {
         mTwoPane = (fragment.activity as MainActivity).twoPane
@@ -38,7 +39,7 @@ class FolderListController(private var fragment: Fragment, view: View) {
         // the following code lists only visible folders and push their names into an ArrayAdapter
         val folderFilter = FileFilter { pathname -> pathname.isDirectory && !pathname.isHidden }
 
-        recyclerFileAdapter = RecyclerFileAdapter()
+        recyclerFileAdapter = RecyclerFileAdapter(File(Pref.rootPath.value))
 
         recyclerFileAdapter.filter = folderFilter
 
@@ -47,8 +48,8 @@ class FolderListController(private var fragment: Fragment, view: View) {
         recyclerView.adapter = recyclerFileAdapter
         recyclerView.layoutManager = LinearLayoutManager(fragment.activity)
 
-        val listController = ListSelectionController(fragment.activity as MainActivity, recyclerView)
-        listController.isTwoPane = mTwoPane;
+        listSelectionController =ListSelectionController(fragment.activity as MainActivity, recyclerFileAdapter)
+        listSelectionController.isTwoPane = mTwoPane;
 
         val app = (fragment.activity.application as MainApplication)
 
@@ -77,7 +78,7 @@ class FolderListController(private var fragment: Fragment, view: View) {
 
         }
         else {
-            mCompositeSubscription += listController.itemClicks()
+            mCompositeSubscription += listSelectionController.itemClicks()
                     .subscribe {
                         val item = recyclerFileAdapter.getItem(it);
                         if (item != null) {
@@ -89,7 +90,7 @@ class FolderListController(private var fragment: Fragment, view: View) {
         }
 
 
-        mCompositeSubscription += app.eventBus.createFolderClick.subscribe { recyclerFileAdapter.addFile(it) }
+        mCompositeSubscription += app.eventBus.createFolderClick.subscribe { recyclerFileAdapter.addFileName(it.name) }
 
         mCompositeSubscription += app.eventBus.swipeRefresh.subscribe {
             if (fragment != null) {
@@ -124,6 +125,7 @@ class FolderListController(private var fragment: Fragment, view: View) {
     fun onDestroyView()
     {
         mCompositeSubscription.clear();
+        listSelectionController.clearSubscriptions()
     }
 
 

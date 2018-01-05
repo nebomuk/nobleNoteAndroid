@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Environment
 import android.support.v4.content.ContextCompat
-import android.util.Log
 import com.tbruyelle.rxpermissions.RxPermissions
 import rx.Observable
 import java.io.*
@@ -107,14 +106,27 @@ object FileHelper {
         return result
     }
 
+    @JvmStatic
+    fun fileMoveToFolder(src : File, destFolder : File) : Boolean
+    {
+        var result = src.isFile && destFolder.isDirectory;
+        if(!result)
+        {
+            log.w("fileMoveToFolder failed: ${src.absolutePath} is not a file or ${destFolder.absolutePath} is not a directory");
+        }
+        result = result && src.renameTo(File(destFolder,src.name))
+        return result;
+    }
+
     /**
      * moves the file including it's immediate parent directory
      */
     @JvmStatic
     fun fileMoveWithParent(oldFile : File, newRoot : File): Boolean {
+
         if(oldFile.parentFile == null)
         {
-            Log.d("","parent file missing: $oldFile");
+            log.d("fileMoveWithParent failed: parent file missing: $oldFile");
         }
 
         val newDir = File(newRoot,oldFile.parentFile.name);

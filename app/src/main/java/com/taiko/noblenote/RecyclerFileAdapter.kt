@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit
  * file system adapter, can be configured inside onViewCreated or onCreate
  * but you must call refresh() in onStart/onResume
  */
-class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
+class RecyclerFileAdapter(var path : File) : RecyclerView.Adapter<ViewHolder>() {
 
     private val log = loggerFor()
 
@@ -58,7 +58,6 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
 
     var filter : FileFilter = FileFilter { true }
 
-    var path : File = File(Pref.rootPath.value)
 /*    set(value) {
         mFiles.clear()
         mHandler.postDelayed({ mFiles.addAll(FileHelper.listFilesSorted(value, filter).map { FileItem(it,false) }) },0)
@@ -147,7 +146,7 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
             // add files that arent contained in the list
             for (newFile in newFileList) {
                 if (!mFiles.any { it.file.name == newFile.name }) {
-                    addFile(newFile)
+                    addFileName(newFile.name)
                 }
             }
             // remove files
@@ -202,9 +201,9 @@ class RecyclerFileAdapter() : RecyclerView.Adapter<ViewHolder>() {
         updateFolderSelection()
     }
 
-    fun addFile(f : File)
+    fun addFileName(fileName : String)
     {
-        mFiles.addSorted( FileItem(f,false), { lhs, rhs -> Collator.getInstance().compare(lhs.file.name, rhs.file.name) })
+        mFiles.addSorted( FileItem(File(path,fileName),false), { lhs, rhs -> Collator.getInstance().compare(lhs.file.name, rhs.file.name) })
 
         updateFolderSelection()
     }

@@ -53,17 +53,22 @@
     <string name="msg_external_storage_permission_denied">Permission has been denied.</string>
     <string name="msg_external_storage_not_mounted">The SD-Card is not mounted.</string>
     <string name="msg_switching_internal_storage">Switching to internal storage</string>
+    <string name="msg_file_loading_error">Error: Could not load file</string>
+    <string name="msg_paste_error">There was an error pasting your files</string>
     <string name="no_results_found">No Results Found</string>
     <string name="notebook_is_empty">Notebook is empty</string>
 
     <string name="keepEditing">Keep Editing</string>
     <string name="discard">Discard</string>
     <string name="dialogDiscardKeepEditing">Discard your changes and quit editing?</string>
-    <string name="file_loading_error">Error: Could not load file</string>
     <string name="find_in_text">find in text</string>
     <string name="search_hint">Search</string>
     <string name="title_search_results">All Results</string>
     <string name="list_empty">Empty</string>
+    <string name="cut">Cut</string>
+    <string name="show_html_source_code">Show HTML Source Code</string>
+    <string name="action_paste">Paste</string>
+    <string name="msg_n_notes_in_clipboard">%1$d notes in clipboard</string>
 
 
 </resources>
