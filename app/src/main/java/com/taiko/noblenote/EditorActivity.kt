@@ -6,7 +6,6 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -268,20 +267,10 @@ class EditorActivity : Activity() {
 
         MenuHelper.addCopyToClipboard(this,menu,{editor_edit_text.text})
 
-        var showAsActionFlags : Int;
-
-        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE || ScreenUtil.isTablet(this)){
-            showAsActionFlags = MenuItem.SHOW_AS_ACTION_ALWAYS;
-        }
-        else
-        {
-            showAsActionFlags = MenuItem.SHOW_AS_ACTION_NEVER;
-        }
-
 
         val undoItem = menu.add(R.string.action_undo)
                 .setIcon(R.drawable.ic_undo_black_24dp)
-                .setShowAsActionFlags(showAsActionFlags)
+                .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
                 .setAlphabeticShortcut('Z')
                 .setOnMenuItemClickListener {
             mUndoRedo.undo();
@@ -299,7 +288,7 @@ class EditorActivity : Activity() {
 
         val redoItem = menu.add(R.string.action_redo)
                 .setIcon(R.drawable.ic_redo_black_24dp)
-                .setShowAsActionFlags(showAsActionFlags)
+                .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
                 .setAlphabeticShortcut('Y')
                 .setOnMenuItemClickListener {
                     mUndoRedo.redo();
