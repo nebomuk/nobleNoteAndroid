@@ -11,10 +11,10 @@ import java.io.File
  */
 class EventBus
 {
-    val  fileSelected : PublishSubject<File> = PublishSubject();
-    val createFileClick: PublishSubject<File> = PublishSubject()
-    val createFolderClick: PublishSubject<File> = PublishSubject()
-    val filesPasted : PublishSubject<Sequence<File>> = PublishSubject();
+    val  fileSelected : PublishSubject<SFile> = PublishSubject();
+    val createFileClick: PublishSubject<SFile> = PublishSubject()
+    val createFolderClick: PublishSubject<SFile> = PublishSubject()
+    val filesPasted : PublishSubject<Sequence<SFile>> = PublishSubject();
     val swipeRefresh: PublishSubject<Unit> = PublishSubject()
 
 

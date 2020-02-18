@@ -18,6 +18,8 @@
 
     <color name="ripple">#ff80ab</color>
 
+    <color name="default_white">#FFFFFF</color>
+
 
     <!--grey-->
     <color name="md_grey_50">#FAFAFA</color>

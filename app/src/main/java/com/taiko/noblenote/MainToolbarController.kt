@@ -3,17 +3,16 @@ package com.taiko.noblenote
 import android.app.Activity
 import android.app.FragmentManager
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.support.design.widget.Snackbar
+import com.google.android.material.snackbar.Snackbar
 import android.view.MenuItem
-import com.github.developerpaul123.filepickerlibrary.FilePickerActivity
-import com.github.developerpaul123.filepickerlibrary.enums.Request
-import com.github.developerpaul123.filepickerlibrary.enums.ThemeType
 import com.jakewharton.rxbinding.view.clicks
 import com.miguelcatalan.materialsearchview.MaterialSearchView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.toolbar.*
+import org.w3c.dom.Document
 import rx.Subscription
 import rx.lang.kotlin.plusAssign
 import rx.schedulers.Schedulers
@@ -22,6 +21,8 @@ import rx.subscriptions.Subscriptions
 import rx_activity_result.RxActivityResult
 import java.io.File
 import java.util.concurrent.TimeUnit
+
+
 
 /***
  * controller class for the app's toolbar
@@ -89,7 +90,7 @@ class MainToolbarController(val activity: MainActivity) {
         return item.clicks().subscribe {
             if(!FileClipboard.pasteContentIntoFolder(File(folderPath)))
             {
-                Snackbar.make(activity.coordinator_layout,R.string.msg_paste_error,Snackbar.LENGTH_LONG).show();
+                Snackbar.make(activity.coordinator_layout,R.string.msg_paste_error, Snackbar.LENGTH_LONG).show();
             }
             item.isEnabled = FileClipboard.hasContent;
 
@@ -114,9 +115,14 @@ class MainToolbarController(val activity: MainActivity) {
 
     private fun startFolderPicker()
     {
-        val filePickerDialogIntent = Intent(activity, FilePickerActivity::class.java)
-        filePickerDialogIntent.putExtra(FilePickerActivity.THEME_TYPE, ThemeType.ACTIVITY);
-        filePickerDialogIntent.putExtra(FilePickerActivity.REQUEST, Request.DIRECTORY);
+        val filePickerDialogIntent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+                .apply {
+                    putExtra("android.content.extra.SHOW_ADVANCED", true);
+                    putExtra("android.content.extra.FANCY", true);
+                    putExtra("android.content.extra.SHOW_FILESIZE", true);
+                }
+
+
 
         if(Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED)
         {
@@ -127,16 +133,23 @@ class MainToolbarController(val activity: MainActivity) {
         FileHelper.requestFilePermission(activity,onSuccess = {
             RxActivityResult.on(activity).startIntent(filePickerDialogIntent).subscribe {
 
+
                 if ((it.resultCode() == Activity.RESULT_OK)) {
-                    val path = it.data().getStringExtra(FilePickerActivity.FILE_EXTRA_DATA_PATH)
-                    Pref.rootPath.onNext(path)
+                    val uri : Uri? = it.data().data
+
+                    val takeFlags = it.data().flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+
+                    //noinspection WrongConstant
+                    activity.contentResolver.takePersistableUriPermission(uri!!, takeFlags)
+
+                    Pref.rootPath.onNext(SFile(uri).uri.toString());
                     Snackbar.make(activity.coordinator_layout, activity.getString(R.string.msg_directory_selected) + " " + Pref.rootPath.value, Snackbar.LENGTH_LONG).show();
 
                 }
             }
         },
                 onFailure = {
-                    Snackbar.make(activity.coordinator_layout,R.string.msg_external_storage_permission_denied,Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(activity.coordinator_layout,R.string.msg_external_storage_permission_denied, Snackbar.LENGTH_LONG).show();
                 });
     }
 

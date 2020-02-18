@@ -9,8 +9,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.support.design.widget.Snackbar
-import android.support.v4.app.ActivityCompat
+import com.google.android.material.snackbar.Snackbar
+import androidx.core.app.ActivityCompat
 import android.view.*
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_editor.*
@@ -98,8 +98,8 @@ class EditorActivity : Activity() {
         toolbar.setNavigationOnClickListener { showExitDialog() }*/
 
         val extras = intent.extras ?: return
-        mFilePath = extras.getString(ARG_FILE_PATH)
-        mOpenMode = extras.getString(ARG_OPEN_MODE)
+        mFilePath = extras.getString(ARG_FILE_PATH)!!
+        mOpenMode = extras.getString(ARG_OPEN_MODE)!!
         mFocusable = !(mOpenMode == HTML || mOpenMode == READ_ONLY) // no editing if html source should be shown
 
         toolbar.title = File(mFilePath).nameWithoutExtension

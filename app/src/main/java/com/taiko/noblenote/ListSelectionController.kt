@@ -2,7 +2,7 @@ package com.taiko.noblenote
 
 import android.os.Handler
 import android.os.Looper
-import android.support.design.widget.Snackbar
+import com.google.android.material.snackbar.Snackbar
 import android.view.ActionMode
 import kotlinx.android.synthetic.main.actionmode.view.*
 import kotlinx.android.synthetic.main.activity_main.*
@@ -46,7 +46,7 @@ class ListSelectionController(private val activity: MainActivity, private val ad
         mCompositeDisposable += mFileActionModeCallback.onRename.subscribe {
             val selectedFile = adapter.selectedFiles.firstOrNull()
             if (selectedFile != null) {
-                Dialogs.showRenameDialog(activity,activity.coordinator_layout, selectedFile, onRenamed = {
+                Dialogs.showRenameDialog(activity,activity.coordinator_layout, selectedFile.toFile(), onRenamed = {
                     adapter.removeSelected();
                     adapter.addFileName(it.name);
                     mActionMode?.finish();
@@ -60,22 +60,22 @@ class ListSelectionController(private val activity: MainActivity, private val ad
 
             val selectedFile = adapter.selectedFiles.firstOrNull()
             if (selectedFile != null) {
-                MainActivity.startNoteEditor(activity,selectedFile, EditorActivity.HTML)
+                MainActivity.startNoteEditor(activity,selectedFile.toFile(), EditorActivity.HTML)
                 mActionMode?.finish()
             }
         }
 
         // remove files from the fs with undo snackbar
         mCompositeDisposable += mFileActionModeCallback.onRemove.subscribe {
-            val selectedFiles = ArrayList<File>(adapter.selectedFiles) // shallow copy
+            val selectedFiles = ArrayList<File>(adapter.selectedFiles.map { it.toFile() }) // shallow copy
             UndoHelper.remove(selectedFiles,activity.coordinator_layout,  onUndo = {selectedFiles.forEach { adapter.addFileName(it.name) }})
             adapter.removeSelected()
             mActionMode?.finish()
         }
 
         mCompositeDisposable += mFileActionModeCallback.onCut.subscribe {
-            FileClipboard.cutFiles(adapter.selectedFiles) // warning: Singleton causes memory leak when listener not disposed
-            Snackbar.make(activity.coordinator_layout,activity.getString(R.string.msg_n_notes_in_clipboard,adapter.selectedFiles.size),Snackbar.LENGTH_SHORT).show();
+            FileClipboard.cutFiles(adapter.selectedFiles.map { it.toFile() }) // warning: Singleton causes memory leak when listener not disposed
+            Snackbar.make(activity.coordinator_layout,activity.getString(R.string.msg_n_notes_in_clipboard,adapter.selectedFiles.size), Snackbar.LENGTH_SHORT).show();
             adapter.clearSelection();
             mActionMode?.finish()
         }

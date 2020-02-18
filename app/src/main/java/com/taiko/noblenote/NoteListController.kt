@@ -1,7 +1,7 @@
 package com.taiko.noblenote
 
 import android.app.Fragment
-import android.support.v7.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.util.Log
 import android.view.View
 import kotlinx.android.synthetic.main.fragment_file_list.view.*
@@ -28,13 +28,13 @@ class NoteListController(private var fragment: Fragment, view: View)
         val fileFilter = FileFilter { pathname -> pathname.isFile && !pathname.isHidden }
 
 
-        var path : File;
+        var path : SFile;
 
 
 
         if(fragment.arguments != null &&  fragment.arguments.containsKey(NoteListFragment.ARG_QUERY_TEXT))
         {
-            recyclerFileAdapter = RecyclerFileAdapter(File(""));
+            recyclerFileAdapter = RecyclerFileAdapter(SFile(""));
 
             view.tv_file_list_empty.setText(R.string.no_results_found);
             view.tv_title_search_results.visibility = View.VISIBLE;
@@ -61,14 +61,14 @@ class NoteListController(private var fragment: Fragment, view: View)
         {
             view.tv_file_list_empty.setText(R.string.notebook_is_empty);
 
-            path = File(fragment.arguments.getString(NoteListFragment.ARG_FOLDER_PATH));
+            path = SFile(fragment.arguments.getString(NoteListFragment.ARG_FOLDER_PATH));
 
             recyclerFileAdapter = RecyclerFileAdapter(path)
 //            recyclerFileAdapter.refresh(activity)
         }
 
 
-        recyclerFileAdapter.filter = fileFilter
+        recyclerFileAdapter.showFolders = false
 
         recyclerFileAdapter.applyEmptyView(view.empty_list_switcher,R.id.text_empty,R.id.recycler_view)
 

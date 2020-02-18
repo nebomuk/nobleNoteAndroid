@@ -2,9 +2,9 @@ package com.taiko.noblenote
 
 import android.app.Fragment
 import android.os.Bundle
-import android.support.v7.widget.DefaultItemAnimator
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import kotlinx.android.synthetic.main.fragment_file_list.view.*
 import kotlinx.android.synthetic.main.toolbar.*
@@ -39,9 +39,9 @@ class FolderListController(private var fragment: Fragment, view: View) {
         // the following code lists only visible folders and push their names into an ArrayAdapter
         val folderFilter = FileFilter { pathname -> pathname.isDirectory && !pathname.isHidden }
 
-        recyclerFileAdapter = RecyclerFileAdapter(File(Pref.rootPath.value))
+        recyclerFileAdapter = RecyclerFileAdapter(SFile(Pref.rootPath.value))
 
-        recyclerFileAdapter.filter = folderFilter
+        recyclerFileAdapter.showFolders = true;
 
         recyclerFileAdapter.applyEmptyView(view.empty_list_switcher,R.id.text_empty,R.id.recycler_view)
 
@@ -69,8 +69,8 @@ class FolderListController(private var fragment: Fragment, view: View) {
                 {
                     val item = recyclerFileAdapter.getItem(it)
                     if(item != null) {
-                        Pref.currentFolderPath.onNext(item.absolutePath)
-                        showNoteFragment(item.absolutePath)
+                        Pref.currentFolderPath.onNext(item.path)
+                        showNoteFragment(item.path)
                     }
 
                 }
@@ -82,8 +82,8 @@ class FolderListController(private var fragment: Fragment, view: View) {
                     .subscribe {
                         val item = recyclerFileAdapter.getItem(it);
                         if (item != null) {
-                            Pref.currentFolderPath.onNext(item.absolutePath)
-                            showNoteFragment(item.absolutePath)
+                            Pref.currentFolderPath.onNext(item.path)
+                            showNoteFragment(item.path)
                         }
 
                     }
@@ -118,7 +118,7 @@ class FolderListController(private var fragment: Fragment, view: View) {
     fun onStart()
     {
         mCompositeSubscription += Pref.rootPath.subscribe {
-            recyclerFileAdapter.path = File(it);
+            recyclerFileAdapter.path = SFile(it);
             recyclerFileAdapter.refresh(fragment.activity); }
     }
 

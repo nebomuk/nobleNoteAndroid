@@ -1,6 +1,9 @@
 package com.taiko.noblenote
 
+import androidx.core.content.FileProvider
+import androidx.documentfile.provider.DocumentFile
 import com.chibatching.kotpref.KotprefModel
+import com.commonsware.cwac.document.DocumentFileCompat
 import rx.lang.kotlin.BehaviorSubject
 import rx.subjects.BehaviorSubject
 import java.io.File
@@ -11,7 +14,8 @@ import java.io.File
 object Pref : KotprefModel()
 {
     // constants
-    val fallbackRootPath = File(context.filesDir.absolutePath,"/nn").absolutePath;
+    // TODO check external storage package
+    val fallbackRootPath = File(context.filesDir.absolutePath,"/nn").toSFile().uri.toString()
 
     // backing prefs
     private var mRootPath: String by stringPrefVar(default = fallbackRootPath) // the root path where the folders are stored

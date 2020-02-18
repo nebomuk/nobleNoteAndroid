@@ -2,9 +2,9 @@ package com.taiko.noblenote
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.support.annotation.ColorInt
-import android.support.v4.content.ContextCompat
-import android.support.v4.graphics.drawable.DrawableCompat
+import androidx.annotation.ColorInt
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 
 
 fun Drawable?.setTintCompat(context : Context, @ColorInt color : Int)

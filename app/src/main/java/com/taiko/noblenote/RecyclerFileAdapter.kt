@@ -1,12 +1,12 @@
 package com.taiko.noblenote
 
 import android.content.Context
-import android.databinding.ObservableArrayList
+import androidx.databinding.ObservableArrayList
 import android.graphics.Color
-import android.support.annotation.ColorInt
-import android.support.annotation.IdRes
-import android.support.v4.graphics.ColorUtils
-import android.support.v7.widget.RecyclerView
+import androidx.annotation.ColorInt
+import androidx.annotation.IdRes
+import androidx.core.graphics.ColorUtils
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ViewSwitcher
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit
  * file system adapter, can be configured inside onViewCreated or onCreate
  * but you must call refresh() in onStart/onResume
  */
-class RecyclerFileAdapter(var path : File) : RecyclerView.Adapter<ViewHolder>() {
+class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>() {
 
     private val log = loggerFor()
 
@@ -53,10 +53,10 @@ class RecyclerFileAdapter(var path : File) : RecyclerView.Adapter<ViewHolder>() 
 
     fun itemCountChanged() : Observable<Int> = mFiles.toRxObservable().map { it.count() }
 
-    val selectedFiles : List<File>
+    val selectedFiles : List<SFile>
         get() = mFiles.filter { it.isSelected }.map { it.file }
 
-    var filter : FileFilter = FileFilter { true }
+    var showFolders = true;
 
 /*    set(value) {
         mFiles.clear()
@@ -92,13 +92,6 @@ class RecyclerFileAdapter(var path : File) : RecyclerView.Adapter<ViewHolder>() 
         }
 
         //rx.Observable.interval(3,TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe { mFiles.add(File(Pref.rootPath,"test " + it)) }
-    }
-
-
-
-    fun indexOf(file : File) : Int
-    {
-        return mFiles.indexOfFirst { it.file.canonicalPath.compareTo(file.canonicalPath) == 0 } // this comparison does not work with search results where path are different
     }
 
 
@@ -142,7 +135,7 @@ class RecyclerFileAdapter(var path : File) : RecyclerView.Adapter<ViewHolder>() 
 
         if(FileHelper.checkFilePermission(context))
         {
-            val newFileList = FileHelper.listFilesSorted(path, filter);
+            val newFileList = path.listFilesSorted(false);
             // add files that arent contained in the list
             for (newFile in newFileList) {
                 if (!mFiles.any { it.file.name == newFile.name }) {
@@ -203,12 +196,12 @@ class RecyclerFileAdapter(var path : File) : RecyclerView.Adapter<ViewHolder>() 
 
     fun addFileName(fileName : String)
     {
-        mFiles.addSorted( FileItem(File(path,fileName),false), { lhs, rhs -> Collator.getInstance().compare(lhs.file.name, rhs.file.name) })
+        mFiles.addSorted( FileItem(SFile(path,fileName),false), { lhs, rhs -> Collator.getInstance().compare(lhs.file.name, rhs.file.name) })
 
         updateFolderSelection()
     }
 
-    fun getItem(pos : Int) : File? {
+    fun getItem(pos : Int) : SFile? {
         if(isValidIndex(pos))
         {
             return mFiles[pos].file
@@ -306,7 +299,7 @@ class RecyclerFileAdapter(var path : File) : RecyclerView.Adapter<ViewHolder>() 
         return mFiles.size
     }
 
-    private data class FileItem(val file : File,var isSelected: Boolean, var isSelectedFolder : Boolean = false) : Comparable<FileItem> {
+    private data class FileItem(val file : SFile,var isSelected: Boolean, var isSelectedFolder : Boolean = false) : Comparable<FileItem> {
         override fun compareTo(other: FileItem): Int {
             return this.file.name.compareTo(other.file.name) // this must also work for search results where the path is not the same
         }

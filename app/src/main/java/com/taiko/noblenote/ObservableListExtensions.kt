@@ -1,8 +1,8 @@
 package com.taiko.noblenote
 
 
-import android.databinding.ObservableArrayList
-import android.databinding.ObservableList
+import androidx.databinding.ObservableArrayList
+import androidx.databinding.ObservableList
 import rx.subscriptions.Subscriptions
 
 fun <T> ObservableList<T>.toRxObservable(): rx.Observable<List<T>> {

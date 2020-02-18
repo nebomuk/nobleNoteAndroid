@@ -8,9 +8,9 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
-import android.support.design.widget.Snackbar
-import android.support.v4.app.ActivityCompat
-import android.support.v4.widget.SwipeRefreshLayout
+import com.google.android.material.snackbar.Snackbar
+import androidx.core.app.ActivityCompat
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import android.transition.Fade
 import android.view.View
 import com.jakewharton.rxbinding.view.clicks
@@ -23,6 +23,7 @@ import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
 import rx.subscriptions.Subscriptions
 import java.io.File
+import com.taiko.noblenote.SFile;
 
 
 class MainActivity : Activity()
@@ -35,8 +36,8 @@ class MainActivity : Activity()
     private var mMainToolbarController: MainToolbarController? = null
     private val mPermissionRequestCode = 0xA;
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>?, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
 
         if(requestCode != 0xA)
         {
@@ -98,7 +99,7 @@ class MainActivity : Activity()
             else if(Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED && !Pref.isInternalStorage)
             {
                 Snackbar.make(coordinator_layout,getString(R.string.msg_external_storage_not_mounted) + " "
-                        + getString(R.string.msg_switching_internal_storage),Snackbar.LENGTH_LONG);
+                        + getString(R.string.msg_switching_internal_storage), Snackbar.LENGTH_LONG);
                 Pref.rootPath.onNext(Pref.fallbackRootPath);
 
                 setupUi();
@@ -134,7 +135,7 @@ class MainActivity : Activity()
         fragmentManager.beginTransaction().replace(R.id.item_master_container, FolderListFragment()).commit()
 
         val app = application as MainApplication
-        mCompositeSubscription += app.eventBus.fileSelected.mergeWith(app.eventBus.createFileClick).subscribe { startNoteEditor(this,it, EditorActivity.READ_WRITE) }
+        mCompositeSubscription += app.eventBus.fileSelected.mergeWith(app.eventBus.createFileClick).subscribe { startNoteEditor(this,it.toFile(), EditorActivity.READ_WRITE) }
 
 
 
@@ -143,12 +144,12 @@ class MainActivity : Activity()
             fab_menu.setClosedOnTouchOutside(true)
 
             mCompositeSubscription += fab_menu_note.clicks().subscribe {
-                Dialogs.showNewNoteDialog(this.coordinator_layout) {app.eventBus.createFileClick.onNext(it)}
+                Dialogs.showNewNoteDialog(this.coordinator_layout) {app.eventBus.createFileClick.onNext(it.toSFile())}
                 fab_menu.close(true);
             }
 
             mCompositeSubscription += fab_menu_folder.clicks().subscribe {
-                Dialogs.showNewFolderDialog(this.coordinator_layout,{app.eventBus.createFolderClick.onNext(it)})
+                Dialogs.showNewFolderDialog(this.coordinator_layout,{app.eventBus.createFolderClick.onNext(it.toSFile())})
                 fab_menu.close(true);
             }
         }
@@ -157,11 +158,11 @@ class MainActivity : Activity()
             mCompositeSubscription += fab.clicks().subscribe {
                 if(fragmentManager.backStackEntryCount > 0)
                 {
-                    Dialogs.showNewNoteDialog(coordinator_layout, {app.eventBus.createFileClick.onNext(it)})
+                    Dialogs.showNewNoteDialog(coordinator_layout, {app.eventBus.createFileClick.onNext(it.toSFile())})
                 }
                 else
                 {
-                    Dialogs.showNewFolderDialog(coordinator_layout, {app.eventBus.createFolderClick.onNext(it)})
+                    Dialogs.showNewFolderDialog(coordinator_layout, {app.eventBus.createFolderClick.onNext(it.toSFile())})
                 }
             }
         }

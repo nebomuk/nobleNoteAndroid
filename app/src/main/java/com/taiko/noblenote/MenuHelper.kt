@@ -29,7 +29,7 @@ object MenuHelper {
             } else {
                 val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
                 val clip = android.content.ClipData.newPlainText("Copied Text", textSource())
-                clipboard.primaryClip = clip
+                clipboard.setPrimaryClip(clip);
             }
 
             Toast.makeText(ctx, R.string.msg_copied_to_clipboard, Toast.LENGTH_SHORT).show()

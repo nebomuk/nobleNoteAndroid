@@ -3,8 +3,8 @@ package com.taiko.noblenote
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
-import android.support.design.widget.CoordinatorLayout
-import android.support.design.widget.Snackbar
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import com.google.android.material.snackbar.Snackbar
 import android.text.InputFilter
 import android.view.View
 import android.view.ViewGroup
@@ -106,7 +106,7 @@ object Dialogs {
     }
 
     @JvmStatic
-    fun showNewFolderDialog(layout: CoordinatorLayout,  folderCreated: (f : File) -> Unit) {
+    fun showNewFolderDialog(layout: CoordinatorLayout, folderCreated: (f : File) -> Unit) {
 
         val context = layout.context;
 

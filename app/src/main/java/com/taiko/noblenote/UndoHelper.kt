@@ -2,7 +2,7 @@ package com.taiko.noblenote
 
 import android.os.Handler
 import android.os.Looper
-import android.support.design.widget.Snackbar
+import com.google.android.material.snackbar.Snackbar
 import android.view.View
 import rx.Observable
 import rx.lang.kotlin.toObservable

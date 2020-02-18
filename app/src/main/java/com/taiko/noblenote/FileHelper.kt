@@ -5,7 +5,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Environment
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
+import com.commonsware.cwac.document.DocumentFileCompat
+import com.taiko.noblenote.MainToolbarController.Companion.log
 import com.tbruyelle.rxpermissions.RxPermissions
 import rx.Observable
 import java.io.*
@@ -139,22 +141,6 @@ object FileHelper {
         res = res && oldFile.renameTo(newFile);
         return res
     }
-
-    /**
-     * creates a mutable list of the contents of the directory
-     * and creates the directory if it does not exist
-     */
-    @JvmStatic
-    fun listFilesSorted(dir: File, filter: FileFilter): ArrayList<File> {
-        //List<File> fileList = Arrays.asList(); // returns read only list, causes unsupported operation exceptions in adapter
-        val fileList = ArrayList<File>()
-        if (dir.exists() || dir.mkdirs()) {
-            Collections.addAll(fileList, *dir.listFiles(filter))
-            Collections.sort(fileList) { lhs, rhs -> Collator.getInstance().compare(lhs.name, rhs.name) }
-        }
-        return fileList
-    }
-
 
     /**
      * check without requesting permission
