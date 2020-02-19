@@ -41,11 +41,11 @@ class NoteListController(private var fragment: Fragment, view: View)
 
             val queryText = fragment.arguments.getString(NoteListFragment.ARG_QUERY_TEXT,"");
             if (!queryText.isNullOrBlank()) {
-                mCompositeSubscription += FindInFiles.findHtmlInFiles(Pref.rootPath.value,queryText)
+                mCompositeSubscription += FindInFiles.findHtmlInFiles(SFile(Pref.rootPath.value),queryText)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe( {
-                            recyclerFileAdapter.addFileName(File(it).name)
+                            recyclerFileAdapter.addFileName(it.name)
                         },
 
                                 {},

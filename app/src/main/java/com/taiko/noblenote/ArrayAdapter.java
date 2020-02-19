@@ -405,6 +405,10 @@ public class ArrayAdapter<T> extends BaseAdapter implements Filterable
         {
             text.setText(((File) item).getName());
         }
+        else if(item instanceof SFile)
+        {
+            text.setText(((SFile) item).getName());
+        }
         else
         {
             text.setText(item.toString());

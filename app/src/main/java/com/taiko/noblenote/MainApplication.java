@@ -30,6 +30,9 @@ public class MainApplication extends Application
             // You should not init your app in this process.
             return;
         }
+
+        System.setProperty("rx.ring-buffer.size", "1024");
+
         //LeakCanary.install(this);
         // the default LeakDirectoryProvider writes to Downloads, must manually delete the created folder
 

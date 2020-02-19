@@ -14,8 +14,8 @@ object FindInFiles {
      * @return the file paths of the files
      */
     @JvmStatic
-    fun  findHtmlInFiles(path : String, queryText: CharSequence) : Observable<String> =
-            File(path).walkBottomUp().filter { it.isFile && !it.isHidden }
+    fun  findHtmlInFiles(file: File, queryText: CharSequence) : Observable<String> =
+            file.walkBottomUp().filter { it.isFile && !it.isHidden }
                     .toObservable()
                     .map {
                         val filePath = it.path;
@@ -36,4 +36,32 @@ object FindInFiles {
 
 
     fun <T> Observable<Observable<T>>.concat(): Observable<T> = Observable.concat(this)
+
+
+    // assumes the regular folder structure without subfolders except for root for performance
+    @JvmStatic
+    fun findHtmlInFiles(directoryToSearch : SFile, queryText: CharSequence) : Observable<SFile> {
+
+        // work on DocumentFile directly to increase performance
+        return directoryToSearch.doc.listFiles().toObservable().flatMap {
+            it.listFiles().toObservable()
+        }
+                .map { note ->
+                    if (note.name.orEmpty().contains(queryText, true)) {
+                        note.toSingletonObservable() // file name contains the queryText, return the filePath
+                    } else {
+                        Observable.using(// open the file and try to find the queryText inside
+                                { note.openInputStream().bufferedReader() },
+                                { it.lineSequence().toObservable() },
+                                { it.close() })
+                                .exists { it.contains(queryText, true) }
+                                .filter { it == true } // found
+                                .map { note }
+                    }
+                }
+                .concat()
+                .map { SFile(it) }
+
+
+    }
 }

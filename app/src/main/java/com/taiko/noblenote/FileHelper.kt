@@ -24,7 +24,7 @@ object FileHelper {
         return Observable.create({ subscriber ->
             val htmlText = StringBuilder()
             try {
-                BufferedReader(InputStreamReader(SFile(filePath).openInputStream(),"UTF-8")).use { br ->
+                SFile(filePath).openInputStream().bufferedReader().use { br ->
 
                     while (true) {
                         val line = br.readLine()
@@ -61,7 +61,7 @@ object FileHelper {
         return Observable.create<Long> {
             val file = SFile(filePath)
             try {
-                val writer = BufferedWriter(OutputStreamWriter(file.openOuptutStream(),"UTF-8"))
+                val writer = file.openOuptutStream().bufferedWriter();
                 writer.append(text)
                 writer.flush()
                 writer.close()

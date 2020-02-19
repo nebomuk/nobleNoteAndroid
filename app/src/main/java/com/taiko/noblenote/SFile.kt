@@ -6,7 +6,9 @@ import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
+import com.commonsware.cwac.document.DocumentFileCompat
 import com.taiko.noblenote.Pref.rootPath
+import org.w3c.dom.Document
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -26,9 +28,9 @@ class SFile {
     }
 
 
-    private var doc : DocumentFile
+    var doc : DocumentFileCompat
 
-    private var parentDoc : DocumentFile? = null;
+    private var parentDoc : DocumentFileCompat? = null;
 
     private var proposedFileName : String? = null
 
@@ -67,7 +69,7 @@ class SFile {
         }
     }
 
-    constructor(document : DocumentFile)
+    constructor(document : DocumentFileCompat)
     {
         doc = document;
     }
@@ -115,6 +117,10 @@ class SFile {
         Log.d("", "Chosen path = $filePath")
     }
 
+
+    // use proper implementation to only show the names instead of creating sub-files
+    // see https://stackoverflow.com/questions/41096332/issues-traversing-through-directory-hierarchy-with-android-storage-access-framew
+    // and https://www.reddit.com/r/androiddev/comments/bbejc4/caveats_with_documentfile/
     fun listFilesSorted(folders: Boolean): List<SFile> {
 
         setDocumentToProposedIfExists()
@@ -228,12 +234,12 @@ class SFile {
 
     fun openInputStream() : InputStream {
         // TODO create proposed file if it does not exist
-        return MainApplication.getInstance().getContentResolver().openInputStream(doc.uri)!!
+        return doc.openInputStream();
     }
 
     fun openOuptutStream() : OutputStream {
         // TODO create proposed file if it does not exist
-        return MainApplication.getInstance().getContentResolver().openOutputStream(doc.uri)!!
+        return doc.openOutputStream();
     }
 
     fun createNewFile(): Boolean {
@@ -285,22 +291,22 @@ class SFile {
     companion object
     {
 
-    private fun toDocumentFile(uri : Uri) : DocumentFile
+    private fun toDocumentFile(uri : Uri) : DocumentFileCompat
     {
         if(SFile.cachedDoc.any { it.uri == uri })
                 {
                     return cachedDoc.first { it.uri == uri }
                 }
 
-        var doc : DocumentFile
+        var doc : DocumentFileCompat
 
         if(uri.scheme == "file")
         {
-            doc =  DocumentFile.fromFile(File(uri.path));
+            doc =  DocumentFileCompat.fromFile(File(uri.path));
         }
         else if(uri.scheme == "content")
         {
-            doc = DocumentFile.fromTreeUri(MainApplication.getInstance(),uri)!!;
+            doc = DocumentFileCompat.fromTreeUri(MainApplication.getInstance(),uri)!!;
         }
         else
         {
@@ -312,12 +318,20 @@ class SFile {
 
 
     }
-        private val cachedDoc : HashSet<DocumentFile> = HashSet();
+        private val cachedDoc : HashSet<DocumentFileCompat> = HashSet();
     }
 
 }
 
+fun DocumentFileCompat.openInputStream(): InputStream {
+    return MainApplication.getInstance().contentResolver.openInputStream(this.uri)!!;
+}
+
+fun DocumentFileCompat.openOutputStream(): OutputStream {
+    return MainApplication.getInstance().contentResolver.openOutputStream(this.uri)!!
+}
+
 public fun File.toSFile(): SFile {
-    val uri = DocumentFile.fromFile(this).uri;
+    val uri = DocumentFileCompat.fromFile(this).uri;
     return SFile(uri);
 }
