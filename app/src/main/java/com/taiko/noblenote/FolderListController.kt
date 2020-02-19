@@ -69,8 +69,8 @@ class FolderListController(private var fragment: Fragment, view: View) {
                 {
                     val item = recyclerFileAdapter.getItem(it)
                     if(item != null) {
-                        Pref.currentFolderPath.onNext(item.path)
-                        showNoteFragment(item.path)
+                        Pref.currentFolderPath.onNext(item.uri.toString())
+                        showNoteFragment(item.uri.toString())
                     }
 
                 }
@@ -82,8 +82,8 @@ class FolderListController(private var fragment: Fragment, view: View) {
                     .subscribe {
                         val item = recyclerFileAdapter.getItem(it);
                         if (item != null) {
-                            Pref.currentFolderPath.onNext(item.path)
-                            showNoteFragment(item.path)
+                            Pref.currentFolderPath.onNext(item.uri.toString())
+                            showNoteFragment(item.uri.toString())
                         }
 
                     }
@@ -99,11 +99,11 @@ class FolderListController(private var fragment: Fragment, view: View) {
         };
     }
 
-    private fun showNoteFragment(folderPath: String) {
+    private fun showNoteFragment(folderUriString: String) {
 
         val noteFragment = NoteListFragment()
         val arguments = Bundle()
-        arguments.putString(NoteListFragment.ARG_FOLDER_PATH, folderPath)
+        arguments.putString(NoteListFragment.ARG_FOLDER_PATH, folderUriString)
         noteFragment.arguments = arguments
 
         if (mTwoPane) {
@@ -111,7 +111,7 @@ class FolderListController(private var fragment: Fragment, view: View) {
             fragment.activity.toolbar.title = null; // clear title after orientation change
         } else {
             fragment.fragmentManager.beginTransaction().add(R.id.item_master_container, noteFragment).addToBackStack(null).commit();
-            fragment.activity.toolbar.title = File(folderPath).nameWithoutExtension
+            fragment.activity.toolbar.title = SFile(folderUriString).nameWithoutExtension
         }
     }
 

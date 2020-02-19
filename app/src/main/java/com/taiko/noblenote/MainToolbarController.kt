@@ -57,7 +57,7 @@ class MainToolbarController(val activity: MainActivity) {
 
                 val fragment = activity.fragmentManager.findFragmentById(R.id.item_master_container);
                 val folderPath = fragment?.arguments?.getString(NoteListFragment.ARG_FOLDER_PATH,null).orEmpty();
-                activity.toolbar.title = File(folderPath).name;
+                activity.toolbar.title = SFile(folderPath).name;
 
                 setBackNavigationIconEnabled(true)
                 val instance = FileClipboard;
@@ -130,8 +130,8 @@ class MainToolbarController(val activity: MainActivity) {
             return;
         }
 
-        FileHelper.requestFilePermission(activity,onSuccess = {
-            RxActivityResult.on(activity).startIntent(filePickerDialogIntent).subscribe {
+
+         RxActivityResult.on(activity).startIntent(filePickerDialogIntent).subscribe {
 
 
                 if ((it.resultCode() == Activity.RESULT_OK)) {
@@ -147,10 +147,7 @@ class MainToolbarController(val activity: MainActivity) {
 
                 }
             }
-        },
-                onFailure = {
-                    Snackbar.make(activity.coordinator_layout,R.string.msg_external_storage_permission_denied, Snackbar.LENGTH_LONG).show();
-                });
+
     }
 
 
@@ -193,7 +190,7 @@ class MainToolbarController(val activity: MainActivity) {
         mSearchAdapter = SuggestionAdapter(activity, suggestions);
         activity.search_view.setAdapter(mSearchAdapter)
         activity.search_view.setOnItemClickListener { adapterView, view, i, l ->
-            val item = adapterView.adapter.getItem(i) as File;
+            val item = adapterView.adapter.getItem(i) as SFile;
             MainActivity.startNoteEditor(activity,item, EditorActivity.READ_WRITE, activity.search_view.queryText.toString());
             activity.search_view.closeSearch();
         }

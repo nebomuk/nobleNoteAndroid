@@ -18,8 +18,6 @@ import rx.android.schedulers.AndroidSchedulers
 import rx.lang.kotlin.PublishSubject
 import rx.lang.kotlin.plusAssign
 import rx.subjects.PublishSubject
-import java.io.File
-import java.io.FileFilter
 import java.text.Collator
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -132,9 +130,6 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
             return;
         }
 
-
-        if(FileHelper.checkFilePermission(context))
-        {
             val newFileList = path.listFilesSorted(false);
             // add files that arent contained in the list
             for (newFile in newFileList) {
@@ -152,7 +147,6 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
             }
             updateFolderSelection()
 
-        }
     }
 
     // when folder selection is enabled, selects at least one folder

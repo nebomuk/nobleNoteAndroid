@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -23,7 +24,6 @@ import rx.android.schedulers.AndroidSchedulers
 import rx.lang.kotlin.plusAssign
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
-import java.io.File
 
 
 class EditorActivity : Activity() {
@@ -32,7 +32,7 @@ class EditorActivity : Activity() {
     private val log = loggerFor()
 
     private var mFocusable = true // if set to false, the note is opened in read only mode
-    private lateinit var mFilePath: String;
+    private lateinit var mFileUri: Uri;
     private lateinit var mOpenMode: String;
     private var lastModified: Long = 0
     private var mFormattingMenuItem: MenuItem? = null
@@ -98,11 +98,11 @@ class EditorActivity : Activity() {
         toolbar.setNavigationOnClickListener { showExitDialog() }*/
 
         val extras = intent.extras ?: return
-        mFilePath = extras.getString(ARG_FILE_PATH)!!
+        mFileUri = Uri.parse(extras.getString(ARG_NOTE_URI))
         mOpenMode = extras.getString(ARG_OPEN_MODE)!!
         mFocusable = !(mOpenMode == HTML || mOpenMode == READ_ONLY) // no editing if html source should be shown
 
-        toolbar.title = File(mFilePath).nameWithoutExtension
+        toolbar.title = SFile(mFileUri).nameWithoutExtension
         populateMenu(toolbar.menu)
 
         editor_edit_text.isTextWatcherEnabled = false
@@ -110,16 +110,6 @@ class EditorActivity : Activity() {
 
 
         mFindInTextToolbarController = FindInTextToolbarController(this);
-
-        if(!Pref.isInternalStorage)
-        {
-
-            if(!FileHelper.checkFilePermission(this))
-            {
-                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), mPermissionRequestCode);
-            }
-        }
-
 
         val intentFilter = IntentFilter(Intent.ACTION_MEDIA_REMOVED);
         intentFilter.addAction(Intent.ACTION_MEDIA_EJECT);
@@ -140,13 +130,12 @@ class EditorActivity : Activity() {
         super.onStart()
         log.d( ".onStart()");
 
-        if (FileHelper.checkFilePermission(this) && File(mFilePath).lastModified() > lastModified) {
+        if (SFile(mFileUri).lastModified() > lastModified) {
             reload()
         }
         // fix selection & formatting for Honeycomb and newer devices
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             editor_edit_text.customSelectionActionModeCallback = SelectionActionModeCallback(editor_edit_text)
-        }
+
     }
 
     /**
@@ -156,7 +145,7 @@ class EditorActivity : Activity() {
         // load file contents and parse html thread
         log.d( ".reload()");
 
-            mCompositeSubscription += FileHelper.readFile(mFilePath, this, parseHtml = mOpenMode != HTML) // don't parse html if it should display the html source of the note
+            mCompositeSubscription += FileHelper.readFile(mFileUri, this, parseHtml = mOpenMode != HTML) // don't parse html if it should display the html source of the note
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({
@@ -177,7 +166,7 @@ class EditorActivity : Activity() {
                             Snackbar.make(layout_root, R.string.noteReloaded, Snackbar.LENGTH_SHORT).show()
                         }
 
-                        lastModified = File(mFilePath).lastModified()
+                        lastModified = SFile(mFileUri).lastModified()
 
                     }, {
                         log.e(it.message)
@@ -195,11 +184,11 @@ class EditorActivity : Activity() {
         // does nothing if open mode is set to read only
 
         // if not mFocusable, changes can not be made
-        if (Pref.isAutoSaveEnabled &&  !isChangingConfigurations &&  mFocusable && editor_edit_text.isModified && FileHelper.checkFilePermission(this))
+        if (Pref.isAutoSaveEnabled &&  !isChangingConfigurations &&  mFocusable && editor_edit_text.isModified)
         // then save the note
         {
 
-                FileHelper.writeFile(filePath = mFilePath, text = editor_edit_text.textHTML)
+                FileHelper.writeFile(filePath = mFileUri, text = editor_edit_text.textHTML)
                         .subscribeOn(Schedulers.io())
                         .subscribe {
 
@@ -359,7 +348,7 @@ class EditorActivity : Activity() {
         }
 
         @JvmStatic
-        val ARG_FILE_PATH = "file_path"
+        val ARG_NOTE_URI = "file_path"
 
         @JvmStatic
         val ARG_OPEN_MODE = "open_mode"

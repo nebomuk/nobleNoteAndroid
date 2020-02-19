@@ -3,9 +3,6 @@
           package="com.taiko.noblenote"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-
-
     <!--         android:icon="@mipmap/ic_launcher" -->
     <application
         android:name="com.taiko.noblenote.MainApplication"

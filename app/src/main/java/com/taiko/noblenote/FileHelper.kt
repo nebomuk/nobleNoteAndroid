@@ -3,16 +3,11 @@ package com.taiko.noblenote
 import android.Manifest
 import android.app.Activity
 import android.content.Context
-import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Environment
-import androidx.core.content.ContextCompat
-import com.commonsware.cwac.document.DocumentFileCompat
-import com.taiko.noblenote.MainToolbarController.Companion.log
 import com.tbruyelle.rxpermissions.RxPermissions
 import rx.Observable
 import java.io.*
-import java.text.Collator
-import java.util.*
 
 
 /**
@@ -24,12 +19,12 @@ object FileHelper {
 
 
     @JvmStatic
-    fun readFile(filePath : String, ctx : Context, parseHtml: Boolean ) : Observable<CharSequence>
+    fun readFile(filePath : Uri, ctx : Context, parseHtml: Boolean ) : Observable<CharSequence>
     {
         return Observable.create({ subscriber ->
             val htmlText = StringBuilder()
             try {
-                BufferedReader(FileReader(filePath)).use { br ->
+                BufferedReader(InputStreamReader(SFile(filePath).openInputStream(),"UTF-8")).use { br ->
 
                     while (true) {
                         val line = br.readLine()
@@ -60,13 +55,13 @@ object FileHelper {
     }
 
     @JvmStatic
-    fun writeFile(filePath : String, text : CharSequence) : Observable<Long>
+    fun writeFile(filePath : Uri, text : CharSequence) : Observable<Long>
     {
 
         return Observable.create<Long> {
-            val file = File(filePath)
+            val file = SFile(filePath)
             try {
-                val writer = FileWriter(file)
+                val writer = BufferedWriter(OutputStreamWriter(file.openOuptutStream(),"UTF-8"))
                 writer.append(text)
                 writer.flush()
                 writer.close()
@@ -82,6 +77,7 @@ object FileHelper {
 
     }
 
+    @Deprecated("this has been superseeded by SFile.rename, which works with directories that contain files")
     @JvmStatic
     fun directoryMove(oldRootDir: File, newRootDir: File): Boolean {
         var result = true
@@ -140,70 +136,6 @@ object FileHelper {
         val newFile = File(newDir,oldFile.name);
         res = res && oldFile.renameTo(newFile);
         return res
-    }
-
-    /**
-     * check without requesting permission
-     */
-    @JvmStatic
-    fun checkFilePermission(context: Context) : Boolean
-    {
-
-
-        val permRes = ContextCompat.checkSelfPermission(context,Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if(Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED)
-        {
-            log.d("getExternalStorageState() != MEDIA_MOUNTED");
-            return false;
-        }
-
-        if(Pref.isInternalStorage) {
-            return true
-        }
-
-        val res = permRes == PackageManager.PERMISSION_GRANTED
-        if(!res)
-        {
-            log.d("Permission WRITE_EXTERNAL_STORAGE not granted");
-        }
-        return res;
-    }
-
-    /**
-     * checks write permission and sd card mount state
-     * and invokes the callback when evertything is true
-     */
-    @JvmStatic
-    fun requestFilePermission(activity: Activity, onSuccess: () -> Unit, onFailure : () -> Unit = {})
-    {
-
-        val permissionRequest = RxPermissions(activity).request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-
-       permissionRequest.subscribe({
-
-           if(it) {
-
-
-                if(Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED)
-                {
-                    onSuccess();
-                }
-                else
-                {
-                    onFailure();
-                    log.d("getExternalStorageState() != MEDIA_MOUNTED");
-
-                }
-            }
-            else
-            {
-                onFailure();
-                log.d("Permission WRITE_EXTERNAL_STORAGE not granted");
-            }
-        }, {
-            log.e("exception in RxPermissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE)", it);
-            onFailure();
-        });
     }
 
 }

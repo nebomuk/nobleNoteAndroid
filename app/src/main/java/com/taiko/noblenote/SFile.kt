@@ -6,17 +6,31 @@ import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
-import com.commonsware.cwac.document.DocumentFileCompat
 import com.taiko.noblenote.Pref.rootPath
 import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 import java.text.Collator
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 
 
 class SFile {
 
-    val doc : DocumentFile
+    private val log = loggerFor();
+
+    val nameWithoutExtension: String get()
+    {
+        return File(name).nameWithoutExtension
+    }
+
+
+    private var doc : DocumentFile
+
+    private var parentDoc : DocumentFile? = null;
+
+    private var proposedFileName : String? = null
 
     val uri : Uri get() {
         val u =  doc.uri
@@ -40,7 +54,17 @@ class SFile {
     constructor(parent: SFile, filename: String) {
 
         val foundFile = parent.doc.findFile(filename);
-        doc = foundFile!!;
+        if(foundFile != null)
+        {
+            parentDoc = parent.doc;
+            doc = foundFile;
+            cachedDoc.add(doc);
+        }
+        else
+        {
+            doc = parent.doc;
+            proposedFileName = filename;
+        }
     }
 
     constructor(document : DocumentFile)
@@ -56,6 +80,7 @@ class SFile {
 
     }
 
+    @Deprecated("replaced by DocumentFile.name")
     private fun displayName(uri: Uri): String {
         val mCursor: Cursor = MainApplication.getInstance().contentResolver.query(uri, null, null, null, null)!!
         val indexedname = mCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
@@ -67,11 +92,13 @@ class SFile {
 
     val name: String
         get() {
-            return displayName(uri);
+            setDocumentToProposedIfExists();
+            if(proposedFileName != null)
+            {
+                return proposedFileName.orEmpty();
+            }
+            return doc.name.orEmpty();
         }
-
-    val path: String
-        get() = uri.toString()
 
     fun toFile(): File {
         var filePath: String? = null
@@ -89,6 +116,13 @@ class SFile {
     }
 
     fun listFilesSorted(folders: Boolean): List<SFile> {
+
+        setDocumentToProposedIfExists()
+        if(proposedFileName != null)
+        {
+            return Collections.emptyList();
+        }
+
             //List<File> fileList = Arrays.asList(); // returns read only list, causes unsupported operation exceptions in adapter
             val fileList = ArrayList<SFile>()
             Collections.addAll(fileList, *this.listFiles())
@@ -96,6 +130,157 @@ class SFile {
 
             return fileList
         }
+
+    fun lastModified(): Long {
+        setDocumentToProposedIfExists()
+       if(proposedFileName != null)
+       {
+           return 0L;
+       }
+
+        return this.doc.lastModified();
+    }
+
+    fun exists() : Boolean {
+        setDocumentToProposedIfExists()
+        if(proposedFileName != null)
+        {
+            return false;
+        }
+
+        return doc.exists();
+    }
+
+    private fun setDocumentToProposedIfExists()
+    {
+        if(proposedFileName != null)
+        {
+            var res = doc.findFile(proposedFileName!!);
+            if(res != null)
+            {
+                parentDoc = doc;
+                doc = res;
+                proposedFileName = null;
+                cachedDoc.add(res);
+            }
+        }
+    }
+
+    fun mkdir() : Boolean {
+        if(proposedFileName == null)
+        {
+            log.v("mkdir() failed, proposed file is null")
+            return false; // the doc points to a file that exists
+        }
+        else
+        {
+            // doc points to a parent, try to create a directory
+            var res = doc.createDirectory(proposedFileName!!);
+            if(res == null)
+            {
+                log.v("mkdir failed, DocumentFile.createDirectory returned null")
+                return false;
+            }
+            else
+            {
+                parentDoc = doc;
+                doc = res;
+                proposedFileName = null;
+                cachedDoc.add(doc);
+                return true;
+            }
+        }
+    }
+
+    val isDirectory : Boolean  get()
+    {
+        setDocumentToProposedIfExists();
+        if(proposedFileName != null)
+        {
+            return false;
+        }
+        return doc.isDirectory;
+    }
+
+    val isFile : Boolean  get()
+    {
+        setDocumentToProposedIfExists();
+        if(proposedFileName != null)
+        {
+            return false;
+        }
+        return !doc.isDirectory;
+    }
+
+    /***
+     * renames files and folders, works on folders with contents.
+     */
+    fun renameTo(newName : String): Boolean {
+        setDocumentToProposedIfExists();
+        if(proposedFileName != null)
+        {
+            log.v("renameTo failed, file does not exist");
+            return false;
+        }
+        return doc.renameTo(newName);
+
+    }
+
+    fun openInputStream() : InputStream {
+        // TODO create proposed file if it does not exist
+        return MainApplication.getInstance().getContentResolver().openInputStream(doc.uri)!!
+    }
+
+    fun openOuptutStream() : OutputStream {
+        // TODO create proposed file if it does not exist
+        return MainApplication.getInstance().getContentResolver().openOutputStream(doc.uri)!!
+    }
+
+    fun createNewFile(): Boolean {
+        setDocumentToProposedIfExists();
+        if(proposedFileName != null)
+        {
+            var res = doc.createFile("text", proposedFileName!!);
+            if(res != null)
+            {
+                parentDoc = doc;
+                doc = res;
+                return true;
+            }
+            else
+            {
+                log.v("could not create file, DocumentFile.createFile returned null")
+                return false;
+            }
+        }
+        log.v("Could not create file, file already exists");
+        return false;
+    }
+
+    val parentFile : SFile get() {
+        if(parentDoc == null)
+        {
+            if(this.doc.parentFile != null)
+            {
+                return SFile(doc.parentFile!!);
+            }
+            else if(doc.uri.equals(rootUri))
+            {
+                throw UnsupportedOperationException("parentFile cannot be accessed because this file is already the root of the document tree");
+            }
+            else
+            {
+                // some hacky attempts to reconstruct parent files exist, see
+                // https://stackoverflow.com/questions/33909305/construct-uri-for-android-5-0-documentfile-from-action-open-document-tree-root-u
+                // or getParentDocument https://github.com/rcketscientist/DocumentActivity/blob/master/library/src/main/java/com/anthonymandra/framework/UsefulDocumentFile.java
+                throw UnsupportedOperationException("parentFile could not be found");
+            }
+        }
+        else
+        {
+            return SFile(parentDoc!!);
+        }
+    }
 
     companion object
     {

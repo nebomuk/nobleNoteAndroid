@@ -22,8 +22,6 @@ import kotlinx.android.synthetic.main.toolbar.*
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
 import rx.subscriptions.Subscriptions
-import java.io.File
-import com.taiko.noblenote.SFile;
 
 
 class MainActivity : Activity()
@@ -86,29 +84,8 @@ class MainActivity : Activity()
 
 
 
-        if(Pref.isInternalStorage)
-        {
-            setupUi();
-        }
-        else
-        {
-            if(FileHelper.checkFilePermission(this))
-            {
-                setupUi();
-            }
-            else if(Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED && !Pref.isInternalStorage)
-            {
-                Snackbar.make(coordinator_layout,getString(R.string.msg_external_storage_not_mounted) + " "
-                        + getString(R.string.msg_switching_internal_storage), Snackbar.LENGTH_LONG);
-                Pref.rootPath.onNext(Pref.fallbackRootPath);
 
-                setupUi();
-            }
-            else
-            {
-                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), mPermissionRequestCode);
-            }
-        }
+        setupUi();
 
         val intentFilter = IntentFilter(Intent.ACTION_MEDIA_REMOVED);
         intentFilter.addAction(Intent.ACTION_MEDIA_EJECT);
@@ -135,7 +112,7 @@ class MainActivity : Activity()
         fragmentManager.beginTransaction().replace(R.id.item_master_container, FolderListFragment()).commit()
 
         val app = application as MainApplication
-        mCompositeSubscription += app.eventBus.fileSelected.mergeWith(app.eventBus.createFileClick).subscribe { startNoteEditor(this,it.toFile(), EditorActivity.READ_WRITE) }
+        mCompositeSubscription += app.eventBus.fileSelected.mergeWith(app.eventBus.createFileClick).subscribe { startNoteEditor(this,it, EditorActivity.READ_WRITE) }
 
 
 
@@ -144,12 +121,12 @@ class MainActivity : Activity()
             fab_menu.setClosedOnTouchOutside(true)
 
             mCompositeSubscription += fab_menu_note.clicks().subscribe {
-                Dialogs.showNewNoteDialog(this.coordinator_layout) {app.eventBus.createFileClick.onNext(it.toSFile())}
+                Dialogs.showNewNoteDialog(this.coordinator_layout) {app.eventBus.createFileClick.onNext(it)}
                 fab_menu.close(true);
             }
 
             mCompositeSubscription += fab_menu_folder.clicks().subscribe {
-                Dialogs.showNewFolderDialog(this.coordinator_layout,{app.eventBus.createFolderClick.onNext(it.toSFile())})
+                Dialogs.showNewFolderDialog(this.coordinator_layout,{app.eventBus.createFolderClick.onNext(it)})
                 fab_menu.close(true);
             }
         }
@@ -158,11 +135,11 @@ class MainActivity : Activity()
             mCompositeSubscription += fab.clicks().subscribe {
                 if(fragmentManager.backStackEntryCount > 0)
                 {
-                    Dialogs.showNewNoteDialog(coordinator_layout, {app.eventBus.createFileClick.onNext(it.toSFile())})
+                    Dialogs.showNewNoteDialog(coordinator_layout, {app.eventBus.createFileClick.onNext(it)})
                 }
                 else
                 {
-                    Dialogs.showNewFolderDialog(coordinator_layout, {app.eventBus.createFolderClick.onNext(it.toSFile())})
+                    Dialogs.showNewFolderDialog(coordinator_layout, {app.eventBus.createFolderClick.onNext(it)})
                 }
             }
         }
@@ -229,15 +206,10 @@ class MainActivity : Activity()
 
         @JvmStatic
                 // start the note editor
-        fun startNoteEditor(activity : Context, file: File, argOpenMode : String, argQueryText : String = "") {
-            if(!file.isFile)
-            {
-                log.w("startNoteEditor failed: $file is not a file");
-                return
-            }
+        fun startNoteEditor(activity : Context, file: SFile, argOpenMode : String, argQueryText : String = "") {
 
             val intent = Intent(activity, EditorActivity::class.java)
-            intent.putExtra(EditorActivity.ARG_FILE_PATH, file.path)
+            intent.putExtra(EditorActivity.ARG_NOTE_URI, file.uri.toString())
             intent.putExtra(EditorActivity.ARG_OPEN_MODE, argOpenMode)
             intent.putExtra(EditorActivity.ARG_QUERY_TEXT,argQueryText);
             activity.startActivity(intent);
