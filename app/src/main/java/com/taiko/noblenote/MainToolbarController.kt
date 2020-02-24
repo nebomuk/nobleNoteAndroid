@@ -12,7 +12,6 @@ import com.jakewharton.rxbinding.view.clicks
 import com.miguelcatalan.materialsearchview.MaterialSearchView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.toolbar.*
-import org.w3c.dom.Document
 import rx.Subscription
 import rx.lang.kotlin.plusAssign
 import rx.schedulers.Schedulers

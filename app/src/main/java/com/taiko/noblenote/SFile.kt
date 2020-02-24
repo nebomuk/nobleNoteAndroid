@@ -1,14 +1,14 @@
 package com.taiko.noblenote
 
+import android.content.ContentResolver
 import android.database.Cursor
 import android.net.Uri
+import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
-import com.commonsware.cwac.document.DocumentFileCompat
 import com.taiko.noblenote.Pref.rootPath
-import org.w3c.dom.Document
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -28,9 +28,9 @@ class SFile {
     }
 
 
-    var doc : DocumentFileCompat
+    var doc : IDocumentFile
 
-    private var parentDoc : DocumentFileCompat? = null;
+    private var parentDoc : IDocumentFile? = null;
 
     private var proposedFileName : String? = null
 
@@ -69,7 +69,7 @@ class SFile {
         }
     }
 
-    constructor(document : DocumentFileCompat)
+    constructor(document : IDocumentFile)
     {
         doc = document;
     }
@@ -270,7 +270,7 @@ class SFile {
             {
                 return SFile(doc.parentFile!!);
             }
-            else if(doc.uri.equals(rootUri))
+            else if(doc.uri == rootUri)
             {
                 throw UnsupportedOperationException("parentFile cannot be accessed because this file is already the root of the document tree");
             }
@@ -291,22 +291,22 @@ class SFile {
     companion object
     {
 
-    private fun toDocumentFile(uri : Uri) : DocumentFileCompat
+    private fun toDocumentFile(uri : Uri) : IDocumentFile
     {
         if(SFile.cachedDoc.any { it.uri == uri })
                 {
                     return cachedDoc.first { it.uri == uri }
                 }
 
-        var doc : DocumentFileCompat
+        var doc : IDocumentFile
 
         if(uri.scheme == "file")
         {
-            doc =  DocumentFileCompat.fromFile(File(uri.path));
+            doc =  DocumentFileWrapper.fromFile(File(uri.path));
         }
         else if(uri.scheme == "content")
         {
-            doc = DocumentFileCompat.fromTreeUri(MainApplication.getInstance(),uri)!!;
+            doc = DocumentFileFast.fromTreeUri(MainApplication.getInstance(),uri)!!;
         }
         else
         {
@@ -318,20 +318,20 @@ class SFile {
 
 
     }
-        private val cachedDoc : HashSet<DocumentFileCompat> = HashSet();
+        private val cachedDoc : HashSet<IDocumentFile> = HashSet();
     }
 
 }
 
-fun DocumentFileCompat.openInputStream(): InputStream {
+fun IDocumentFile.openInputStream(): InputStream {
     return MainApplication.getInstance().contentResolver.openInputStream(this.uri)!!;
 }
 
-fun DocumentFileCompat.openOutputStream(): OutputStream {
+fun IDocumentFile.openOutputStream(): OutputStream {
     return MainApplication.getInstance().contentResolver.openOutputStream(this.uri)!!
 }
 
 public fun File.toSFile(): SFile {
-    val uri = DocumentFileCompat.fromFile(this).uri;
+    val uri = DocumentFileWrapper.fromFile(this).uri;
     return SFile(uri);
 }

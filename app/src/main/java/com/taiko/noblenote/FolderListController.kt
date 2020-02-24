@@ -8,10 +8,12 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import kotlinx.android.synthetic.main.fragment_file_list.view.*
 import kotlinx.android.synthetic.main.toolbar.*
+import rx.android.schedulers.AndroidSchedulers
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
 import java.io.File
 import java.io.FileFilter
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by taiko
@@ -94,7 +96,7 @@ class FolderListController(private var fragment: Fragment, view: View) {
 
         mCompositeSubscription += app.eventBus.swipeRefresh.subscribe {
             if (fragment != null) {
-                recyclerFileAdapter.refresh(fragment.activity)
+                recyclerFileAdapter.refresh()
             }
         };
     }
@@ -117,9 +119,12 @@ class FolderListController(private var fragment: Fragment, view: View) {
 
     fun onStart()
     {
-        mCompositeSubscription += Pref.rootPath.subscribe {
+        mCompositeSubscription += Pref.rootPath
+                .throttleLast(2,TimeUnit.SECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
             recyclerFileAdapter.path = SFile(it);
-            recyclerFileAdapter.refresh(fragment.activity); }
+            recyclerFileAdapter.refresh(); }
     }
 
     fun onDestroyView()

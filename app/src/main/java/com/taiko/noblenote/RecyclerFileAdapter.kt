@@ -122,15 +122,9 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
     get() =  mFiles.indexOfFirst { it.isSelectedFolder }
 
     // reloads the file list by adding, removing files from the observable file list
-    fun refresh(context: Context)
+    fun refresh()
     {
-        if(context == null)
-        {
-            log.w("RecyclerFileAdapter.refresh failed: argument context is null");
-            return;
-        }
-
-            val newFileList = path.listFilesSorted(false);
+        val newFileList = path.listFilesSorted(false);
             // add files that arent contained in the list
             for (newFile in newFileList) {
                 if (!mFiles.any { it.file.name == newFile.name }) {

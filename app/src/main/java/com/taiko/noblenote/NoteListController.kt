@@ -90,7 +90,7 @@ class NoteListController(private var fragment: Fragment, view: View)
         mCompositeSubscription += app.eventBus.swipeRefresh.subscribe( {
             if(fragment.activity != null)
             {
-                recyclerFileAdapter.refresh(fragment.activity)
+                recyclerFileAdapter.refresh()
             }
         },
                 {
@@ -109,7 +109,7 @@ class NoteListController(private var fragment: Fragment, view: View)
 
     fun onStart()
     {
-        recyclerFileAdapter.refresh(fragment.activity);
+        recyclerFileAdapter.refresh();
     }
 
     fun onDestroyView()
