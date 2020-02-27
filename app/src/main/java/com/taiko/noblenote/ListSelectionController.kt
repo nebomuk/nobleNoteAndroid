@@ -67,14 +67,14 @@ class ListSelectionController(private val activity: MainActivity, private val ad
 
         // remove files from the fs with undo snackbar
         mCompositeDisposable += mFileActionModeCallback.onRemove.subscribe {
-            val selectedFiles = ArrayList<File>(adapter.selectedFiles.map { it.toFile() }) // shallow copy
+            val selectedFiles = ArrayList<SFile>(adapter.selectedFiles.map { it  }) // shallow copy
             UndoHelper.remove(selectedFiles,activity.coordinator_layout,  onUndo = {selectedFiles.forEach { adapter.addFileName(it.name) }})
             adapter.removeSelected()
             mActionMode?.finish()
         }
 
         mCompositeDisposable += mFileActionModeCallback.onCut.subscribe {
-            FileClipboard.cutFiles(adapter.selectedFiles.map { it.toFile() }) // warning: Singleton causes memory leak when listener not disposed
+            FileClipboard.cutFiles(adapter.selectedFiles.map { it }) // warning: Singleton causes memory leak when listener not disposed
             Snackbar.make(activity.coordinator_layout,activity.getString(R.string.msg_n_notes_in_clipboard,adapter.selectedFiles.size), Snackbar.LENGTH_SHORT).show();
             adapter.clearSelection();
             mActionMode?.finish()

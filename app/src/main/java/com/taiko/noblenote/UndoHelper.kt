@@ -22,11 +22,11 @@ object UndoHelper {
      *  remove files from the fs with undo snackbar and a callback when the undo action has been executed
       */
     @JvmStatic
-    fun remove(files: List<File>, snackbarRootView: View, onUndo: () -> Unit) {
+    fun remove(files: List<SFile>, snackbarRootView: View, onUndo: () -> Unit) {
 
         val cacheDir = if (Pref.isInternalStorage) snackbarRootView.context.cacheDir else snackbarRootView.context.externalCacheDir
-        val tempDir = createTempDir(directory = cacheDir)
-
+        val tempDir = SFile(SFile(Pref.rootPath.toString()), ".TempTrash0111");
+        tempDir.mkdir()
         files.toObservable()
                 .subscribeOn(Schedulers.io())
                 .subscribe(
@@ -34,10 +34,11 @@ object UndoHelper {
                         {
                             var res = false
                             if (it.isDirectory) {
-                                res = FileHelper.directoryMove(it, File(tempDir, it.name))
+                                TODO("deleting directories is not implemented")
+                                //res = FileHelper.directoryMove(it.toFile(), File(tempDir, it.name))
 
                             } else if (it.isFile) {
-                                res = FileHelper.fileMoveWithParent(it, tempDir)
+                                res = FileHelper.fileMoveWithParent(it.toFile(), tempDir.toFile())
                             }
 
                             if(!res)
@@ -63,7 +64,7 @@ object UndoHelper {
                                                                     // onNext
                                                                     {
                                                                         // move the files back to its original destination
-                                                                        val b = FileHelper.directoryMove(tempDir, File(Pref.rootPath.value))
+                                                                        val b = FileHelper.directoryMove(tempDir.toFile(), File(Pref.rootPath.value))
                                                                         if(!b)
                                                                         {
                                                                             log.d("Could not move temporarily removed directory $tempDir back to original destination");

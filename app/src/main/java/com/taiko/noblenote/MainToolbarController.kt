@@ -87,7 +87,7 @@ class MainToolbarController(val activity: MainActivity) {
         item.isEnabled = FileClipboard.hasContent && !folderPath.isEmpty();
 
         return item.clicks().subscribe {
-            if(!FileClipboard.pasteContentIntoFolder(File(folderPath)))
+            if(!FileClipboard.pasteContentIntoFolder(SFile(folderPath)))
             {
                 Snackbar.make(activity.coordinator_layout,R.string.msg_paste_error, Snackbar.LENGTH_LONG).show();
             }
@@ -141,8 +141,12 @@ class MainToolbarController(val activity: MainActivity) {
                     //noinspection WrongConstant
                     activity.contentResolver.takePersistableUriPermission(uri!!, takeFlags)
 
-                    Pref.rootPath.onNext(SFile(uri).uri.toString());
-                    Snackbar.make(activity.coordinator_layout, activity.getString(R.string.msg_directory_selected) + " " + Pref.rootPath.value, Snackbar.LENGTH_LONG).show();
+                    if(uri != Uri.parse(Pref.rootPath.toString()))
+                    {
+                        SFile.clearCache();
+                        Pref.rootPath.onNext(SFile(uri).uri.toString());
+                    }
+                    Snackbar.make(activity.coordinator_layout, activity.getString(R.string.msg_directory_selected) + " " + SFile(Pref.rootPath.value).uri.path, Snackbar.LENGTH_LONG).show();
 
                 }
             }

@@ -96,6 +96,7 @@ class FolderListController(private var fragment: Fragment, view: View) {
 
         mCompositeSubscription += app.eventBus.swipeRefresh.subscribe {
             if (fragment != null) {
+                SFile.invalidateAllFileListCaches();
                 recyclerFileAdapter.refresh()
             }
         };
@@ -120,9 +121,11 @@ class FolderListController(private var fragment: Fragment, view: View) {
     fun onStart()
     {
         mCompositeSubscription += Pref.rootPath
-                .throttleLast(2,TimeUnit.SECONDS)
+                .throttleLast(500,TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
+
+                    SFile.invalidateAllFileListCaches();
             recyclerFileAdapter.path = SFile(it);
             recyclerFileAdapter.refresh(); }
     }

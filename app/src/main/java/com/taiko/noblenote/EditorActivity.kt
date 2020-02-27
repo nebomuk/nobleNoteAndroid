@@ -42,34 +42,6 @@ class EditorActivity : Activity() {
 
     private lateinit var  mFindInTextToolbarController: FindInTextToolbarController
 
-    private val mPermissionRequestCode = 0xEA;
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        if(requestCode != mPermissionRequestCode)
-        {
-            return;
-        }
-
-        if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-            log.d( " permission granted, reloading file");
-            // permission was granted
-            reload()
-
-        } else {
-
-            log.d( " permission denied, finish() and setting root path to internal storage");
-            // permission denied
-            Toast.makeText(this, R.string.msg_external_storage_permission_denied, Toast.LENGTH_SHORT).show();
-            Pref.rootPath.onNext(Pref.fallbackRootPath);
-            editor_edit_text.isModified = false; // avoid attempts so save the file in onStop
-            finish(); // permission denied or sd not mounted, finish editor activity and show the empty file list of the parent activity
-        }
-        return;
-    }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         //requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
@@ -110,18 +82,6 @@ class EditorActivity : Activity() {
 
 
         mFindInTextToolbarController = FindInTextToolbarController(this);
-
-        val intentFilter = IntentFilter(Intent.ACTION_MEDIA_REMOVED);
-        intentFilter.addAction(Intent.ACTION_MEDIA_EJECT);
-
-        // switch to internal storage when sd unmounted
-        mCompositeSubscription += RxBroadcastReceiver.create(this, intentFilter).filter { !Pref.isInternalStorage }.subscribe {
-            Toast.makeText(this,getString(R.string.msg_external_storage_not_mounted) + " "
-                    + getString(R.string.msg_switching_internal_storage), Toast.LENGTH_LONG).show();
-            editor_edit_text.isModified = false; // avoid attempts so save the file in onStop
-            Pref.rootPath.onNext(Pref.fallbackRootPath);
-            finish();
-        }
 
 
     }

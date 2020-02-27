@@ -3,7 +3,6 @@ package com.taiko.noblenote
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
 import com.chibatching.kotpref.KotprefModel
-import com.commonsware.cwac.document.DocumentFileCompat
 import rx.lang.kotlin.BehaviorSubject
 import rx.subjects.BehaviorSubject
 import java.io.File
@@ -35,7 +34,9 @@ object Pref : KotprefModel()
     init {
         // update backing prefs
         currentFolderPath.subscribe { mCurrentFolderPath = it }
-        rootPath.subscribe { mRootPath = it }
+        rootPath.subscribe {
+            mRootPath = it
+        }
     }
 
 }

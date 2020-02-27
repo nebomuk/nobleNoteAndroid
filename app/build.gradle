@@ -53,9 +53,13 @@ repositories {
 
 
 dependencies {
-    compile 'androidx.appcompat:appcompat:1.0.0'
-    compile 'androidx.recyclerview:recyclerview:1.0.0'
-    compile 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'com.google.android.material:material:1.1.0'
+    implementation 'androidx.documentfile:documentfile:1.0.1'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
+
+
     compile 'org.ccil.cowan.tagsoup:tagsoup:1.2.1'
     compile 'io.reactivex:rxjava:1.2.5'
     compile 'io.reactivex:rxandroid:1.2.1'
@@ -72,9 +76,7 @@ dependencies {
     compile 'net.yanzm:actionbarprogress:1.0.0'
     compile 'com.miguelcatalan:materialsearchview:1.4.0'
     compile 'com.afollestad:material-cab:0.1.12'
-    implementation 'com.commonsware.cwac:document:0.4.1'
 
-    implementation 'androidx.documentfile:documentfile:1.0.1'
 
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.1'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'

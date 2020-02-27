@@ -1,9 +1,10 @@
-package com.taiko.noblenote
+package com.taiko.noblenote.Document
 
 import android.content.Context
 import android.net.Uri
 
 interface IDocumentFile {
+
     val parentFile: IDocumentFile?
     val uri: Uri
     val name: String?
@@ -23,5 +24,6 @@ interface IDocumentFile {
     fun listFiles(): List<IDocumentFile>
     fun renameTo(displayName: String): Boolean
     fun findFile(displayName: String): IDocumentFile?
+    fun move(targetParentDocumentUri : Uri) : Boolean
 
 }

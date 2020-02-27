@@ -6,13 +6,11 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
-import com.google.android.material.snackbar.Snackbar
-import androidx.core.app.ActivityCompat
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import android.transition.Fade
 import android.view.View
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding.view.clicks
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main_twopane.fab_menu
@@ -32,34 +30,7 @@ class MainActivity : Activity()
 
     private val mCompositeSubscription = CompositeSubscription()
     private var mMainToolbarController: MainToolbarController? = null
-    private val mPermissionRequestCode = 0xA;
 
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-
-        if(requestCode != 0xA)
-        {
-            return;
-        }
-
-        if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-            log.d(" permission granted");
-            // permission was granted
-            setupUi();
-
-        } else {
-
-            log.d(" permission denied, setting root path to internal storage");
-
-            Snackbar.make(coordinator_layout, getString(R.string.msg_external_storage_permission_denied) + " "
-                    + getString(R.string.msg_switching_internal_storage), Snackbar.LENGTH_LONG).show();
-            Pref.rootPath.onNext(Pref.fallbackRootPath);
-            setupUi();
-        }
-        return;
-
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(null) // do not save instance state because we create fragments manually with updates filesystem state
@@ -83,23 +54,7 @@ class MainActivity : Activity()
         //        setSupportActionBar(toolbar) // required to make styling working, activity options menu callbacks now have to be used
 
 
-
-
         setupUi();
-
-        val intentFilter = IntentFilter(Intent.ACTION_MEDIA_REMOVED);
-        intentFilter.addAction(Intent.ACTION_MEDIA_EJECT);
-
-        // switch to internal storage when sd unmounted
-        mCompositeSubscription += RxBroadcastReceiver.create(this, intentFilter).filter { !Pref.isInternalStorage }.subscribe {
-
-
-            Snackbar.make(coordinator_layout,getString(R.string.msg_external_storage_not_mounted) + " "
-             + getString(R.string.msg_switching_internal_storage), Snackbar.LENGTH_LONG).show();
-            Pref.rootPath.onNext(Pref.fallbackRootPath);
-            setupUi();
-        }
-
     }
 
 

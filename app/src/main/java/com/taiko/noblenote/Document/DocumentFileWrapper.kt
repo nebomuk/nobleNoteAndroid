@@ -1,12 +1,15 @@
-package com.taiko.noblenote
+package com.taiko.noblenote.Document
 
-import android.content.Context
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
+import com.taiko.noblenote.loggerFor
 import java.io.File
+import java.lang.Exception
 
 class DocumentFileWrapper : IDocumentFile {
 
+
+    val log = loggerFor();
 
     private val documentFile: DocumentFile
 
@@ -96,6 +99,38 @@ class DocumentFileWrapper : IDocumentFile {
             return null;
         }
         return DocumentFileWrapper(res);
+    }
+
+    private fun getFile() : File
+    {
+        val mFileField = documentFile.javaClass.getDeclaredField("mFile")
+        mFileField.isAccessible = true;
+        val res = mFileField.get(documentFile) as File
+        return res;
+    }
+
+
+    override fun move(targetParentDocumentUri: Uri): Boolean
+    {
+        val targetDir = File(targetParentDocumentUri.path);
+
+        if(!targetDir.isDirectory)
+        {
+            log.d("move failed: targetDir $targetDir is not a directory");
+            return false;
+        }
+
+        var origFile: File
+        try {
+             origFile = getFile();
+        }
+        catch (e : Exception)
+        {
+            log.w("move failed: failed to get private mFile field from androidx.documentfile.provider.DocumentFile, attempting to convert uri to file",e);
+
+            origFile = File(documentFile.uri.path);
+        }
+        return origFile.renameTo(File(targetDir,origFile.name));
     }
 
     companion object {

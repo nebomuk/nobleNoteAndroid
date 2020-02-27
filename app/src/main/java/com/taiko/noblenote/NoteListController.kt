@@ -109,6 +109,7 @@ class NoteListController(private var fragment: Fragment, view: View)
 
     fun onStart()
     {
+        SFile.invalidateAllFileListCaches();
         recyclerFileAdapter.refresh();
     }
 

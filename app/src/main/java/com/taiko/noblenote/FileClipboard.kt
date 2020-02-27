@@ -16,42 +16,43 @@ object FileClipboard {
 
     private val log = loggerFor();
 
-    private val cutFileList : MutableList<File> = java.util.ArrayList<File>();
+    private val cutFileList : MutableList<SFile> = java.util.ArrayList();
 
     val hasContent: Boolean
         get() = !cutFileList.isEmpty()
 
-    var contentOriginFolder: String = ""
+    var contentOriginFolder: SFile? = null
         private  set
 
     val pastedFileNames: Observable<List<String>> = PublishSubject();
 
-    fun pasteContentIntoFolder(targetFolderPath: File ) : Boolean
+    fun pasteContentIntoFolder(targetFolderPath: SFile ) : Boolean
     {
         log.v("pasteContentIntoFolder targetFolderPath: $targetFolderPath");
 
 
         if(!targetFolderPath.isDirectory)
         {
-            log.w("paste failed: targetFolderPath is not a directory: " + targetFolderPath.absoluteFile);
+            log.w("paste failed: targetFolderPath is not a directory: ${targetFolderPath.uri}");
             return false;
         }
 
         var result = true;
-        for (cutFile : File in cutFileList)
+        for (cutFile : SFile in cutFileList)
         {
-            result = result && FileHelper.fileMoveToFolder(cutFile, targetFolderPath);
+
+            result = result &&  cutFile.move(targetFolderPath.uri);
         }
         if(result)
         {
             (pastedFileNames as (rx.subjects.PublishSubject<List<String>>)).onNext(cutFileList.map { it.name });
             cutFileList.clear();
-            contentOriginFolder = "";
+            contentOriginFolder = null;
         }
         return result;
     }
 
-    fun cutFiles(files : List<File>)
+    fun cutFiles(files : List<SFile>)
     {
         cutFileList.clear();
         cutFileList.addAll(files);
@@ -60,7 +61,7 @@ object FileClipboard {
 
         if(!files.isEmpty())
         {
-            contentOriginFolder = files.first().parent;
+            contentOriginFolder = files.first().parentFile;
             log.v("ContentOriginFolder: $contentOriginFolder");
         }
     }

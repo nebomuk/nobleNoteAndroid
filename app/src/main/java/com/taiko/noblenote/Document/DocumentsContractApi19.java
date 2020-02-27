@@ -1,4 +1,4 @@
-package com.taiko.noblenote;
+package com.taiko.noblenote.Document;
 
 import android.content.ContentResolver;
 import android.content.Context;

@@ -1,13 +1,14 @@
 package com.taiko.noblenote
 
-import android.content.ContentResolver
+import android.content.Context
 import android.database.Cursor
 import android.net.Uri
-import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Log
-import androidx.documentfile.provider.DocumentFile
+import com.taiko.noblenote.Document.DocumentFileFast
+import com.taiko.noblenote.Document.DocumentFileWrapper
+import com.taiko.noblenote.Document.IDocumentFile
 import com.taiko.noblenote.Pref.rootPath
 import java.io.File
 import java.io.InputStream
@@ -26,7 +27,6 @@ class SFile {
     {
         return File(name).nameWithoutExtension
     }
-
 
     var doc : IDocumentFile
 
@@ -106,7 +106,7 @@ class SFile {
         var filePath: String? = null
         Log.d("", "URI = $uri")
         if ("content" == uri.scheme) {
-            val cursor: Cursor = MainApplication.getInstance().getContentResolver().query(uri, arrayOf(MediaStore.Images.ImageColumns.DATA), null, null, null)!!
+            val cursor: Cursor = MainApplication.getInstance().contentResolver.query(uri, arrayOf(MediaStore.Images.ImageColumns.DATA), null, null, null)!!
             cursor.moveToFirst()
             filePath = cursor.getString(0)
             cursor.close()
@@ -232,6 +232,22 @@ class SFile {
 
     }
 
+    fun move(targetParent : Uri) : Boolean
+    {
+        setDocumentToProposedIfExists();
+        if(proposedFileName != null)
+        {
+            log.v("move failed, file does not exist");
+            return false;
+        }
+        val moved =  doc.move(targetParent);
+        if(moved && doc.parentFile is DocumentFileFast)
+        {
+            invalidateAllFileListCaches();
+        }
+        return moved;
+    }
+
     fun openInputStream() : InputStream {
         // TODO create proposed file if it does not exist
         return doc.openInputStream();
@@ -261,6 +277,10 @@ class SFile {
         }
         log.v("Could not create file, file already exists");
         return false;
+    }
+
+    fun deleteRecursively(): Boolean {
+        TODO("delete Recursively not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     val parentFile : SFile get() {
@@ -319,16 +339,42 @@ class SFile {
 
     }
         private val cachedDoc : HashSet<IDocumentFile> = HashSet();
+
+        // dangerous! should only be called when rootPath changed, because most of the logic depends on the cache
+        fun clearCache()
+        {
+            cachedDoc.clear();
+        }
+
+        fun invalidateAllFileListCaches() {
+            cachedDoc.forEach {
+                val fast = it as? DocumentFileFast;
+                fast?.invalidateFileListCache();
+            }
+        }
     }
 
 }
 
+
 fun IDocumentFile.openInputStream(): InputStream {
-    return MainApplication.getInstance().contentResolver.openInputStream(this.uri)!!;
+
+    if(this is DocumentFileFast)
+    {
+        return this.mContext.contentResolver.openInputStream(this.uri)!!;
+    }
+    val file = File(this.uri.path);
+    return file.inputStream();
+
 }
 
 fun IDocumentFile.openOutputStream(): OutputStream {
-    return MainApplication.getInstance().contentResolver.openOutputStream(this.uri)!!
+    if(this is DocumentFileFast)
+    {
+        return this.mContext.contentResolver.openOutputStream(this.uri)!!;
+    }
+    val file = File(this.uri.path);
+    return file.outputStream();
 }
 
 public fun File.toSFile(): SFile {

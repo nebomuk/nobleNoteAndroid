@@ -104,6 +104,7 @@ object FileHelper {
         return result
     }
 
+    @Deprecated("Use SFile api directly")
     @JvmStatic
     fun fileMoveToFolder(src : File, destFolder : File) : Boolean
     {
