@@ -4,7 +4,6 @@ import android.content.Context
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
-import java.io.File
 
 /**
  * displays suggestions in an input field by using full text search inside files and dirs in the app pref's root path with the given char sequence
@@ -16,16 +15,8 @@ class SuggestionAdapter constructor(context: Context, queryTextObservable: Obser
     init {
         setNotifyOnChange(false)
 
+        FindInFiles.findInFiles(SFile(Pref.rootPath.value),queryTextObservable)
 
-        queryTextObservable
-                .switchMap {
-
-                    val queryText = it;
-                    FindInFiles.findHtmlInFiles(SFile(Pref.rootPath.value), queryText)
-                            .compose(MapWithIndex.instance())
-                            .subscribeOn(Schedulers.io())
-                            .concatWith(Observable.never()) // never complete
-                }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     if(it.index() == 0L)

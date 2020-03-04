@@ -102,6 +102,7 @@ class SFile {
             return doc.name.orEmpty();
         }
 
+    @Deprecated("this will be removed when not longer used")
     fun toFile(): File {
         var filePath: String? = null
         Log.d("", "URI = $uri")
@@ -280,7 +281,7 @@ class SFile {
     }
 
     fun deleteRecursively(): Boolean {
-        TODO("delete Recursively not implemented") //To change body of created functions use File | Settings | File Templates.
+        return doc.delete()
     }
 
     val parentFile : SFile get() {
@@ -340,17 +341,20 @@ class SFile {
     }
         private val cachedDoc : HashSet<IDocumentFile> = HashSet();
 
-        // dangerous! should only be called when rootPath changed, because most of the logic depends on the cache
-        fun clearCache()
-        {
-            cachedDoc.clear();
-        }
 
         fun invalidateAllFileListCaches() {
             cachedDoc.forEach {
                 val fast = it as? DocumentFileFast;
                 fast?.invalidateFileListCache();
             }
+        }
+
+        /*
+         * dangerous! should only be called when rootPath changed, because most of the logic depends on the cache
+         */
+        fun clearGlobalDocumentCache()
+        {
+            cachedDoc.clear();
         }
     }
 

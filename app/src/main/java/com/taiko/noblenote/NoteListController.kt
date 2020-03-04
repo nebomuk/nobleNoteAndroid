@@ -9,7 +9,6 @@ import rx.android.schedulers.AndroidSchedulers
 import rx.lang.kotlin.plusAssign
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
-import java.io.File
 import java.io.FileFilter
 
 class NoteListController(private var fragment: Fragment, view: View)
@@ -41,7 +40,7 @@ class NoteListController(private var fragment: Fragment, view: View)
 
             val queryText = fragment.arguments.getString(NoteListFragment.ARG_QUERY_TEXT,"");
             if (!queryText.isNullOrBlank()) {
-                mCompositeSubscription += FindInFiles.findHtmlInFiles(SFile(Pref.rootPath.value),queryText)
+                mCompositeSubscription += FindInFiles.recursiveFullTextSearch(SFile(Pref.rootPath.value),queryText)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe( {

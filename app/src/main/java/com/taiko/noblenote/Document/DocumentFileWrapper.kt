@@ -77,7 +77,7 @@ class DocumentFileWrapper : IDocumentFile {
     }
 
     override fun delete(): Boolean {
-        return documentFile.delete()
+        return documentFile.delete() // underlying RawDocumentFile implementation deletes the contents recursively
     }
 
     override fun exists(): Boolean {

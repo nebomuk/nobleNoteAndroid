@@ -235,6 +235,13 @@ class EditorActivity : Activity() {
             undoItem.icon = draw
          }
 
+        mCompositeSubscription += mUndoRedo.canUndoChanged()
+                .filter {it }
+                .take(1)
+                .subscribe {
+            toolbar.title = toolbar.title.toString() + "*"; // modified indicator
+        }
+
         val redoItem = menu.add(R.string.action_redo)
                 .setIcon(R.drawable.ic_redo_black_24dp)
                 .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)

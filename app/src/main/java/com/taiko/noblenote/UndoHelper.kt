@@ -24,9 +24,14 @@ object UndoHelper {
     @JvmStatic
     fun remove(files: List<SFile>, snackbarRootView: View, onUndo: () -> Unit) {
 
-        val cacheDir = if (Pref.isInternalStorage) snackbarRootView.context.cacheDir else snackbarRootView.context.externalCacheDir
-        val tempDir = SFile(SFile(Pref.rootPath.toString()), ".TempTrash0111");
+        if(files.isEmpty())
+        {
+            return;
+        }
+
+        val tempDir = SFile(SFile(Pref.rootPath.value.toString()), ".TempTrash0111");
         tempDir.mkdir()
+        val originalFolder = files.first().parentFile;
         files.toObservable()
                 .subscribeOn(Schedulers.io())
                 .subscribe(
@@ -38,7 +43,7 @@ object UndoHelper {
                                 //res = FileHelper.directoryMove(it.toFile(), File(tempDir, it.name))
 
                             } else if (it.isFile) {
-                                res = FileHelper.fileMoveWithParent(it.toFile(), tempDir.toFile())
+                                res = it.move(tempDir.uri);
                             }
 
                             if(!res)
@@ -58,13 +63,13 @@ object UndoHelper {
                                                 if (event == DISMISS_EVENT_ACTION) // action undo
                                                 {
                                                     log.i("Undo Removing files")
-                                                    Observable.just(Unit)
+                                                    tempDir.listFiles().toObservable()
                                                             .subscribeOn(Schedulers.io())
                                                             .subscribe(
                                                                     // onNext
                                                                     {
                                                                         // move the files back to its original destination
-                                                                        val b = FileHelper.directoryMove(tempDir.toFile(), File(Pref.rootPath.value))
+                                                                        val b = it.move(originalFolder.uri);
                                                                         if(!b)
                                                                         {
                                                                             log.d("Could not move temporarily removed directory $tempDir back to original destination");
@@ -85,6 +90,7 @@ object UndoHelper {
                                                     // timeout/dimissed, remove the files permanently
                                                     Observable.just(Unit).subscribeOn(Schedulers.io()).subscribe {
                                                         val b = tempDir.deleteRecursively();
+                                                        SFile.invalidateAllFileListCaches()
                                                         if(!b)
                                                         {
                                                             log.d("Could not remove all files in $tempDir");

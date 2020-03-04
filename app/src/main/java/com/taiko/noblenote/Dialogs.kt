@@ -72,6 +72,7 @@ object Dialogs {
                                 Snackbar.make(layout, R.string.notCreatedNoteExists, Snackbar.LENGTH_LONG).show()
                             }
                             else if (newFile.createNewFile()) {
+                                // FIXME exception thrown
                                 fileCreated(newFile)
                             } else
                             // error occured

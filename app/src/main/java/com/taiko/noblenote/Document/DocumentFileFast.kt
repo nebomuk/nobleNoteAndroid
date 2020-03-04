@@ -120,7 +120,7 @@ public class DocumentFileFast : IDocumentFile {
         return try {
             mDisplayNameCached = false;
             DocumentsContract.deleteDocument(mContext.contentResolver, mUri)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             false
         }
     }

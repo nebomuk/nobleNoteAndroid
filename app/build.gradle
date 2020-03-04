@@ -61,6 +61,8 @@ dependencies {
 
 
     compile 'org.ccil.cowan.tagsoup:tagsoup:1.2.1'
+
+    // updating rx java to 3.0 requires testing on android 5.0
     compile 'io.reactivex:rxjava:1.2.5'
     compile 'io.reactivex:rxandroid:1.2.1'
     compile 'io.reactivex:rxkotlin:0.60.0'
@@ -68,7 +70,6 @@ dependencies {
     compile 'com.jakewharton.rxbinding:rxbinding-kotlin:0.4.0'
     compile 'com.jakewharton.rxbinding:rxbinding-appcompat-v7:0.4.0'
     compile 'com.jakewharton.rxbinding:rxbinding-appcompat-v7-kotlin:0.4.0'
-    compile 'com.tbruyelle.rxpermissions:rxpermissions:0.9.4@aar'
     compile 'com.github.VictorAlbertos:RxActivityResult:0.3.5'
     compile 'com.chibatching:kotpref:1.4.0'
     compile 'com.github.clans:fab:1.6.4'

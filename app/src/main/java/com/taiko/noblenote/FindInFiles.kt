@@ -1,8 +1,11 @@
 package com.taiko.noblenote
 
+import android.net.Uri
+import com.taiko.noblenote.Document.IDocumentFile
 import rx.Observable
 import rx.lang.kotlin.toObservable
 import rx.lang.kotlin.toSingletonObservable
+import rx.schedulers.Schedulers
 import java.io.File
 
 /**
@@ -10,11 +13,31 @@ import java.io.File
  */
 object FindInFiles {
 
+
+    @JvmStatic
+    fun findInFiles(file: SFile, queryTextObservable : Observable<CharSequence>): Observable<MapWithIndex.Indexed<SFile>> {
+        val obs = queryTextObservable
+                .switchMap {
+
+                    val queryText = it;
+                    val searchRes = recursiveFullTextSearch(file, queryText);
+
+
+
+                    searchRes.compose(MapWithIndex.instance())
+                            .subscribeOn(Schedulers.io())
+                            .concatWith(Observable.never()) // never complete
+                }
+
+        return obs;
+
+    }
+
     /**
      * @return the file paths of the files
      */
     @JvmStatic
-    fun  findHtmlInFiles(file: File, queryText: CharSequence) : Observable<String> =
+    private fun  recursiveFullTextSearch(file: File, queryText: CharSequence) : Observable<String> =
             file.walkBottomUp().filter { it.isFile && !it.isHidden }
                     .toObservable()
                     .map {
@@ -35,12 +58,12 @@ object FindInFiles {
                     .concat()
 
 
-    fun <T> Observable<Observable<T>>.concat(): Observable<T> = Observable.concat(this)
+    private fun <T> Observable<Observable<T>>.concat(): Observable<T> = Observable.concat(this)
 
 
     // assumes the regular folder structure without subfolders except for root for performance
     @JvmStatic
-    fun findHtmlInFiles(directoryToSearch : SFile, queryText: CharSequence) : Observable<SFile> {
+    fun recursiveFullTextSearch(directoryToSearch : SFile, queryText: CharSequence) : Observable<SFile> {
 
         // work on DocumentFile directly to increase performance
         return directoryToSearch.doc.listFiles().toObservable().flatMap {
@@ -61,7 +84,43 @@ object FindInFiles {
                 }
                 .concat()
                 .map { SFile(it) }
+    }
 
 
+    /**
+     * queries usually start by typing Mon..,Monta..,Montana. If a lot of files do not contain Mon we do not need to search all these files again for Montana
+     */
+    private class FullTextSearchCache
+    {
+        fun returnDocumentIfItContains(doc : IDocumentFile, queryText: CharSequence) : Observable<IDocumentFile>
+        {
+            if(documentsWithoutQueryText.any { it == doc.uri })
+            {
+                return Observable.empty();
+            }
+
+            // FIXME can using replaced by useLines() ?
+
+            return Observable.using(// open the file and try to find the queryText inside
+                    { doc.openInputStream().bufferedReader() },
+                    { it.lineSequence().toObservable() },
+                    { it.close() })
+                    .exists { it.contains(queryText, true) }
+                    .doOnNext {
+                        if(!it)
+                        {
+                            documentsWithoutQueryText.add(doc.uri);
+                        }
+                    }
+                    .filter { it == true } // found
+                    .map { doc }
+        }
+
+        fun clearCache()
+        {
+            documentsWithoutQueryText.clear();
+        }
+
+        private val documentsWithoutQueryText : HashSet<Uri> = HashSet();
     }
 }

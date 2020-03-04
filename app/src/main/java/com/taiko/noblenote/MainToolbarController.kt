@@ -18,7 +18,6 @@ import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
 import rx.subscriptions.Subscriptions
 import rx_activity_result.RxActivityResult
-import java.io.File
 import java.util.concurrent.TimeUnit
 
 
@@ -143,7 +142,7 @@ class MainToolbarController(val activity: MainActivity) {
 
                     if(uri != Uri.parse(Pref.rootPath.toString()))
                     {
-                        SFile.clearCache();
+                        SFile.clearGlobalDocumentCache();
                         Pref.rootPath.onNext(SFile(uri).uri.toString());
                     }
                     Snackbar.make(activity.coordinator_layout, activity.getString(R.string.msg_directory_selected) + " " + SFile(Pref.rootPath.value).uri.path, Snackbar.LENGTH_LONG).show();
@@ -187,7 +186,7 @@ class MainToolbarController(val activity: MainActivity) {
 
         val suggestions = queryTextObs.filter { !it.isSubmit && !it.text.isNullOrBlank() }
         .map { it.text }
-        .throttleWithTimeout(200, TimeUnit.MILLISECONDS, Schedulers.io())
+        .throttleWithTimeout(400, TimeUnit.MILLISECONDS, Schedulers.io())
         .distinctUntilChanged();
 
         mSearchAdapter = SuggestionAdapter(activity, suggestions);

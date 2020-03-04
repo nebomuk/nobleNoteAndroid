@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
-import com.tbruyelle.rxpermissions.RxPermissions
 import rx.Observable
 import java.io.*
 
