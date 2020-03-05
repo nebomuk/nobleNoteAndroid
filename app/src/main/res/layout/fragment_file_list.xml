@@ -3,7 +3,7 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:background="@color/lightGray"
+              android:background="?android:attr/colorBackground"
     >
 
     <!-- list empty indicator  when fragment is used for search results-->
@@ -32,7 +32,6 @@
         android:gravity="top|center_horizontal"/>
 
     <ViewSwitcher
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/empty_list_switcher"

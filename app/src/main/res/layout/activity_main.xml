@@ -1,7 +1,7 @@
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    android:layout_width="match_parent"
+<androidx.coordinatorlayout.widget.CoordinatorLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/coordinator_layout"
 
     >
@@ -38,6 +38,9 @@
         <include layout="@layout/toolbar"/>
         <com.miguelcatalan.materialsearchview.MaterialSearchView
             android:id="@+id/search_view"
+            app:searchBackground="?android:attr/colorBackground"
+            android:textColor="?android:attr/colorForeground"
+            app:searchSuggestionBackground="?android:attr/colorBackground"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:elevation="@dimen/elevation_toolbar"

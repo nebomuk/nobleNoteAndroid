@@ -37,14 +37,8 @@ object UndoHelper {
                 .subscribe(
                         // onNext
                         {
-                            var res = false
-                            if (it.isDirectory) {
-                                TODO("deleting directories is not implemented")
-                                //res = FileHelper.directoryMove(it.toFile(), File(tempDir, it.name))
+                            val res = it.move(tempDir.uri);
 
-                            } else if (it.isFile) {
-                                res = it.move(tempDir.uri);
-                            }
 
                             if(!res)
                             {

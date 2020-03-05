@@ -3,6 +3,11 @@
           package="com.taiko.noblenote"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- for testing android 5.0 compatibility-->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="23"
+        />
+
     <!--         android:icon="@mipmap/ic_launcher" -->
     <application
         android:name="com.taiko.noblenote.MainApplication"
@@ -26,10 +31,6 @@
         </activity>
         <!-- android:theme="@style/Theme.Styled" -->
         <activity android:name="com.taiko.noblenote.EditorActivity">
-        </activity>
-        <activity
-            android:name="com.taiko.noblenote.RenameDialogActivity"
-            android:label="@string/rename_dialog">
         </activity>
     </application>
 

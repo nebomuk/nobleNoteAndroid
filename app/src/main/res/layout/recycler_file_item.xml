@@ -9,7 +9,6 @@
     >
 <LinearLayout
     android:id="@+id/inner_layout"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:layout_width="match_parent"
     android:orientation="vertical"
@@ -19,8 +18,8 @@
 
     <!--may use android:background="?android:attr/activatedBackgroundIndicator" for selection and then call select on the individual items -->
 
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-          android:id="@+id/text1"
+<TextView
+    android:id="@+id/text1"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           android:textSize="16sp"

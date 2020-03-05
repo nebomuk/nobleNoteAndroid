@@ -268,6 +268,7 @@ class SFile {
             {
                 parentDoc = doc;
                 doc = res;
+                proposedFileName = null;
                 return true;
             }
             else

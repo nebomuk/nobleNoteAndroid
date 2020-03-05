@@ -37,7 +37,7 @@
     android:id="@+id/editor_scroll_view"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/gray"
+    android:background="?android:attr/colorBackground"
     android:fadingEdge="none"
  	android:fillViewport="true">
     
@@ -54,6 +54,7 @@
         <!-- left border, can not use a mere View here, because a view with a color
         set is not properly rendered on 4.1+ devices -->
         <Button
+            android:background="?android:attr/colorBackground"
             android:layout_width="28dp"
             android:layout_height="fill_parent"
             android:layout_marginBottom="-8dp"
@@ -79,6 +80,7 @@
 
         <!-- right border -->
         <Button
+            android:background="?android:attr/colorBackground"
             android:layout_width="28dp"
             android:layout_height="fill_parent"
             android:enabled="false" 

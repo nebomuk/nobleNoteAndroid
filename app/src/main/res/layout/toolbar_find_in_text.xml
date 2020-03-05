@@ -3,7 +3,7 @@
     android:id="@+id/toolbar_find_in_text"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
-    android:background="@color/default_white"
+    android:background="?android:attr/colorBackground"
     android:elevation="8dp"
     android:visibility="gone"
 

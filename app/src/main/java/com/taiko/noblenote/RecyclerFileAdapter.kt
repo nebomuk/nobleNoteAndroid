@@ -1,15 +1,15 @@
 package com.taiko.noblenote
 
-import android.content.Context
-import androidx.databinding.ObservableArrayList
+import android.content.res.Configuration
 import android.graphics.Color
-import androidx.annotation.ColorInt
-import androidx.annotation.IdRes
-import androidx.core.graphics.ColorUtils
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ViewSwitcher
+import androidx.annotation.ColorInt
+import androidx.annotation.IdRes
+import androidx.core.graphics.ColorUtils
+import androidx.databinding.ObservableArrayList
+import androidx.recyclerview.widget.RecyclerView
 import com.jakewharton.rxbinding.view.clicks
 import com.jakewharton.rxbinding.view.longClicks
 import kotlinx.android.synthetic.main.recycler_file_item.view.*
@@ -21,6 +21,7 @@ import rx.subjects.PublishSubject
 import java.text.Collator
 import java.util.*
 import java.util.concurrent.TimeUnit
+
 
 /**
  * file system adapter, can be configured inside onViewCreated or onCreate
@@ -162,8 +163,21 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
 
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-        mSelectionColor = recyclerView.context.resources.getColor(R.color.md_grey_200)
-        mSelectedFolderColor = recyclerView.context.resources.getColor(R.color.listHighlight)
+
+
+        val mode = recyclerView.context?.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)
+        when (mode) {
+            Configuration.UI_MODE_NIGHT_YES  -> {
+                mSelectionColor = recyclerView.context.resources.getColor(R.color.md_grey_400)
+                mSelectedFolderColor = recyclerView.context.resources.getColor(R.color.listHighlightDark)
+            }
+            Configuration.UI_MODE_NIGHT_NO or  Configuration.UI_MODE_NIGHT_UNDEFINED-> {
+                mSelectionColor = recyclerView.context.resources.getColor(R.color.md_grey_200)
+                mSelectedFolderColor = recyclerView.context.resources.getColor(R.color.listHighlight)
+            }
+        }
+
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

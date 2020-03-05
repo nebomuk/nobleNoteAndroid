@@ -202,6 +202,7 @@ object Dialogs {
                             var renamed = false;
 
                             renamed = file.renameTo(newName)
+                            SFile.invalidateAllFileListCaches(); // because opening after rename needs to select the correct file
 
                             it.onNext(renamed);
                             it.onCompleted();

@@ -6,10 +6,10 @@
     <color name="lightGray">#FFF6F6F6</color>
 
     <color name="primary_pressed">#681f13</color>
-    <color name="colorPrimary">#FF5722</color>
-    <color name="colorPrimaryDark">#E64A19</color>
-    <color name="colorPrimaryLight">#FFCCBC</color>
-    <color name="colorAccent">#FFC107</color>
+    <color name="colorPrimary">#5F2110</color>
+    <color name="colorPrimaryDark">#38170D</color>
+    <color name="colorPrimaryLight">#A7877A</color>
+    <color name="colorAccent">#AA9D7A</color>
     <color name="primary_text">#212121</color>
     <color name="secondary_text">#757575</color>
     <color name="icons">#FFFFFF</color>
