@@ -6,7 +6,7 @@
     <string name="emptyNoteHint">Click to enter text</string>
     <string name="notes">Notes</string>
     <string name="notebooks">Notebooks</string>
-    <string name="bold">&lt;b&gt;B&lt;/b&gt;</string>
+    <string name="bold" translatable="false">&lt;b&gt;B&lt;/b&gt;</string>
     <string name="italic">Italic</string>
     <string name="underline">Underline</string>
     <string name="strikethrough">Strikethrough</string>
@@ -14,8 +14,7 @@
 
     <string name="rename_dialog_text">Please enter a new name</string>
     <string name="rename">Rename</string>
-    <string name="rename_dialog">Rename</string>
-    <string name="HTML">HTML</string>
+    <string name="HTML" translatable="false">HTML</string>
     <string name="noteNotRenamed">Note not renamed</string>
     <string name="notebookNotRenamed">Notebook not renamed</string>
     <string name="renameNote">Rename Note</string>
@@ -25,17 +24,15 @@
     <string name="newNote">New Note</string>
     <string name="newNotebook">New Notebook</string>
     <string name="noteNotCreated">note not created</string>
-    <string name="notebookNotCreated">notebook not created</string>
-    <string name="notCreatedNotebookExists">notebook not created because a notebook with the same name already exists </string>
-    <string name="notCreatedNoteExists">notebook not created because a notebook with the same name already exists</string>
+    <string name="notebookNotCreated">Notebook not created</string>
+    <string name="notCreatedNotebookExists">Notebook not created because a notebook with the same name already exists </string>
+    <string name="notCreatedNoteExists">Note not created because a notebook with the same name already exists</string>
     <string name="notebookExists">a notebook with the same name already exists </string>
     <string name="noteExists">a note with the same name already exists</string>
     <string name="removeMultipleNotes">Remove Multiple Notes</string>
     <string name="removeMultipleNotesQuestion">Are you sure you want to remove the selected note(s)?</string>
     <string name="notesNotRemoved">note(s) not removed</string>
     <string name="noteSaved">note saved</string>
-    <string name="enterStoragePath">Please enter a storage path</string>
-    <string name="saveOnClose">Do you really want to quit without saving?</string>
     <string name="noteReloaded">note reloaded</string>
     <string name="noNotebookExists">Cannot create note. You must first create a notebook</string>
     <string name="title_noNotebookExists">No Notebook Found</string>
@@ -51,8 +48,6 @@
     <string name="msg_items_removed">Items removed</string>
     <string name="msg_directory_selected">Directory Selected:</string>
     <string name="msg_external_storage_permission_denied">Permission has been denied.</string>
-    <string name="msg_external_storage_not_mounted">The SD-Card is not mounted.</string>
-    <string name="msg_switching_internal_storage">Switching to internal storage</string>
     <string name="msg_file_loading_error">Error: Could not load file</string>
     <string name="msg_paste_error">There was an error pasting your files</string>
     <string name="no_results_found">No Results Found</string>

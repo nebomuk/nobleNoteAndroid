@@ -121,14 +121,6 @@ class MainToolbarController(val activity: MainActivity) {
                 }
 
 
-
-        if(Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED)
-        {
-            Snackbar.make(activity.coordinator_layout,R.string.msg_external_storage_not_mounted, Snackbar.LENGTH_LONG).show();
-            return;
-        }
-
-
          RxActivityResult.on(activity).startIntent(filePickerDialogIntent).subscribe {
 
 
