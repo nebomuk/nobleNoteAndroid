@@ -18,6 +18,11 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 
+/***
+ * java.io.File like API wrapper around storage access framework's content uris and DocumentFileFast
+ *
+ * you need to call SFile.register(context) before using this class
+ */
 
 class SFile {
 
@@ -82,15 +87,6 @@ class SFile {
 
     }
 
-    @Deprecated("replaced by DocumentFile.name")
-    private fun displayName(uri: Uri): String {
-        val mCursor: Cursor = MainApplication.getInstance().contentResolver.query(uri, null, null, null, null)!!
-        val indexedname = mCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-        mCursor.moveToFirst()
-        val filename = mCursor.getString(indexedname)
-        mCursor.close()
-        return filename
-    }
 
     val name: String
         get() {
@@ -101,23 +97,6 @@ class SFile {
             }
             return doc.name.orEmpty();
         }
-
-    @Deprecated("this will be removed when not longer used")
-    fun toFile(): File {
-        var filePath: String? = null
-        Log.d("", "URI = $uri")
-        if ("content" == uri.scheme) {
-            val cursor: Cursor = MainApplication.getInstance().contentResolver.query(uri, arrayOf(MediaStore.Images.ImageColumns.DATA), null, null, null)!!
-            cursor.moveToFirst()
-            filePath = cursor.getString(0)
-            cursor.close()
-        } else {
-            filePath = uri.path
-        }
-        return File(filePath);
-        Log.d("", "Chosen path = $filePath")
-    }
-
 
     // use proper implementation to only show the names instead of creating sub-files
     // see https://stackoverflow.com/questions/41096332/issues-traversing-through-directory-hierarchy-with-android-storage-access-framew
@@ -328,7 +307,7 @@ class SFile {
         }
         else if(uri.scheme == "content")
         {
-            doc = DocumentFileFast.fromTreeUri(MainApplication.getInstance(),uri)!!;
+            doc = DocumentFileFast.fromTreeUri(context,uri)!!;
         }
         else
         {
@@ -343,6 +322,7 @@ class SFile {
         private val cachedDoc : HashSet<IDocumentFile> = HashSet();
 
 
+        @JvmStatic
         fun invalidateAllFileListCaches() {
             cachedDoc.forEach {
                 val fast = it as? DocumentFileFast;
@@ -353,10 +333,22 @@ class SFile {
         /*
          * dangerous! should only be called when rootPath changed, because most of the logic depends on the cache
          */
+        @JvmStatic
         fun clearGlobalDocumentCache()
         {
             cachedDoc.clear();
         }
+
+        /*
+        * this methods needs to be called once before using SFile
+         */
+        @JvmStatic
+        fun register(context : Context)
+        {
+            this.context = context.applicationContext;
+        }
+
+        private lateinit var context : Context;
     }
 
 }
@@ -376,7 +368,7 @@ fun IDocumentFile.openInputStream(): InputStream {
 fun IDocumentFile.openOutputStream(): OutputStream {
     if(this is DocumentFileFast)
     {
-        return this.mContext.contentResolver.openOutputStream(this.uri)!!;
+        return this.mContext.contentResolver.openOutputStream(this.uri,"rwt")!!; // w : write, wa: write append, rwt replace write truncate? is required so that the existing content is completely replaced
     }
     val file = File(this.uri.path);
     return file.outputStream();

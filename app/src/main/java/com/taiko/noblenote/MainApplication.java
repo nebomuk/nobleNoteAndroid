@@ -14,17 +14,8 @@ public class MainApplication extends Application
 
     private EventBus mEventBus;
 
-    private static MainApplication mInstance;
-
-    public static MainApplication getInstance()
-    {
-        return mInstance;
-    }
-
-
     @Override
-    public void onCreate()
-    {
+    public void onCreate() {
         if (LeakCanary.isInAnalyzerProcess(this)) {
             // This process is dedicated to LeakCanary for heap analysis.
             // You should not init your app in this process.
@@ -36,16 +27,16 @@ public class MainApplication extends Application
         //LeakCanary.install(this);
         // the default LeakDirectoryProvider writes to Downloads, must manually delete the created folder
 
-        mInstance = this;
-
         super.onCreate();
         RxActivityResult.register(this);
         mEventBus = new EventBus();
 
 
+        SFile.register(this);
+
+
+
     }
-
-
 
     public EventBus getEventBus()
     {

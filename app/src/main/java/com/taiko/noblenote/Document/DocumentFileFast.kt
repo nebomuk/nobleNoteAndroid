@@ -133,7 +133,9 @@ public class DocumentFileFast : IDocumentFile {
         if (!mFileListCached) {
             mFileList = DocumentQuery.queryChildren(mContext, mUri, mDocumentid).map {
                 val childUri = DocumentsContract.buildDocumentUriUsingTree(mUri, it.documentId);
-                DocumentFileFast(this, mContext, mUri = childUri, displayName = it.name, mimeType = it.mimeType, documentid = it.documentId);
+                val df = DocumentFileFast(this, mContext, mUri = childUri, displayName = it.name, mimeType = it.mimeType, documentid = it.documentId);
+                df.mDisplayNameCached = true;
+                df;
             }.toList();
             mFileListCached = true;
         }

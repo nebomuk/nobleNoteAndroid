@@ -75,7 +75,9 @@
             android:imeOptions="flagNoExtractUi"
             android:inputType="textMultiLine"
             android:scrollHorizontally="false"
-            android:scrollbars="vertical" >
+            android:scrollbars="vertical"
+            android:saveEnabled="true"
+            >
         </com.taiko.noblenote.DroidWriterEditText>
 
         <!-- right border -->

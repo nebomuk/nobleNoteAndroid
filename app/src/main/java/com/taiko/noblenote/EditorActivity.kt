@@ -3,17 +3,12 @@ package com.taiko.noblenote
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.Intent
-import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import com.google.android.material.snackbar.Snackbar
-import androidx.core.app.ActivityCompat
 import android.view.*
 import android.widget.Toast
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_editor.*
 import kotlinx.android.synthetic.main.toolbar.*
 import kotlinx.android.synthetic.main.toolbar_find_in_text.*
@@ -34,7 +29,7 @@ class EditorActivity : Activity() {
     private var mFocusable = true // if set to false, the note is opened in read only mode
     private lateinit var mFileUri: Uri;
     private lateinit var mOpenMode: String;
-    private var lastModified: Long = 0
+    private var lastModified: Long = 0 // restored in OnRestoreInstanceState
     private var mFormattingMenuItem: MenuItem? = null
     private val mCompositeSubscription : CompositeSubscription = CompositeSubscription();
 
@@ -48,6 +43,7 @@ class EditorActivity : Activity() {
 
         super.onCreate(savedInstanceState)
 
+
         log.d( ".onCreate()");
 
         //This has to be called before setContentVie
@@ -55,15 +51,14 @@ class EditorActivity : Activity() {
         window.requestFeature(Window.FEATURE_ACTION_MODE_OVERLAY)
         setContentView(R.layout.activity_editor)
 
-        mUndoRedo = TextViewUndoRedo(editor_edit_text)
-
-        editor_scroll_view.visibility = View.INVISIBLE
 
         progress_bar_file_loading.progressDrawable = MaterialProgressDrawable.create(this)
         progress_bar_file_loading.indeterminateDrawable = MaterialIndeterminateProgressDrawable.create(this)
 
         // hide soft keyboard by default
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+
+        mUndoRedo = TextViewUndoRedo(editor_edit_text);
 
         // uncomment to enable close button
 /*        toolbar.setNavigationIcon(R.drawable.ic_close_black_24dp)
@@ -74,7 +69,6 @@ class EditorActivity : Activity() {
         mOpenMode = extras.getString(ARG_OPEN_MODE)!!
         mFocusable = !(mOpenMode == HTML || mOpenMode == READ_ONLY) // no editing if html source should be shown
 
-        toolbar.title = SFile(mFileUri).nameWithoutExtension
         populateMenu(toolbar.menu)
 
         editor_edit_text.isTextWatcherEnabled = false
@@ -83,6 +77,19 @@ class EditorActivity : Activity() {
 
         mFindInTextToolbarController = FindInTextToolbarController(this);
 
+        if(savedInstanceState != null)
+        {
+            // FIXME disable auto save when configuration changed
+            lastModified = savedInstanceState.getLong(FIELD_LAST_MODIFIED,0L);
+           editor_edit_text.isModified = savedInstanceState.getBoolean(FIELD_EDIT_TEXT_MODIFIED,false);
+
+            progress_bar_file_loading.visibility = View.GONE
+            editor_scroll_view.visibility = View.VISIBLE
+        }
+        else
+        {
+            editor_scroll_view.visibility = View.INVISIBLE
+        }
 
     }
 
@@ -239,8 +246,8 @@ class EditorActivity : Activity() {
                 .filter {it }
                 .take(1)
                 .subscribe {
-            toolbar.title = toolbar.title.toString() + "*"; // modified indicator
-        }
+                    markTitleAsModified()
+                }
 
         val redoItem = menu.add(R.string.action_redo)
                 .setIcon(R.drawable.ic_redo_black_24dp)
@@ -288,7 +295,33 @@ class EditorActivity : Activity() {
 
     }
 
+    private fun markTitleAsModified() {
+        if(toolbar.title.isNullOrEmpty())
+            return;
 
+        if(!toolbar.title.endsWith("*"))
+        {
+            toolbar.title = toolbar.title.toString() + "*"; // modified indicator
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // isModified is only available after onRestoreInstanceState, which is (maybe) called before onResume
+        toolbar.title = SFile(mFileUri).nameWithoutExtension;
+        if(editor_edit_text.isModified)
+        {
+            markTitleAsModified()
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        outState.putLong(FIELD_LAST_MODIFIED,lastModified);
+        outState.putBoolean(FIELD_EDIT_TEXT_MODIFIED,editor_edit_text.isModified);
+    }
 
 
 
@@ -331,6 +364,12 @@ class EditorActivity : Activity() {
 
         @JvmStatic
         val READ_ONLY = "read_only"
+
+        @JvmStatic
+        val FIELD_LAST_MODIFIED = "last_modified";
+
+        @JvmStatic
+        val FIELD_EDIT_TEXT_MODIFIED = "edit_text_modified";
     }
 }
 
