@@ -4,7 +4,7 @@ import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import com.taiko.noblenote.loggerFor
 import java.io.File
-import java.lang.Exception
+
 
 class DocumentFileWrapper : IDocumentFile {
 
@@ -47,14 +47,21 @@ class DocumentFileWrapper : IDocumentFile {
         }
     }
 
+
     override fun createDirectory(displayName: String): IDocumentFile? {
+
+        val f = File(documentFile.uri.path);
+
+        val target = File(f,displayName);
+        target.mkdirs(); // createDirectory does not create subdirectories because it uses mkdir() instead of mkdirs() internally.
         val res = documentFile.createDirectory(displayName);
-        if(res == null)
+        if(res != null)
         {
-            return null;
+            return DocumentFileWrapper(res);
         }
-        return DocumentFileWrapper(res);
+        return null;
     }
+
 
     override fun isVirtual(): Boolean {
         return documentFile.isVirtual
@@ -101,6 +108,7 @@ class DocumentFileWrapper : IDocumentFile {
         return DocumentFileWrapper(res);
     }
 
+    @Deprecated("use File(uri.path)")
     private fun getFile() : File
     {
         val mFileField = documentFile.javaClass.getDeclaredField("mFile")
@@ -120,16 +128,7 @@ class DocumentFileWrapper : IDocumentFile {
             return false;
         }
 
-        var origFile: File
-        try {
-             origFile = getFile();
-        }
-        catch (e : Exception)
-        {
-            log.w("move failed: failed to get private mFile field from androidx.documentfile.provider.DocumentFile, attempting to convert uri to file",e);
-
-            origFile = File(documentFile.uri.path);
-        }
+        val origFile = File(documentFile.uri.path);
         return origFile.renameTo(File(targetDir,origFile.name));
     }
 
