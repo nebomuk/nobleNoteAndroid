@@ -4,10 +4,10 @@ import android.os.Handler
 import android.os.Looper
 import com.google.android.material.snackbar.Snackbar
 import android.view.View
+import com.taiko.noblenote.document.SFile
 import rx.Observable
 import rx.lang.kotlin.toObservable
 import rx.schedulers.Schedulers
-import java.io.File
 
 /**
  * file deletion undo helper

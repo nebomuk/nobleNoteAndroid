@@ -1,11 +1,11 @@
-package com.taiko.noblenote.Document
+package com.taiko.noblenote.document
 
 
 import android.annotation.TargetApi
 import android.content.Context
 import android.net.Uri
 import android.provider.DocumentsContract
-import com.taiko.noblenote.*
+import com.taiko.noblenote.loggerFor
 import java.util.*
 @TargetApi(24) // because of DocumentsContract.moveDocument
 public class DocumentFileFast : IDocumentFile {

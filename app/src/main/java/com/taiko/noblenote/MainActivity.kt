@@ -3,15 +3,13 @@ package com.taiko.noblenote
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.transition.Fade
 import android.view.View
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding.view.clicks
+import com.taiko.noblenote.document.SFile
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main_twopane.fab_menu
 import kotlinx.android.synthetic.main.activity_main_twopane.fab_menu_folder

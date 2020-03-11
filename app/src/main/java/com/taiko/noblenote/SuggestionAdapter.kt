@@ -1,9 +1,9 @@
 package com.taiko.noblenote
 
 import android.content.Context
+import com.taiko.noblenote.document.SFile
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
-import rx.schedulers.Schedulers
 
 /**
  * displays suggestions in an input field by using full text search inside files and dirs in the app pref's root path with the given char sequence

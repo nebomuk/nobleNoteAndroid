@@ -1,11 +1,13 @@
 package com.taiko.noblenote
 
 import android.app.Fragment
+import android.net.Uri
 import android.os.Bundle
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.view.View
+import com.taiko.noblenote.document.SFile
 import kotlinx.android.synthetic.main.fragment_file_list.view.*
 import kotlinx.android.synthetic.main.toolbar.*
 import rx.android.schedulers.AndroidSchedulers
@@ -34,9 +36,13 @@ class FolderListController(private var fragment: Fragment, view: View) {
 
         recyclerView.itemAnimator = DefaultItemAnimator();
 
-        val dir = File(Pref.rootPath.value)
-        if (!dir.exists())
-            dir.mkdirs()
+        if(Uri.parse(Pref.rootPath.value).scheme == "file")
+        {
+            val dir = File(Pref.rootPath.value)
+            if (!dir.exists())
+                dir.mkdirs()
+        }
+
 
         // the following code lists only visible folders and push their names into an ArrayAdapter
         val folderFilter = FileFilter { pathname -> pathname.isDirectory && !pathname.isHidden }

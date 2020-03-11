@@ -10,7 +10,11 @@ import com.google.android.material.snackbar.Snackbar
 import android.view.MenuItem
 import com.jakewharton.rxbinding.view.clicks
 import com.miguelcatalan.materialsearchview.MaterialSearchView
-import com.taiko.noblenote.Document.TreeUriUtil
+import com.taiko.noblenote.document.SFile
+import com.taiko.noblenote.document.TreeUriUtil
+import com.taiko.noblenote.document.toSFile
+import com.taiko.noblenote.extensions.queryText
+import com.taiko.noblenote.extensions.queryTextChanges
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.toolbar.*
 import rx.Subscription

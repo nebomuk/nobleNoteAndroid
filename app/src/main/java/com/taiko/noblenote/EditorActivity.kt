@@ -9,6 +9,10 @@ import android.os.Handler
 import android.view.*
 import android.widget.Toast
 import com.google.android.material.snackbar.Snackbar
+import com.taiko.noblenote.document.SFile
+import com.taiko.noblenote.editor.ArrowKeyLinkMovementMethod
+import com.taiko.noblenote.editor.TextViewUndoRedo
+import com.taiko.noblenote.extensions.setTintCompat
 import kotlinx.android.synthetic.main.activity_editor.*
 import kotlinx.android.synthetic.main.toolbar.*
 import kotlinx.android.synthetic.main.toolbar_find_in_text.*

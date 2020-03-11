@@ -1,4 +1,4 @@
-package com.taiko.noblenote
+package com.taiko.noblenote.editor
 
 import android.graphics.Color
 import android.text.Spannable
@@ -8,6 +8,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
+import com.taiko.noblenote.extensions.indicesOf
 
 
 /**

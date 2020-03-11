@@ -1,8 +1,8 @@
 package com.taiko.noblenote
 
+import com.taiko.noblenote.document.SFile
 import rx.Observable
 import rx.lang.kotlin.PublishSubject
-import java.io.File
 
 /**
  * Created by taiko

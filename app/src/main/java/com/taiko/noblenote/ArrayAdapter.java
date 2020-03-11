@@ -32,6 +32,8 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
+import com.taiko.noblenote.document.SFile;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;

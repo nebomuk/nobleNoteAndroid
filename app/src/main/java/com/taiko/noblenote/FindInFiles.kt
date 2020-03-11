@@ -1,7 +1,10 @@
 package com.taiko.noblenote
 
 import android.net.Uri
-import com.taiko.noblenote.Document.IDocumentFile
+import com.taiko.noblenote.document.IDocumentFile
+import com.taiko.noblenote.document.SFile
+import com.taiko.noblenote.document.openInputStream
+import com.taiko.noblenote.extensions.MapWithIndex
 import rx.Observable
 import rx.lang.kotlin.toObservable
 import rx.lang.kotlin.toSingletonObservable

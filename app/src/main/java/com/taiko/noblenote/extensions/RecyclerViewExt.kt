@@ -1,9 +1,10 @@
-package com.taiko.noblenote
+package com.taiko.noblenote.extensions
 
 import androidx.core.view.GestureDetectorCompat
 import androidx.recyclerview.widget.RecyclerView
 import android.view.GestureDetector
 import android.view.MotionEvent
+import com.taiko.noblenote.loggerFor
 import rx.Observable
 import rx.Observer
 import rx.lang.kotlin.add

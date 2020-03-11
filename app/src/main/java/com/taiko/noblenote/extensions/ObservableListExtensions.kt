@@ -1,7 +1,6 @@
-package com.taiko.noblenote
+package com.taiko.noblenote.extensions
 
 
-import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableList
 import rx.subscriptions.Subscriptions
 

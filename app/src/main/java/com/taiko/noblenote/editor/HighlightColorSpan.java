@@ -1,4 +1,4 @@
-package com.taiko.noblenote;
+package com.taiko.noblenote.editor;
 
 import androidx.annotation.ColorInt;
 import android.text.TextPaint;

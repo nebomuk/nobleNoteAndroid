@@ -1,4 +1,4 @@
-package com.taiko.noblenote.Document
+package com.taiko.noblenote.document
 
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile

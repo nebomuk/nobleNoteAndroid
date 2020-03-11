@@ -13,7 +13,7 @@ import java.lang.ref.WeakReference;
  * https://github.com/radzio/android-data-binding-recyclerview/blob/master/recyclerview-binding/src/main/java/net/droidlabs/mvvm/recyclerview/adapter/BindingRecyclerViewAdapter.java
  */
 
-public class WeakReferenceOnListChangedCallback extends ObservableList.OnListChangedCallback<ObservableList<File>>
+public class WeakReferenceOnListChangedCallback<T> extends ObservableList.OnListChangedCallback<ObservableList<T>>
 {
 
     private final WeakReference<RecyclerFileAdapter> adapterReference;
@@ -24,7 +24,7 @@ public class WeakReferenceOnListChangedCallback extends ObservableList.OnListCha
     }
 
     @Override
-    public void onChanged(ObservableList<File> sender)
+    public void onChanged(ObservableList<T> sender)
     {
         RecyclerView.Adapter adapter = adapterReference.get();
         if (adapter != null)
@@ -34,7 +34,7 @@ public class WeakReferenceOnListChangedCallback extends ObservableList.OnListCha
     }
 
     @Override
-    public void onItemRangeChanged(ObservableList<File> sender, int positionStart, int itemCount)
+    public void onItemRangeChanged(ObservableList<T> sender, int positionStart, int itemCount)
     {
         RecyclerView.Adapter adapter = adapterReference.get();
         if (adapter != null)
@@ -44,7 +44,7 @@ public class WeakReferenceOnListChangedCallback extends ObservableList.OnListCha
     }
 
     @Override
-    public void onItemRangeInserted(ObservableList<File> sender, int positionStart, int itemCount)
+    public void onItemRangeInserted(ObservableList<T> sender, int positionStart, int itemCount)
     {
         RecyclerView.Adapter adapter = adapterReference.get();
         if (adapter != null)
@@ -54,7 +54,7 @@ public class WeakReferenceOnListChangedCallback extends ObservableList.OnListCha
     }
 
     @Override
-    public void onItemRangeMoved(ObservableList<File> sender, int fromPosition, int toPosition, int itemCount)
+    public void onItemRangeMoved(ObservableList<T> sender, int fromPosition, int toPosition, int itemCount)
     {
         RecyclerView.Adapter adapter = adapterReference.get();
         if (adapter != null)
@@ -64,7 +64,7 @@ public class WeakReferenceOnListChangedCallback extends ObservableList.OnListCha
     }
 
     @Override
-    public void onItemRangeRemoved(ObservableList<File> sender, int positionStart, int itemCount)
+    public void onItemRangeRemoved(ObservableList<T> sender, int positionStart, int itemCount)
     {
         RecyclerView.Adapter adapter = adapterReference.get();
         if (adapter != null)

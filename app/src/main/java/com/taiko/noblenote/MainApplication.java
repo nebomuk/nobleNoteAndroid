@@ -3,8 +3,8 @@ package com.taiko.noblenote;
 import android.app.Application;
 
 import com.squareup.leakcanary.LeakCanary;
+import com.taiko.noblenote.document.SFile;
 
-import kotlin.jvm.JvmStatic;
 import rx_activity_result.RxActivityResult;
 
 

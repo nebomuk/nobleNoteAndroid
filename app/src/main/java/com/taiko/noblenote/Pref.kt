@@ -1,8 +1,7 @@
 package com.taiko.noblenote
 
-import androidx.core.content.FileProvider
-import androidx.documentfile.provider.DocumentFile
 import com.chibatching.kotpref.KotprefModel
+import com.taiko.noblenote.document.toSFile
 import rx.lang.kotlin.BehaviorSubject
 import rx.subjects.BehaviorSubject
 import java.io.File

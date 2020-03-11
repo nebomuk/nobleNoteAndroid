@@ -1,15 +1,9 @@
-package com.taiko.noblenote
+package com.taiko.noblenote.document
 
 import android.content.Context
-import android.database.Cursor
 import android.net.Uri
-import android.provider.MediaStore
-import android.provider.OpenableColumns
-import android.util.Log
-import com.taiko.noblenote.Document.DocumentFileFast
-import com.taiko.noblenote.Document.DocumentFileWrapper
-import com.taiko.noblenote.Document.IDocumentFile
 import com.taiko.noblenote.Pref.rootPath
+import com.taiko.noblenote.loggerFor
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -272,7 +266,8 @@ class SFile {
         return doc.delete()
     }
 
-    val parentFile : SFile get() {
+    val parentFile : SFile
+        get() {
         if(parentDoc == null)
         {
             if(this.doc.parentFile != null)
@@ -302,7 +297,7 @@ class SFile {
 
     private fun toDocumentFile(uri : Uri) : IDocumentFile
     {
-        if(SFile.cachedDoc.any { it.uri == uri })
+        if(cachedDoc.any { it.uri == uri })
                 {
                     return cachedDoc.first { it.uri == uri }
                 }
@@ -353,7 +348,7 @@ class SFile {
         @JvmStatic
         fun register(context : Context)
         {
-            this.context = context.applicationContext;
+            Companion.context = context.applicationContext;
         }
 
         private lateinit var context : Context;

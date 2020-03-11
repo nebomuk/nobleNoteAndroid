@@ -1,4 +1,4 @@
-package com.taiko.noblenote;
+package com.taiko.noblenote.extensions;
 
 
 import java.util.Iterator;
@@ -15,7 +15,6 @@ public final class MapWithIndex<T> implements Observable.Transformer<T, MapWithI
         static final MapWithIndex<?> INSTANCE = new MapWithIndex<Object>();
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> MapWithIndex<T> instance() {
         return (MapWithIndex<T>) Holder.INSTANCE;
     }

@@ -65,7 +65,7 @@
  			<!-- layout_weight="1" and  layout_width="0dp" cause the text edit to
  			expand to fill the available space between the border buttons -->
 
-        <com.taiko.noblenote.DroidWriterEditText
+        <com.taiko.noblenote.editor.DroidWriterEditText
             android:id="@+id/editor_edit_text"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
@@ -78,7 +78,7 @@
             android:scrollbars="vertical"
             android:saveEnabled="true"
             >
-        </com.taiko.noblenote.DroidWriterEditText>
+        </com.taiko.noblenote.editor.DroidWriterEditText>
 
         <!-- right border -->
         <Button

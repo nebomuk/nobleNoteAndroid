@@ -8,6 +8,8 @@ import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import com.jakewharton.rxbinding.view.clicks
 import com.jakewharton.rxbinding.widget.textChanges
+import com.taiko.noblenote.editor.FindHighlighter
+import com.taiko.noblenote.extensions.setTintCompat
 import kotlinx.android.synthetic.main.activity_editor.*
 import kotlinx.android.synthetic.main.toolbar_find_in_text.*
 import kotlinx.android.synthetic.main.toolbar_find_in_text.view.*

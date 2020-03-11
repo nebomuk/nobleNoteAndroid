@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import com.taiko.noblenote.editor.DroidWriterEditText
 import kotlinx.android.synthetic.main.layout_text_formatting.view.*
 
 /**

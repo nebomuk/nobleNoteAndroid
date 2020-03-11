@@ -1,4 +1,4 @@
-package com.taiko.noblenote.Document
+package com.taiko.noblenote.document
 
 import android.content.Context
 import android.database.Cursor

@@ -4,6 +4,7 @@ import android.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import android.util.Log
 import android.view.View
+import com.taiko.noblenote.document.SFile
 import kotlinx.android.synthetic.main.fragment_file_list.view.*
 import rx.android.schedulers.AndroidSchedulers
 import rx.lang.kotlin.plusAssign

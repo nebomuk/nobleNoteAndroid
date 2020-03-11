@@ -4,12 +4,12 @@ import android.os.Handler
 import android.os.Looper
 import com.google.android.material.snackbar.Snackbar
 import android.view.ActionMode
+import com.taiko.noblenote.document.SFile
 import kotlinx.android.synthetic.main.actionmode.view.*
 import kotlinx.android.synthetic.main.activity_main.*
 import rx.Observable
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
-import java.io.File
 import java.util.*
 
 /***

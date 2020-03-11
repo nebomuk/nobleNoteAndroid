@@ -1,10 +1,9 @@
 package com.taiko.noblenote
 
-import android.Manifest
-import android.app.Activity
 import android.content.Context
 import android.net.Uri
-import android.os.Environment
+import com.taiko.noblenote.document.SFile
+import com.taiko.noblenote.editor.Html
 import rx.Observable
 import java.io.*
 

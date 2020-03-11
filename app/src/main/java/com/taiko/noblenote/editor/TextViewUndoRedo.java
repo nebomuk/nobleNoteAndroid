@@ -1,4 +1,4 @@
-package com.taiko.noblenote;
+package com.taiko.noblenote.editor;
 
 import android.text.Editable;
 import android.text.Selection;

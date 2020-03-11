@@ -1,4 +1,4 @@
-package com.taiko.noblenote
+package com.taiko.noblenote.extensions
 
 import android.content.Context
 import android.graphics.drawable.Drawable

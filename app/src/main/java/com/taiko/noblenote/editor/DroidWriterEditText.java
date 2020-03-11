@@ -1,4 +1,4 @@
-package com.taiko.noblenote;
+package com.taiko.noblenote.editor;
 
 import android.content.Context;
 import android.content.res.Resources;
