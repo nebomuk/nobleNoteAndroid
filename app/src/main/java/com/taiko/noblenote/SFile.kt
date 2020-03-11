@@ -90,6 +90,14 @@ class SFile {
 
     val name: String
         get() {
+
+            // this optimization is needed because RawDocumentFile calls listFiles()
+            // every time getName() or setDocumentToProposedIfExists() is used and this is extremely slow
+            if(uri.scheme == "file")
+            {
+                return File(uri.path).name;
+            }
+
             setDocumentToProposedIfExists();
             if(proposedFileName != null)
             {
