@@ -3,8 +3,13 @@
           package="com.taiko.noblenote"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- for testing android 5.0 compatibility-->
+    <!-- for android 5.0 compatibility-->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="23"
+        />
+
+    <!-- this would be added by gradle automatically, but missing maxSdkVersion -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="23"
         />
 

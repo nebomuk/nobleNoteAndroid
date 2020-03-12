@@ -11,6 +11,7 @@ import com.jakewharton.rxbinding.widget.textChanges
 import com.taiko.noblenote.editor.FindHighlighter
 import com.taiko.noblenote.extensions.setTintCompat
 import kotlinx.android.synthetic.main.activity_editor.*
+import kotlinx.android.synthetic.main.toolbar.*
 import kotlinx.android.synthetic.main.toolbar_find_in_text.*
 import kotlinx.android.synthetic.main.toolbar_find_in_text.view.*
 import rx.lang.kotlin.plusAssign
@@ -78,12 +79,10 @@ class FindInTextToolbarController(val activity : EditorActivity) {
     private fun setArrowDownEnabled(b : Boolean)
     {
         activity.toolbar_find_in_text.arrow_down.isEnabled = b;
-        activity.toolbar_find_in_text.arrow_down.drawable.setTintCompat(activity, EditorActivity.getColorForState(b));
     }
     private fun setArrowUpEnabled(b : Boolean)
     {
         activity.toolbar_find_in_text.arrow_up.isEnabled = b;
-        activity.toolbar_find_in_text.arrow_up.drawable.setTintCompat(activity, EditorActivity.getColorForState(b));
     }
 
     private fun showToolbarWithoutMove() {
@@ -110,7 +109,9 @@ class FindInTextToolbarController(val activity : EditorActivity) {
         mFindHighlighter.moveNext();
     }
 
-
+    fun clearFindText() {
+        activity.toolbar_find_in_text.toolbar_find_in_text_edit_text.text.clear();
+    }
 
     /**
      * @return true when handled, false when super class should be called

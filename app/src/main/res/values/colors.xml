@@ -17,6 +17,12 @@
     <color name="listHighlight">#77FFCCBC</color>
     <color name="listHighlightDark">#F44336</color>
 
+
+    <!-- predefined ?android::attr/colorBackground is dark grey instead of black in dark mode-->
+    <color name="listBackground">#FFEEEEEE</color>
+
+    <color name="findInTextHighlight">#c7c416</color>
+
     <color name="ripple">#ff80ab</color>
 
     <color name="default_white">#FFFFFF</color>

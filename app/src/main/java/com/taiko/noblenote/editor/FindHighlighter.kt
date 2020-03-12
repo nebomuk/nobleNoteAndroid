@@ -8,6 +8,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
+import com.taiko.noblenote.R
 import com.taiko.noblenote.extensions.indicesOf
 
 
@@ -31,7 +32,7 @@ class FindHighlighter constructor(val editText : EditText, val toolbarEditText :
     private var mCurrentIndicesIndex = 0 // the current index in the list of indices
 
 
-    private val highlightSpan: HighlightColorSpan = HighlightColorSpan(Color.YELLOW);
+    private val highlightSpan: HighlightColorSpan = HighlightColorSpan(toolbarEditText.context.resources.getColor(R.color.findInTextHighlight));
 
     private var mIndices = emptyList<Int>(); // a list of indexes where the searchString can be found in the text
 

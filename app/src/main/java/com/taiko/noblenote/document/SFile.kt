@@ -89,6 +89,11 @@ class SFile {
             // every time getName() or setDocumentToProposedIfExists() is used and this is extremely slow
             if(uri.scheme == "file")
             {
+                if(proposedFileName != null)
+                {
+                    return proposedFileName.orEmpty();
+                }
+
                 return File(uri.path).name;
             }
 

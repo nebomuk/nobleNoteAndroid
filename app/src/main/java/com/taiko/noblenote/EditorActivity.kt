@@ -9,10 +9,10 @@ import android.os.Handler
 import android.view.*
 import android.widget.Toast
 import com.google.android.material.snackbar.Snackbar
+import com.jakewharton.rxbinding.view.visible
 import com.taiko.noblenote.document.SFile
 import com.taiko.noblenote.editor.ArrowKeyLinkMovementMethod
 import com.taiko.noblenote.editor.TextViewUndoRedo
-import com.taiko.noblenote.extensions.setTintCompat
 import kotlinx.android.synthetic.main.activity_editor.*
 import kotlinx.android.synthetic.main.toolbar.*
 import kotlinx.android.synthetic.main.toolbar_find_in_text.*
@@ -73,7 +73,6 @@ class EditorActivity : Activity() {
         mOpenMode = extras.getString(ARG_OPEN_MODE)!!
         mFocusable = !(mOpenMode == HTML || mOpenMode == READ_ONLY) // no editing if html source should be shown
 
-        populateMenu(toolbar.menu)
 
         editor_edit_text.isTextWatcherEnabled = false
         editor_edit_text.isFocusable = mFocusable // read only if not mFocusable
@@ -86,6 +85,7 @@ class EditorActivity : Activity() {
             // FIXME disable auto save when configuration changed
             lastModified = savedInstanceState.getLong(FIELD_LAST_MODIFIED,0L);
            editor_edit_text.isModified = savedInstanceState.getBoolean(FIELD_EDIT_TEXT_MODIFIED,false);
+            toolbar_find_in_text.visibility = savedInstanceState.getInt(FIELD_FIND_IN_TEXT_TOOLBAR_VISIBILITY,View.GONE);
 
             progress_bar_file_loading.visibility = View.GONE
             editor_scroll_view.visibility = View.VISIBLE
@@ -94,6 +94,9 @@ class EditorActivity : Activity() {
         {
             editor_scroll_view.visibility = View.INVISIBLE
         }
+
+        populateMenu(toolbar.menu)
+
 
     }
 
@@ -148,9 +151,12 @@ class EditorActivity : Activity() {
     }
 
     public override fun onStop() {
+        mFindInTextToolbarController.clearFindText() // required because android serializes the highlight on configuration changes and then removing does not longer work
+
         super.onStop()
 
         log.d( ".onStop()");
+
 
         // does nothing if open mode is set to read only
 
@@ -240,18 +246,10 @@ class EditorActivity : Activity() {
         // TODO callback should be invoked when no text has changed
         mCompositeSubscription += mUndoRedo.canUndoChanged().subscribe {
 
-            val draw = resources.getDrawable(R.drawable.ic_undo_black_24dp)
-            draw.setTintCompat(this,getColorForState(it))
+            val draw = resources.getDrawable(R.drawable.ic_undo_black_24dp,theme)
             undoItem.isEnabled = it;
-            undoItem.icon = draw
          }
 
-        mCompositeSubscription += mUndoRedo.canUndoChanged()
-                .filter {it }
-                .take(1)
-                .subscribe {
-                    markTitleAsModified()
-                }
 
         val redoItem = menu.add(R.string.action_redo)
                 .setIcon(R.drawable.ic_redo_black_24dp)
@@ -263,24 +261,34 @@ class EditorActivity : Activity() {
                 }
         mCompositeSubscription += mUndoRedo.canRedoChanged().subscribe {
 
-            val draw = resources.getDrawable(R.drawable.ic_redo_black_24dp)
-            draw.setTintCompat(this, getColorForState(it))
+            val draw = resources.getDrawable(R.drawable.ic_redo_black_24dp,theme)
             redoItem.isEnabled = it;
-            redoItem.icon = draw
         }
 
+        val itemDone = menu.add(R.string.action_done)
 
-        //mFormattingMenuItem = MenuHelper.addTextFormatting(this,menu,editor_edit_text);
-
-
-
-        val itemDone = menu.add(R.string.action_done).setIcon(R.drawable.ic_done_black_24dp)
+                .setIcon(R.drawable.ic_done_black_24dp)
                 .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
 
         itemDone.setOnMenuItemClickListener {
             finish()
             true
         }
+
+        itemDone.isVisible = editor_edit_text.isModified;
+
+        mCompositeSubscription += mUndoRedo.canUndoChanged()
+                .filter {it }
+                .take(1)
+                .subscribe {
+                    markTitleAsModified()
+                    itemDone.isVisible = true;
+                }
+
+        //mFormattingMenuItem = MenuHelper.addTextFormatting(this,menu,editor_edit_text);
+
+
+
 
         menu.add(R.string.action_auto_save)
                 .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER)
@@ -321,10 +329,12 @@ class EditorActivity : Activity() {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
+
         super.onSaveInstanceState(outState)
 
         outState.putLong(FIELD_LAST_MODIFIED,lastModified);
         outState.putBoolean(FIELD_EDIT_TEXT_MODIFIED,editor_edit_text.isModified);
+        outState.putInt(FIELD_FIND_IN_TEXT_TOOLBAR_VISIBILITY,toolbar_find_in_text.visibility)
     }
 
 
@@ -337,19 +347,7 @@ class EditorActivity : Activity() {
     }
 
 
-
-
-
-
-
-
     companion object {
-
-        @JvmStatic
-        fun getColorForState(enabled : Boolean) : /*color int*/ Int
-        {
-            return if(enabled) R.color.md_grey_800 else R.color.md_grey_400
-        }
 
         @JvmStatic
         val ARG_NOTE_URI = "file_path"
@@ -374,6 +372,9 @@ class EditorActivity : Activity() {
 
         @JvmStatic
         val FIELD_EDIT_TEXT_MODIFIED = "edit_text_modified";
+
+        @JvmStatic
+        val FIELD_FIND_IN_TEXT_TOOLBAR_VISIBILITY = "find_in_text_toolbar_visible";
     }
 }
 

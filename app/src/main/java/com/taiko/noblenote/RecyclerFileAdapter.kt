@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.jakewharton.rxbinding.view.clicks
 import com.jakewharton.rxbinding.view.longClicks
 import com.taiko.noblenote.document.SFile
+import com.taiko.noblenote.extensions.getColorFromAttr
 import com.taiko.noblenote.extensions.toRxObservable
 import kotlinx.android.synthetic.main.recycler_file_item.view.*
 import rx.Observable
@@ -167,17 +168,8 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
 
 
-        val mode = recyclerView.context?.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)
-        when (mode) {
-            Configuration.UI_MODE_NIGHT_YES  -> {
-                mSelectionColor = recyclerView.context.resources.getColor(R.color.md_grey_400)
-                mSelectedFolderColor = recyclerView.context.resources.getColor(R.color.listHighlightDark)
-            }
-            Configuration.UI_MODE_NIGHT_NO or  Configuration.UI_MODE_NIGHT_UNDEFINED-> {
-                mSelectionColor = recyclerView.context.resources.getColor(R.color.md_grey_200)
-                mSelectedFolderColor = recyclerView.context.resources.getColor(R.color.listHighlight)
-            }
-        }
+     mSelectedFolderColor = recyclerView.context.getColorFromAttr(R.attr.colorAccent);
+        mSelectionColor = recyclerView.context.getColorFromAttr(R.attr.colorAccent);
 
 
     }

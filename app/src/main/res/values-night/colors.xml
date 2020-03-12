@@ -6,7 +6,7 @@
     <color name="lightGray">#FFF6F6F6</color>
 
     <color name="primary_pressed">#681f13</color>
-    <color name="colorPrimary">#5F2110</color>
+    <color name="colorPrimary">#353535</color>
     <color name="colorPrimaryDark">#38170D</color>
     <color name="colorPrimaryLight">#A7877A</color>
     <color name="colorAccent">#AA9D7A</color>
@@ -16,6 +16,9 @@
     <color name="divider">#BDBDBD</color>
     <color name="listHighlight">#77FFCCBC</color>
     <color name="listHighlightDark">#F44336</color>
+
+    <!-- predefined ?android::attr/colorBackground is dark grey instead of black in dark mode-->
+    <color name="listBackground">#FF000000</color>
 
     <color name="ripple">#ff80ab</color>
 
