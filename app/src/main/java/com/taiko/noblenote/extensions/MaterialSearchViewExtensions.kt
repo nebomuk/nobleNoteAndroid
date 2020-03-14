@@ -1,8 +1,9 @@
-package com.taiko.noblenote
+package com.taiko.noblenote.extensions
 
 import android.text.Editable
 import android.widget.EditText
 import com.miguelcatalan.materialsearchview.MaterialSearchView
+import com.taiko.noblenote.R
 import rx.Observable
 import rx.Subscriber
 import rx.android.MainThreadSubscription
@@ -17,7 +18,7 @@ public class MaterialSearchViewQueryTextChangesOnSubscribe(val view: MaterialSea
         val watcher = object : MaterialSearchView.OnQueryTextListener {
             override fun onQueryTextChange(s: String): Boolean {
                 if (!subscriber.isUnsubscribed) {
-                    subscriber.onNext(QueryResult(s,false))
+                    subscriber.onNext(QueryResult(s, false))
                     return true
                 }
                 return false
@@ -25,7 +26,7 @@ public class MaterialSearchViewQueryTextChangesOnSubscribe(val view: MaterialSea
 
             override fun onQueryTextSubmit(query: String): Boolean {
                 if (!subscriber.isUnsubscribed) {
-                    subscriber.onNext(QueryResult(query,true))
+                    subscriber.onNext(QueryResult(query, true))
                     return true
                 }
                 return false

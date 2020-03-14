@@ -1,12 +1,12 @@
-<android.support.design.widget.CoordinatorLayout
-    android:layout_width="match_parent"
+<androidx.coordinatorlayout.widget.CoordinatorLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/coordinator_layout"
 
     >
 
-    <android.support.v4.widget.SwipeRefreshLayout
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -24,7 +24,7 @@
     android:layout_marginRight="16dp"
     tools:context=".MainActivity">
     </FrameLayout>
-    </android.support.v4.widget.SwipeRefreshLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 
     <FrameLayout
@@ -38,6 +38,9 @@
         <include layout="@layout/toolbar"/>
         <com.miguelcatalan.materialsearchview.MaterialSearchView
             android:id="@+id/search_view"
+            app:searchBackground="?android:attr/colorBackground"
+            android:textColor="?android:attr/colorForeground"
+            app:searchSuggestionBackground="?android:attr/colorBackground"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:elevation="@dimen/elevation_toolbar"
@@ -52,7 +55,7 @@
     </FrameLayout>
 
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -60,6 +63,6 @@
         android:src="@drawable/ic_add_24dp"
         android:clickable="true"
         android:layout_margin="@dimen/fab_margin"/>
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 <!-- if you rename this file, you must also update the reference to this file inside refs.xml -->

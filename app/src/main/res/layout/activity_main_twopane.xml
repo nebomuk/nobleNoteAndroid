@@ -1,5 +1,5 @@
 <!-- this overrides  activity_main.xml via  refs.xml-->
-<android.support.design.widget.CoordinatorLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,7 +9,7 @@
     xmlns:fab="http://schemas.android.com/apk/res-auto"
     android:id="@+id/coordinator_layout">
 
-    <android.support.v4.widget.SwipeRefreshLayout
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -43,7 +43,7 @@
             </FrameLayout>
 
         </LinearLayout>
-    </android.support.v4.widget.SwipeRefreshLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -108,6 +108,6 @@
             fab:fab_colorPressed="@color/primary_pressed"
             fab:fab_colorRipple="@color/ripple"/>
     </com.github.clans.fab.FloatingActionMenu>
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 <!-- if you rename this file, you must also update the reference to this file inside refs.xml -->

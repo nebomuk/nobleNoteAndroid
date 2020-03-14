@@ -3,17 +3,16 @@ package com.taiko.noblenote
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.Intent
-import android.content.IntentFilter
-import android.content.pm.PackageManager
-import android.content.res.Configuration
-import android.os.Build
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
-import android.support.design.widget.Snackbar
-import android.support.v4.app.ActivityCompat
 import android.view.*
 import android.widget.Toast
+import com.google.android.material.snackbar.Snackbar
+import com.jakewharton.rxbinding.view.visible
+import com.taiko.noblenote.document.SFile
+import com.taiko.noblenote.editor.ArrowKeyLinkMovementMethod
+import com.taiko.noblenote.editor.TextViewUndoRedo
 import kotlinx.android.synthetic.main.activity_editor.*
 import kotlinx.android.synthetic.main.toolbar.*
 import kotlinx.android.synthetic.main.toolbar_find_in_text.*
@@ -24,7 +23,6 @@ import rx.android.schedulers.AndroidSchedulers
 import rx.lang.kotlin.plusAssign
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
-import java.io.File
 
 
 class EditorActivity : Activity() {
@@ -33,9 +31,9 @@ class EditorActivity : Activity() {
     private val log = loggerFor()
 
     private var mFocusable = true // if set to false, the note is opened in read only mode
-    private lateinit var mFilePath: String;
+    private lateinit var mFileUri: Uri;
     private lateinit var mOpenMode: String;
-    private var lastModified: Long = 0
+    private var lastModified: Long = 0 // restored in OnRestoreInstanceState
     private var mFormattingMenuItem: MenuItem? = null
     private val mCompositeSubscription : CompositeSubscription = CompositeSubscription();
 
@@ -43,39 +41,12 @@ class EditorActivity : Activity() {
 
     private lateinit var  mFindInTextToolbarController: FindInTextToolbarController
 
-    private val mPermissionRequestCode = 0xEA;
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        if(requestCode != mPermissionRequestCode)
-        {
-            return;
-        }
-
-        if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-            log.d( " permission granted, reloading file");
-            // permission was granted
-            reload()
-
-        } else {
-
-            log.d( " permission denied, finish() and setting root path to internal storage");
-            // permission denied
-            Toast.makeText(this, R.string.msg_external_storage_permission_denied, Toast.LENGTH_SHORT).show();
-            Pref.rootPath.onNext(Pref.fallbackRootPath);
-            editor_edit_text.isModified = false; // avoid attempts so save the file in onStop
-            finish(); // permission denied or sd not mounted, finish editor activity and show the empty file list of the parent activity
-        }
-        return;
-    }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         //requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 
         super.onCreate(savedInstanceState)
+
 
         log.d( ".onCreate()");
 
@@ -84,9 +55,6 @@ class EditorActivity : Activity() {
         window.requestFeature(Window.FEATURE_ACTION_MODE_OVERLAY)
         setContentView(R.layout.activity_editor)
 
-        mUndoRedo = TextViewUndoRedo(editor_edit_text)
-
-        editor_scroll_view.visibility = View.INVISIBLE
 
         progress_bar_file_loading.progressDrawable = MaterialProgressDrawable.create(this)
         progress_bar_file_loading.indeterminateDrawable = MaterialIndeterminateProgressDrawable.create(this)
@@ -94,17 +62,17 @@ class EditorActivity : Activity() {
         // hide soft keyboard by default
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
 
+        mUndoRedo = TextViewUndoRedo(editor_edit_text);
+
         // uncomment to enable close button
 /*        toolbar.setNavigationIcon(R.drawable.ic_close_black_24dp)
         toolbar.setNavigationOnClickListener { showExitDialog() }*/
 
         val extras = intent.extras ?: return
-        mFilePath = extras.getString(ARG_FILE_PATH)
-        mOpenMode = extras.getString(ARG_OPEN_MODE)
+        mFileUri = Uri.parse(extras.getString(ARG_NOTE_URI))
+        mOpenMode = extras.getString(ARG_OPEN_MODE)!!
         mFocusable = !(mOpenMode == HTML || mOpenMode == READ_ONLY) // no editing if html source should be shown
 
-        toolbar.title = File(mFilePath).nameWithoutExtension
-        populateMenu(toolbar.menu)
 
         editor_edit_text.isTextWatcherEnabled = false
         editor_edit_text.isFocusable = mFocusable // read only if not mFocusable
@@ -112,27 +80,22 @@ class EditorActivity : Activity() {
 
         mFindInTextToolbarController = FindInTextToolbarController(this);
 
-        if(!Pref.isInternalStorage)
+        if(savedInstanceState != null)
         {
+            // FIXME disable auto save when configuration changed
+            lastModified = savedInstanceState.getLong(FIELD_LAST_MODIFIED,0L);
+           editor_edit_text.isModified = savedInstanceState.getBoolean(FIELD_EDIT_TEXT_MODIFIED,false);
+            toolbar_find_in_text.visibility = savedInstanceState.getInt(FIELD_FIND_IN_TEXT_TOOLBAR_VISIBILITY,View.GONE);
 
-            if(!FileHelper.checkFilePermission(this))
-            {
-                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), mPermissionRequestCode);
-            }
+            progress_bar_file_loading.visibility = View.GONE
+            editor_scroll_view.visibility = View.VISIBLE
+        }
+        else
+        {
+            editor_scroll_view.visibility = View.INVISIBLE
         }
 
-
-        val intentFilter = IntentFilter(Intent.ACTION_MEDIA_REMOVED);
-        intentFilter.addAction(Intent.ACTION_MEDIA_EJECT);
-
-        // switch to internal storage when sd unmounted
-        mCompositeSubscription += RxBroadcastReceiver.create(this, intentFilter).filter { !Pref.isInternalStorage }.subscribe {
-            Toast.makeText(this,getString(R.string.msg_external_storage_not_mounted) + " "
-                    + getString(R.string.msg_switching_internal_storage), Toast.LENGTH_LONG).show();
-            editor_edit_text.isModified = false; // avoid attempts so save the file in onStop
-            Pref.rootPath.onNext(Pref.fallbackRootPath);
-            finish();
-        }
+        populateMenu(toolbar.menu)
 
 
     }
@@ -141,13 +104,12 @@ class EditorActivity : Activity() {
         super.onStart()
         log.d( ".onStart()");
 
-        if (FileHelper.checkFilePermission(this) && File(mFilePath).lastModified() > lastModified) {
+        if (SFile(mFileUri).lastModified() > lastModified) {
             reload()
         }
         // fix selection & formatting for Honeycomb and newer devices
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             editor_edit_text.customSelectionActionModeCallback = SelectionActionModeCallback(editor_edit_text)
-        }
+
     }
 
     /**
@@ -157,7 +119,7 @@ class EditorActivity : Activity() {
         // load file contents and parse html thread
         log.d( ".reload()");
 
-            mCompositeSubscription += FileHelper.readFile(mFilePath, this, parseHtml = mOpenMode != HTML) // don't parse html if it should display the html source of the note
+            mCompositeSubscription += FileHelper.readFile(mFileUri, this, parseHtml = mOpenMode != HTML) // don't parse html if it should display the html source of the note
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({
@@ -178,29 +140,32 @@ class EditorActivity : Activity() {
                             Snackbar.make(layout_root, R.string.noteReloaded, Snackbar.LENGTH_SHORT).show()
                         }
 
-                        lastModified = File(mFilePath).lastModified()
+                        lastModified = SFile(mFileUri).lastModified()
 
                     }, {
                         log.e(it.message)
-                        Toast.makeText(this, R.string.file_loading_error, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, R.string.msg_file_loading_error, Toast.LENGTH_SHORT).show()
                         finish();
 
                     });
     }
 
     public override fun onStop() {
+        mFindInTextToolbarController.clearFindText() // required because android serializes the highlight on configuration changes and then removing does not longer work
+
         super.onStop()
 
         log.d( ".onStop()");
 
+
         // does nothing if open mode is set to read only
 
         // if not mFocusable, changes can not be made
-        if (Pref.isAutoSaveEnabled &&  !isChangingConfigurations &&  mFocusable && editor_edit_text.isModified && FileHelper.checkFilePermission(this))
+        if (Pref.isAutoSaveEnabled &&  !isChangingConfigurations &&  mFocusable && editor_edit_text.isModified)
         // then save the note
         {
 
-                FileHelper.writeFile(filePath = mFilePath, text = editor_edit_text.textHTML)
+                FileHelper.writeFile(filePath = mFileUri, text = editor_edit_text.textHTML)
                         .subscribeOn(Schedulers.io())
                         .subscribe {
 
@@ -268,20 +233,10 @@ class EditorActivity : Activity() {
 
         MenuHelper.addCopyToClipboard(this,menu,{editor_edit_text.text})
 
-        var showAsActionFlags : Int;
-
-        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE || ScreenUtil.isTablet(this)){
-            showAsActionFlags = MenuItem.SHOW_AS_ACTION_ALWAYS;
-        }
-        else
-        {
-            showAsActionFlags = MenuItem.SHOW_AS_ACTION_NEVER;
-        }
-
 
         val undoItem = menu.add(R.string.action_undo)
                 .setIcon(R.drawable.ic_undo_black_24dp)
-                .setShowAsActionFlags(showAsActionFlags)
+                .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
                 .setAlphabeticShortcut('Z')
                 .setOnMenuItemClickListener {
             mUndoRedo.undo();
@@ -291,15 +246,14 @@ class EditorActivity : Activity() {
         // TODO callback should be invoked when no text has changed
         mCompositeSubscription += mUndoRedo.canUndoChanged().subscribe {
 
-            val draw = resources.getDrawable(R.drawable.ic_undo_black_24dp)
-            draw.setTintCompat(this,getColorForState(it))
+            val draw = resources.getDrawable(R.drawable.ic_undo_black_24dp,theme)
             undoItem.isEnabled = it;
-            undoItem.icon = draw
          }
+
 
         val redoItem = menu.add(R.string.action_redo)
                 .setIcon(R.drawable.ic_redo_black_24dp)
-                .setShowAsActionFlags(showAsActionFlags)
+                .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
                 .setAlphabeticShortcut('Y')
                 .setOnMenuItemClickListener {
                     mUndoRedo.redo();
@@ -307,24 +261,34 @@ class EditorActivity : Activity() {
                 }
         mCompositeSubscription += mUndoRedo.canRedoChanged().subscribe {
 
-            val draw = resources.getDrawable(R.drawable.ic_redo_black_24dp)
-            draw.setTintCompat(this, getColorForState(it))
+            val draw = resources.getDrawable(R.drawable.ic_redo_black_24dp,theme)
             redoItem.isEnabled = it;
-            redoItem.icon = draw
         }
 
+        val itemDone = menu.add(R.string.action_done)
 
-        //mFormattingMenuItem = MenuHelper.addTextFormatting(this,menu,editor_edit_text);
-
-
-
-        val itemDone = menu.add(R.string.action_done).setIcon(R.drawable.ic_done_black_24dp)
+                .setIcon(R.drawable.ic_done_black_24dp)
                 .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
 
         itemDone.setOnMenuItemClickListener {
             finish()
             true
         }
+
+        itemDone.isVisible = editor_edit_text.isModified;
+
+        mCompositeSubscription += mUndoRedo.canUndoChanged()
+                .filter {it }
+                .take(1)
+                .subscribe {
+                    markTitleAsModified()
+                    itemDone.isVisible = true;
+                }
+
+        //mFormattingMenuItem = MenuHelper.addTextFormatting(this,menu,editor_edit_text);
+
+
+
 
         menu.add(R.string.action_auto_save)
                 .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER)
@@ -343,7 +307,35 @@ class EditorActivity : Activity() {
 
     }
 
+    private fun markTitleAsModified() {
+        if(toolbar.title.isNullOrEmpty())
+            return;
 
+        if(!toolbar.title.endsWith("*"))
+        {
+            toolbar.title = toolbar.title.toString() + "*"; // modified indicator
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // isModified is only available after onRestoreInstanceState, which is (maybe) called before onResume
+        toolbar.title = SFile(mFileUri).nameWithoutExtension;
+        if(editor_edit_text.isModified)
+        {
+            markTitleAsModified()
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+
+        super.onSaveInstanceState(outState)
+
+        outState.putLong(FIELD_LAST_MODIFIED,lastModified);
+        outState.putBoolean(FIELD_EDIT_TEXT_MODIFIED,editor_edit_text.isModified);
+        outState.putInt(FIELD_FIND_IN_TEXT_TOOLBAR_VISIBILITY,toolbar_find_in_text.visibility)
+    }
 
 
 
@@ -355,22 +347,10 @@ class EditorActivity : Activity() {
     }
 
 
-
-
-
-
-
-
     companion object {
 
         @JvmStatic
-        fun getColorForState(enabled : Boolean) : /*color int*/ Int
-        {
-            return if(enabled) R.color.md_grey_800 else R.color.md_grey_400
-        }
-
-        @JvmStatic
-        val ARG_FILE_PATH = "file_path"
+        val ARG_NOTE_URI = "file_path"
 
         @JvmStatic
         val ARG_OPEN_MODE = "open_mode"
@@ -386,6 +366,15 @@ class EditorActivity : Activity() {
 
         @JvmStatic
         val READ_ONLY = "read_only"
+
+        @JvmStatic
+        val FIELD_LAST_MODIFIED = "last_modified";
+
+        @JvmStatic
+        val FIELD_EDIT_TEXT_MODIFIED = "edit_text_modified";
+
+        @JvmStatic
+        val FIELD_FIND_IN_TEXT_TOOLBAR_VISIBILITY = "find_in_text_toolbar_visible";
     }
 }
 

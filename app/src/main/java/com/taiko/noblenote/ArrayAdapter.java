@@ -19,10 +19,10 @@ package com.taiko.noblenote;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Handler;
-import android.support.annotation.ArrayRes;
-import android.support.annotation.IdRes;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
+import androidx.annotation.ArrayRes;
+import androidx.annotation.IdRes;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +31,8 @@ import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
+
+import com.taiko.noblenote.document.SFile;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -404,6 +406,10 @@ public class ArrayAdapter<T> extends BaseAdapter implements Filterable
         else if (item instanceof File)
         {
             text.setText(((File) item).getName());
+        }
+        else if(item instanceof SFile)
+        {
+            text.setText(((SFile) item).getName());
         }
         else
         {

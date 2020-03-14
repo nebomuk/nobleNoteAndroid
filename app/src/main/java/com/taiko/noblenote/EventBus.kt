@@ -1,8 +1,8 @@
 package com.taiko.noblenote
 
+import com.taiko.noblenote.document.SFile
 import rx.lang.kotlin.PublishSubject
 import rx.subjects.PublishSubject
-import java.io.File
 
 /**
  * Created by Taiko on 04.10.2016.
@@ -11,11 +11,10 @@ import java.io.File
  */
 class EventBus
 {
-    val  fileSelected : PublishSubject<File> = PublishSubject();
-    val newFolderClick : PublishSubject<Unit> = PublishSubject();
-    val newFileClick : PublishSubject<Unit> = PublishSubject();
-    val createFileClick: PublishSubject<File> = PublishSubject()
-    val createFolderClick: PublishSubject<File> = PublishSubject()
+    val  fileSelected : PublishSubject<SFile> = PublishSubject();
+    val createFileClick: PublishSubject<SFile> = PublishSubject()
+    val createFolderClick: PublishSubject<SFile> = PublishSubject()
+    val filesPasted : PublishSubject<Sequence<SFile>> = PublishSubject();
     val swipeRefresh: PublishSubject<Unit> = PublishSubject()
 
 

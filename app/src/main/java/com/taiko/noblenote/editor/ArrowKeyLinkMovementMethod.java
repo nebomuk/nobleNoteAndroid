@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.taiko.noblenote;
+package com.taiko.noblenote.editor;
 
 import android.text.Layout;
 import android.text.Selection;

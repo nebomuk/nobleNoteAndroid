@@ -1,17 +1,21 @@
 package com.taiko.noblenote
 
 import android.app.Fragment
+import android.net.Uri
 import android.os.Bundle
-import android.support.v7.widget.DefaultItemAnimator
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.view.View
+import com.taiko.noblenote.document.SFile
 import kotlinx.android.synthetic.main.fragment_file_list.view.*
 import kotlinx.android.synthetic.main.toolbar.*
+import rx.android.schedulers.AndroidSchedulers
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
 import java.io.File
 import java.io.FileFilter
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by taiko
@@ -22,7 +26,8 @@ class FolderListController(private var fragment: Fragment, view: View) {
     private val mCompositeSubscription = CompositeSubscription()
 
 
-    private  var recyclerFileAdapter: RecyclerFileAdapter
+    private  val recyclerFileAdapter: RecyclerFileAdapter
+    private val listSelectionController: ListSelectionController;
 
     init {
         mTwoPane = (fragment.activity as MainActivity).twoPane
@@ -31,24 +36,28 @@ class FolderListController(private var fragment: Fragment, view: View) {
 
         recyclerView.itemAnimator = DefaultItemAnimator();
 
-        val dir = File(Pref.rootPath.value)
-        if (!dir.exists())
-            dir.mkdirs()
+        if(Uri.parse(Pref.rootPath.value).scheme == "file")
+        {
+            val dir = File(Pref.rootPath.value)
+            if (!dir.exists())
+                dir.mkdirs()
+        }
+
 
         // the following code lists only visible folders and push their names into an ArrayAdapter
         val folderFilter = FileFilter { pathname -> pathname.isDirectory && !pathname.isHidden }
 
-        recyclerFileAdapter = RecyclerFileAdapter()
+        recyclerFileAdapter = RecyclerFileAdapter(SFile(Pref.rootPath.value))
 
-        recyclerFileAdapter.filter = folderFilter
+        recyclerFileAdapter.showFolders = true;
 
         recyclerFileAdapter.applyEmptyView(view.empty_list_switcher,R.id.text_empty,R.id.recycler_view)
 
         recyclerView.adapter = recyclerFileAdapter
         recyclerView.layoutManager = LinearLayoutManager(fragment.activity)
 
-        val listController = ListSelectionController(fragment.activity as MainActivity, recyclerView)
-        listController.isTwoPane = mTwoPane;
+        listSelectionController =ListSelectionController(fragment.activity as MainActivity, recyclerFileAdapter)
+        listSelectionController.isTwoPane = mTwoPane;
 
         val app = (fragment.activity.application as MainApplication)
 
@@ -68,8 +77,8 @@ class FolderListController(private var fragment: Fragment, view: View) {
                 {
                     val item = recyclerFileAdapter.getItem(it)
                     if(item != null) {
-                        Pref.currentFolderPath.onNext(item.absolutePath)
-                        showNoteFragment(item.absolutePath)
+                        Pref.currentFolderPath.onNext(item.uri.toString())
+                        showNoteFragment(item.uri.toString())
                     }
 
                 }
@@ -77,32 +86,33 @@ class FolderListController(private var fragment: Fragment, view: View) {
 
         }
         else {
-            mCompositeSubscription += listController.itemClicks()
+            mCompositeSubscription += listSelectionController.itemClicks()
                     .subscribe {
                         val item = recyclerFileAdapter.getItem(it);
                         if (item != null) {
-                            Pref.currentFolderPath.onNext(item.absolutePath)
-                            showNoteFragment(item.absolutePath)
+                            Pref.currentFolderPath.onNext(item.uri.toString())
+                            showNoteFragment(item.uri.toString())
                         }
 
                     }
         }
 
 
-        mCompositeSubscription += app.eventBus.createFolderClick.subscribe { recyclerFileAdapter.addFile(it) }
+        mCompositeSubscription += app.eventBus.createFolderClick.subscribe { recyclerFileAdapter.addFileName(it.name) }
 
         mCompositeSubscription += app.eventBus.swipeRefresh.subscribe {
             if (fragment != null) {
-                recyclerFileAdapter.refresh(fragment.activity)
+                SFile.invalidateAllFileListCaches();
+                recyclerFileAdapter.refresh()
             }
         };
     }
 
-    private fun showNoteFragment(folderPath: String) {
+    private fun showNoteFragment(folderUriString: String) {
 
         val noteFragment = NoteListFragment()
         val arguments = Bundle()
-        arguments.putString(NoteListFragment.ARG_FOLDER_PATH, folderPath)
+        arguments.putString(NoteListFragment.ARG_FOLDER_PATH, folderUriString)
         noteFragment.arguments = arguments
 
         if (mTwoPane) {
@@ -110,20 +120,26 @@ class FolderListController(private var fragment: Fragment, view: View) {
             fragment.activity.toolbar.title = null; // clear title after orientation change
         } else {
             fragment.fragmentManager.beginTransaction().add(R.id.item_master_container, noteFragment).addToBackStack(null).commit();
-            fragment.activity.toolbar.title = File(folderPath).nameWithoutExtension
+            fragment.activity.toolbar.title = SFile(folderUriString).nameWithoutExtension
         }
     }
 
     fun onStart()
     {
-        mCompositeSubscription += Pref.rootPath.subscribe {
-            recyclerFileAdapter.path = File(it);
-            recyclerFileAdapter.refresh(fragment.activity); }
+        mCompositeSubscription += Pref.rootPath
+                .throttleLast(500,TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+
+                    SFile.invalidateAllFileListCaches();
+            recyclerFileAdapter.path = SFile(it);
+            recyclerFileAdapter.refresh(); }
     }
 
     fun onDestroyView()
     {
         mCompositeSubscription.clear();
+        listSelectionController.clearSubscriptions()
     }
 
 

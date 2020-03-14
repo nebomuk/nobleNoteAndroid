@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import com.taiko.noblenote.editor.DroidWriterEditText
 import kotlinx.android.synthetic.main.layout_text_formatting.view.*
 
 /**
@@ -29,7 +30,7 @@ object MenuHelper {
             } else {
                 val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
                 val clip = android.content.ClipData.newPlainText("Copied Text", textSource())
-                clipboard.primaryClip = clip
+                clipboard.setPrimaryClip(clip);
             }
 
             Toast.makeText(ctx, R.string.msg_copied_to_clipboard, Toast.LENGTH_SHORT).show()

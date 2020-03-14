@@ -1,6 +1,7 @@
 package com.taiko.noblenote
 
 import com.chibatching.kotpref.KotprefModel
+import com.taiko.noblenote.document.toSFile
 import rx.lang.kotlin.BehaviorSubject
 import rx.subjects.BehaviorSubject
 import java.io.File
@@ -11,7 +12,8 @@ import java.io.File
 object Pref : KotprefModel()
 {
     // constants
-    val fallbackRootPath = File(context.filesDir.absolutePath,"/nn").absolutePath;
+    // TODO check external storage package
+    val fallbackRootPath = File(context.filesDir.absolutePath,"/nn").toSFile().uri.toString()
 
     // backing prefs
     private var mRootPath: String by stringPrefVar(default = fallbackRootPath) // the root path where the folders are stored
@@ -31,7 +33,9 @@ object Pref : KotprefModel()
     init {
         // update backing prefs
         currentFolderPath.subscribe { mCurrentFolderPath = it }
-        rootPath.subscribe { mRootPath = it }
+        rootPath.subscribe {
+            mRootPath = it
+        }
     }
 
 }

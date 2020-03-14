@@ -1,4 +1,4 @@
-package com.taiko.noblenote;
+package com.taiko.noblenote.editor;
 
 import android.text.Spannable;
 import android.text.style.CharacterStyle;

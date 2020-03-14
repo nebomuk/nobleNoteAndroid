@@ -37,7 +37,7 @@
     android:id="@+id/editor_scroll_view"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/gray"
+    android:background="@color/listBackground"
     android:fadingEdge="none"
  	android:fillViewport="true">
     
@@ -54,6 +54,7 @@
         <!-- left border, can not use a mere View here, because a view with a color
         set is not properly rendered on 4.1+ devices -->
         <Button
+            android:background="@color/listBackground"
             android:layout_width="28dp"
             android:layout_height="fill_parent"
             android:layout_marginBottom="-8dp"
@@ -64,7 +65,7 @@
  			<!-- layout_weight="1" and  layout_width="0dp" cause the text edit to
  			expand to fill the available space between the border buttons -->
 
-        <com.taiko.noblenote.DroidWriterEditText
+        <com.taiko.noblenote.editor.DroidWriterEditText
             android:id="@+id/editor_edit_text"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
@@ -74,11 +75,14 @@
             android:imeOptions="flagNoExtractUi"
             android:inputType="textMultiLine"
             android:scrollHorizontally="false"
-            android:scrollbars="vertical" >
-        </com.taiko.noblenote.DroidWriterEditText>
+            android:scrollbars="vertical"
+            android:saveEnabled="true"
+            >
+        </com.taiko.noblenote.editor.DroidWriterEditText>
 
         <!-- right border -->
         <Button
+            android:background="@color/listBackground"
             android:layout_width="28dp"
             android:layout_height="fill_parent"
             android:enabled="false" 

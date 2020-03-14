@@ -1,11 +1,10 @@
-package com.taiko.noblenote
+package com.taiko.noblenote.extensions
 
 
-import android.databinding.ObservableArrayList
-import android.databinding.ObservableList
+import androidx.databinding.ObservableList
 import rx.subscriptions.Subscriptions
 
-fun <T> ObservableArrayList<T>.toRxObservable(): rx.Observable<List<T>> {
+fun <T> ObservableList<T>.toRxObservable(): rx.Observable<List<T>> {
     return rx.Observable.create { subscriber ->
         subscriber.onNext(this)
         val listener = object : ObservableList.OnListChangedCallback<ObservableList<T>>() {

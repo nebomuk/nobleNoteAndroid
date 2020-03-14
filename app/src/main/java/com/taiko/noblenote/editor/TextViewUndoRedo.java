@@ -1,4 +1,4 @@
-package com.taiko.noblenote;
+package com.taiko.noblenote.editor;
 
 import android.text.Editable;
 import android.text.Selection;
@@ -15,6 +15,8 @@ import rx.subjects.PublishSubject;
  * A generic undo/redo implementation for TextViews.
  *
  * based on https://code.google.com/p/android/issues/attachmentText?id=6458&aid=64580123000&name=TextViewUndoRedo.java&token=ABZ6GAcCToH1Lnjgqfh9vh8jI6yMrz18Ww%3A1481276173570
+ *
+ * class is not serializable because undo redo does not work properly with Spannables
  */
 public class TextViewUndoRedo {
 
@@ -55,6 +57,7 @@ public class TextViewUndoRedo {
         mEditHistory = new EditHistory();
         mChangeListener = new EditTextChangeListener();
         mTextView.addTextChangedListener(mChangeListener);
+
     }
 
     // =================================================================== //
@@ -161,7 +164,7 @@ public class TextViewUndoRedo {
     /**
      * Keeps track of all the edit history of a text.
      */
-    private final class EditHistory {
+    private final static class EditHistory {
 
         /**
          * The position from which an EditItem will be retrieved when getNext()
@@ -260,7 +263,7 @@ public class TextViewUndoRedo {
     /**
      * Represents the changes performed by a single edit operation.
      */
-    private final class EditItem {
+    private final static class EditItem {
         private final int mmStart;
         private final CharSequence mmBefore;
         private final CharSequence mmAfter;

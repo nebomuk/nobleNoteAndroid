@@ -1,10 +1,11 @@
-package com.taiko.noblenote;
+package com.taiko.noblenote.editor;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Parcelable;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.Spannable;
@@ -376,12 +377,24 @@ public class DroidWriterEditText extends CABEditText {
 		super.onDraw(canvas);
 	}
 
+	/**
+	 *
+	 * @return true if the text is modified, false otherwise.
+	 */
 	public boolean isModified() {
 		return modified;
 	}
 
 	public void setModified(boolean modified) {
 		this.modified = modified;
+	}
+
+	@Override
+	public void onRestoreInstanceState(Parcelable state) {
+		// Note: this does NOT restore the state of "modified" after an activity configuration change!
+		boolean oldModifiedState = modified;
+		super.onRestoreInstanceState(state); // onRestoreInstanceState calls afterTextChanged which sets this value to true as a undesired side effect
+		modified = oldModifiedState; // but we want to keep the original state
 	}
 
 	private class DWTextWatcher implements TextWatcher {

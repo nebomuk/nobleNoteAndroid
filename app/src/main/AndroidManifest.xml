@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.taiko.noblenote"
+<manifest xmlns:tools="http://schemas.android.com/tools"
+          package="com.taiko.noblenote"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!-- for android 5.0 compatibility-->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="23"
+        />
 
+    <!-- this would be added by gradle automatically, but missing maxSdkVersion -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="23"
+        />
 
     <!--         android:icon="@mipmap/ic_launcher" -->
     <application
@@ -14,7 +22,7 @@
         android:theme="@style/AppTheme"
         android:icon="@mipmap/ic_launcher_alternative"
         android:roundIcon="@mipmap/ic_launcher_alternative_round"
-        >
+        tools:ignore="UnusedAttribute">
 
 
         <activity
@@ -28,10 +36,6 @@
         </activity>
         <!-- android:theme="@style/Theme.Styled" -->
         <activity android:name="com.taiko.noblenote.EditorActivity">
-        </activity>
-        <activity
-            android:name="com.taiko.noblenote.RenameDialogActivity"
-            android:label="@string/rename_dialog">
         </activity>
     </application>
 

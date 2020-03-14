@@ -3,17 +3,17 @@ package com.taiko.noblenote
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
-import android.support.design.widget.CoordinatorLayout
-import android.support.design.widget.Snackbar
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import com.google.android.material.snackbar.Snackbar
 import android.text.InputFilter
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.FrameLayout
+import com.taiko.noblenote.document.SFile
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
-import java.io.File
 import java.io.IOException
 
 /**
@@ -26,17 +26,15 @@ import java.io.IOException
 object Dialogs {
 
     @JvmStatic
-    fun showNewNoteDialog(layout: CoordinatorLayout, fileCreated: (f : File) -> Unit) {
+    fun showNewNoteDialog(layout: CoordinatorLayout, fileCreated: (f : SFile) -> Unit) {
 
         val context = layout.context;
 
-        if(FileHelper.checkFilePermission(context))
-        {
             val
                  dialogBuilder = AlertDialog.Builder(context)
 
-                    val rootContents = File(Pref.rootPath.value).listFiles();
-                    if(rootContents == null || rootContents.isEmpty())
+                    val rootContents = SFile(Pref.rootPath.value).listFiles();
+                    if(rootContents.isEmpty())
                     {
                         dialogBuilder.setTitle(R.string.title_noNotebookExists)
                         dialogBuilder.setMessage(R.string.noNotebookExists)
@@ -53,25 +51,28 @@ object Dialogs {
                     val input = EditText(context)
                     input.filters = arrayOf<InputFilter>(FileNameFilter())
 
-                    // dont propose a name that already exists
-                    var proposed = File(Pref.currentFolderPath.value, context.getString(R.string.newNote))
+                    val parent = SFile(Pref.rootPath.value);
+                    val proposedFileName = context.getString(R.string.newNote)
+                    var proposed = SFile(parent, proposedFileName)
                     var counter = 0
                     while (proposed.exists()) {
-                        proposed = File("${proposed.absoluteFile} (${++counter})")
+                    proposed = SFile(parent,"$proposedFileName (${++counter})")
                     }
+
                     input.setText(proposed.name)
                     input.setSelection(input.text.length)
                     dialogBuilder.setView(wrapWithMargins(input))
                     dialogBuilder.setPositiveButton(
                             android.R.string.ok) { dialog, whichButton ->
                         val newName = input.text.trim()
-                        val newFile = File(Pref.currentFolderPath.value, newName.toString())
+                        val newFile = SFile(SFile(Pref.currentFolderPath.value), newName.toString())
                         try {
                             if(newFile.exists())
                             {
                                 Snackbar.make(layout, R.string.notCreatedNoteExists, Snackbar.LENGTH_LONG).show()
                             }
                             else if (newFile.createNewFile()) {
+                                // FIXME exception thrown
                                 fileCreated(newFile)
                             } else
                             // error occured
@@ -87,7 +88,7 @@ object Dialogs {
                     dialogBuilder.setNegativeButton(android.R.string.cancel, null)
 
                     dialogBuilder.show()
-                };
+
     }
 
     /**
@@ -106,12 +107,9 @@ object Dialogs {
     }
 
     @JvmStatic
-    fun showNewFolderDialog(layout: CoordinatorLayout,  folderCreated: (f : File) -> Unit) {
+    fun showNewFolderDialog(layout: CoordinatorLayout, folderCreated: (f : SFile) -> Unit) {
 
         val context = layout.context;
-
-        if(FileHelper.checkFilePermission(context))
-                {
                     val dialogBuilder = AlertDialog.Builder(context)
 
                     dialogBuilder.setTitle(R.string.newNotebook)
@@ -121,11 +119,12 @@ object Dialogs {
                     val input = EditText(context)
                     input.filters = arrayOf<InputFilter>(FileNameFilter())
 
-                    val proposedDirPath = File(Pref.rootPath.value, context.getString(R.string.newNotebook)).absolutePath
-                    var proposed = File(proposedDirPath)
+                    val parent = SFile(Pref.rootPath.value);
+                    val proposedFileName = context.getString(R.string.newNotebook)
+                    var proposed = SFile(parent, proposedFileName)
                     var counter = 0
                     while (proposed.exists()) {
-                        proposed = File("$proposedDirPath (${++counter})")
+                        proposed = SFile(parent,"$proposedFileName (${++counter})")
                     }
                     input.setText(proposed.name)
                     input.setSelection(input.text.length)
@@ -134,12 +133,12 @@ object Dialogs {
                     dialogBuilder.setPositiveButton(
                             android.R.string.ok) { dialog, whichButton ->
                         val newName = input.text.trim()
-                        val dir = File(Pref.rootPath.value, newName.toString())
+                        val dir = SFile(SFile(Pref.rootPath.value), newName.toString())
                         if(dir.exists())
                         {
                             Snackbar.make(layout, R.string.notCreatedNotebookExists, Snackbar.LENGTH_LONG).show()
                         }
-                        else if (!dir.mkdirs()) {
+                        else if (!dir.mkdir()) {
                             Snackbar.make(layout, R.string.notebookNotCreated, Snackbar.LENGTH_LONG).show()
                         } else {
                             folderCreated(dir)
@@ -150,18 +149,15 @@ object Dialogs {
                     dialogBuilder.setNegativeButton(android.R.string.cancel, null)
 
                     dialogBuilder.show();
-                };
+
     }
 
     /**
      * shows a dialog to rename a folder or file relative to the root path
      */
     @JvmStatic
-    fun showRenameDialog(activity : Activity, rootView: View, file: File, onRenamed : (renamedFile: File) -> Unit, onNotRenamed : () -> Unit)
+    fun showRenameDialog(activity : Activity, rootView: View, file: SFile, onRenamed : (renamedFile: SFile) -> Unit, onNotRenamed : () -> Unit)
     {
-
-        if(FileHelper.checkFilePermission(activity))
-                {
 
                     val dialogBuilder = AlertDialog.Builder(rootView.context)
 
@@ -186,15 +182,16 @@ object Dialogs {
                     dialogBuilder.setPositiveButton(
                             android.R.string.ok) { dialog, whichButton ->
                         val newName = input.text.toString().trim()
-                        val newFile = File(file.parentFile, newName)
 
-                        if (newFile == file) // name wasnt changed by user
+
+                        if (newName == file.name) // name wasnt changed by user
                         {
                             onNotRenamed();
                             return@setPositiveButton;
                         }
 
-                        if (newFile.exists()) {
+                        var proposed = SFile(file.parentFile,newName)
+                        if (proposed.exists()) {
                             Snackbar.make(rootView, msgExists, Snackbar.LENGTH_LONG).show()
                             onNotRenamed();
                             return@setPositiveButton
@@ -204,11 +201,9 @@ object Dialogs {
                         {
                             var renamed = false;
 
-                            if (isDir) {
-                                renamed = FileHelper.directoryMove(file, newFile)
-                            } else {
-                                renamed = file.renameTo(newFile)
-                            }
+                            renamed = file.renameTo(newName)
+                            SFile.invalidateAllFileListCaches(); // because opening after rename needs to select the correct file
+
                             it.onNext(renamed);
                             it.onCompleted();
 
@@ -222,7 +217,7 @@ object Dialogs {
                                         onNotRenamed();
 
                                     } else {
-                                        onRenamed(newFile)
+                                        onRenamed(file) // TODO check if the underlying DocumentFile has been modified in place
                                     }
                                 }
                     }
@@ -232,10 +227,6 @@ object Dialogs {
                     dialogBuilder.setOnCancelListener { onNotRenamed() }
 
                     dialogBuilder.show()
-                }
-        else {
-            onNotRenamed();
-        }
     }
 
 

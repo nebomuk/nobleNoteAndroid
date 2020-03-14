@@ -3,17 +3,13 @@ package com.taiko.noblenote
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
-import android.support.design.widget.Snackbar
-import android.support.v4.app.ActivityCompat
-import android.support.v4.widget.SwipeRefreshLayout
 import android.transition.Fade
 import android.view.View
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.jakewharton.rxbinding.view.clicks
+import com.taiko.noblenote.document.SFile
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main_twopane.fab_menu
 import kotlinx.android.synthetic.main.activity_main_twopane.fab_menu_folder
@@ -22,7 +18,6 @@ import kotlinx.android.synthetic.main.toolbar.*
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
 import rx.subscriptions.Subscriptions
-import java.io.File
 
 
 class MainActivity : Activity()
@@ -33,34 +28,7 @@ class MainActivity : Activity()
 
     private val mCompositeSubscription = CompositeSubscription()
     private var mMainToolbarController: MainToolbarController? = null
-    private val mPermissionRequestCode = 0xA;
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>?, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        if(requestCode != 0xA)
-        {
-            return;
-        }
-
-        if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-            log.d(" permission granted");
-            // permission was granted
-            setupUi();
-
-        } else {
-
-            log.d(" permission denied, setting root path to internal storage");
-
-            Snackbar.make(coordinator_layout, getString(R.string.msg_external_storage_permission_denied) + " "
-                    + getString(R.string.msg_switching_internal_storage), Snackbar.LENGTH_LONG).show();
-            Pref.rootPath.onNext(Pref.fallbackRootPath);
-            setupUi();
-        }
-        return;
-
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(null) // do not save instance state because we create fragments manually with updates filesystem state
@@ -84,44 +52,7 @@ class MainActivity : Activity()
         //        setSupportActionBar(toolbar) // required to make styling working, activity options menu callbacks now have to be used
 
 
-
-        if(Pref.isInternalStorage)
-        {
-            setupUi();
-        }
-        else
-        {
-            if(FileHelper.checkFilePermission(this))
-            {
-                setupUi();
-            }
-            else if(Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED && !Pref.isInternalStorage)
-            {
-                Snackbar.make(coordinator_layout,getString(R.string.msg_external_storage_not_mounted) + " "
-                        + getString(R.string.msg_switching_internal_storage),Snackbar.LENGTH_LONG);
-                Pref.rootPath.onNext(Pref.fallbackRootPath);
-
-                setupUi();
-            }
-            else
-            {
-                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), mPermissionRequestCode);
-            }
-        }
-
-        val intentFilter = IntentFilter(Intent.ACTION_MEDIA_REMOVED);
-        intentFilter.addAction(Intent.ACTION_MEDIA_EJECT);
-
-        // switch to internal storage when sd unmounted
-        mCompositeSubscription += RxBroadcastReceiver.create(this, intentFilter).filter { !Pref.isInternalStorage }.subscribe {
-
-
-            Snackbar.make(coordinator_layout,getString(R.string.msg_external_storage_not_mounted) + " "
-             + getString(R.string.msg_switching_internal_storage), Snackbar.LENGTH_LONG).show();
-            Pref.rootPath.onNext(Pref.fallbackRootPath);
-            setupUi();
-        }
-
+        setupUi();
     }
 
 
@@ -228,15 +159,10 @@ class MainActivity : Activity()
 
         @JvmStatic
                 // start the note editor
-        fun startNoteEditor(activity : Context, file: File, argOpenMode : String, argQueryText : String = "") {
-            if(!file.isFile)
-            {
-                log.w("startNoteEditor failed: $file is not a file");
-                return
-            }
+        fun startNoteEditor(activity : Context, file: SFile, argOpenMode : String, argQueryText : String = "") {
 
             val intent = Intent(activity, EditorActivity::class.java)
-            intent.putExtra(EditorActivity.ARG_FILE_PATH, file.path)
+            intent.putExtra(EditorActivity.ARG_NOTE_URI, file.uri.toString())
             intent.putExtra(EditorActivity.ARG_OPEN_MODE, argOpenMode)
             intent.putExtra(EditorActivity.ARG_QUERY_TEXT,argQueryText);
             activity.startActivity(intent);

@@ -1,9 +1,10 @@
-package com.taiko.noblenote
+package com.taiko.noblenote.extensions
 
-import android.support.v4.view.GestureDetectorCompat
-import android.support.v7.widget.RecyclerView
+import androidx.core.view.GestureDetectorCompat
+import androidx.recyclerview.widget.RecyclerView
 import android.view.GestureDetector
 import android.view.MotionEvent
+import com.taiko.noblenote.loggerFor
 import rx.Observable
 import rx.Observer
 import rx.lang.kotlin.add
@@ -44,9 +45,9 @@ class ClickDetectorItemTouchListener(val recyclerView: RecyclerView,
     override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
     }
 
-    override fun onInterceptTouchEvent(recyclerView: RecyclerView?, e: MotionEvent?) = gestureDetector.onTouchEvent(e)
+    override fun onInterceptTouchEvent(recyclerView: RecyclerView, e: MotionEvent) = gestureDetector.onTouchEvent(e)
 
-    override fun onTouchEvent(recyclerView: RecyclerView?, e: MotionEvent?) { }
+    override fun onTouchEvent(recyclerView: RecyclerView, e: MotionEvent) { }
 
     override fun onSingleTapUp(e: MotionEvent?): Boolean {
 
@@ -55,7 +56,7 @@ class ClickDetectorItemTouchListener(val recyclerView: RecyclerView,
         if (e != null) {
 
             val view = recyclerView.findChildViewUnder(e.x, e.y)
-            val position = recyclerView.getChildAdapterPosition(view)
+            val position = recyclerView.getChildAdapterPosition(view!!)
             val id = recyclerView.getChildItemId(view)
 
             log.i("onSingleTapUp position: " + position)
@@ -72,7 +73,7 @@ class ClickDetectorItemTouchListener(val recyclerView: RecyclerView,
 }
 
 class ClickDetectorItemLongPressListener(val recyclerView: RecyclerView,
-                                     val listener: Observer<in Int>
+                                         val listener: Observer<in Int>
 
 ) : RecyclerView.OnItemTouchListener, GestureDetector.SimpleOnGestureListener() {
 
@@ -86,15 +87,15 @@ class ClickDetectorItemLongPressListener(val recyclerView: RecyclerView,
     override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
     }
 
-    override fun onInterceptTouchEvent(recyclerView: RecyclerView?, e: MotionEvent?) = gestureDetector.onTouchEvent(e)
+    override fun onInterceptTouchEvent(recyclerView: RecyclerView, e: MotionEvent) = gestureDetector.onTouchEvent(e)
 
-    override fun onTouchEvent(recyclerView: RecyclerView?, e: MotionEvent?) { }
+    override fun onTouchEvent(recyclerView: RecyclerView, e: MotionEvent) { }
 
     override fun onLongPress(e: MotionEvent?) {
         if (e != null) {
 
             val view = recyclerView.findChildViewUnder(e.x, e.y)
-            val position = recyclerView.getChildAdapterPosition(view)
+            val position = recyclerView.getChildAdapterPosition(view!!)
             val id = recyclerView.getChildItemId(view)
 
             if (position >= 0) {

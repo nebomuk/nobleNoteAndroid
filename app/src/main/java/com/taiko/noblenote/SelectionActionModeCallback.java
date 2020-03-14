@@ -13,6 +13,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ShareActionProvider;
 
+import com.taiko.noblenote.editor.DroidWriterEditText;
+import com.taiko.noblenote.editor.Format;
+
 
 /**
  * 

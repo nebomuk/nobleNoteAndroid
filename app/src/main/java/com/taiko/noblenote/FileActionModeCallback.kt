@@ -21,6 +21,7 @@ class FileActionModeCallback(val mContext : Context) : ActionMode.Callback
      val onRemove : PublishSubject<Unit> = PublishSubject()
     val onRename : PublishSubject<Unit> = PublishSubject()
     val onShowHtml : PublishSubject<Unit> = PublishSubject()
+    val onCut : PublishSubject<Unit> = PublishSubject()
 
     private var mMenu : Menu? = null
 
@@ -35,6 +36,7 @@ class FileActionModeCallback(val mContext : Context) : ActionMode.Callback
             R.id.actionRemove -> onRemove.onNext(Unit)
             R.id.actionRename -> onRename.onNext(Unit)
             R.id.actionShowHtml -> onShowHtml.onNext(Unit)
+            R.id.actionCut -> onCut.onNext(Unit);
         }
         return true;
     }
