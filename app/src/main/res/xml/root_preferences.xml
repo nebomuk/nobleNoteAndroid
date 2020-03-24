@@ -1,0 +1,52 @@
+<!--
+  ~ Copyright 2018 The app Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <PreferenceCategory
+        app:title="Storage Options"
+        />
+    <Preference
+        app:title="@string/pref_title_store_external_storage"
+        app:summary="@string/pref_summary_store_external_storage"
+        app:allowDividerBelow="true"
+        app:key="@string/pref_key_saf_picker"
+        />
+    <Preference
+        app:allowDividerAbove="true"
+        app:allowDividerBelow="true"
+        app:title="@string/title_store_internal_storage"
+        app:summary="@string/pref_summary_store_internal_storage"
+        app:key="@string/pref_key_internal_storage"
+
+        />
+
+
+    <PreferenceCategory
+        app:allowDividerAbove="false"
+        app:title="Editor Options"
+        />
+    <SwitchPreferenceCompat
+
+
+        app:allowDividerBelow="true"
+        app:key="isAutoSaveEnabled"
+        app:summaryOff="@string/pref_summary_off_auto_save"
+        app:summaryOn="@string/pref_summary_on_auto_save"
+        app:title="@string/pref_title_auto_save" />
+
+  </PreferenceScreen>

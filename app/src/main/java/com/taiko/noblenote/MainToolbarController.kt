@@ -1,20 +1,17 @@
 package com.taiko.noblenote
 
-import android.app.Activity
 import android.app.FragmentManager
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
+import android.database.DataSetObserver
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
 import android.view.MenuItem
 import com.jakewharton.rxbinding.view.clicks
 import com.miguelcatalan.materialsearchview.MaterialSearchView
 import com.taiko.noblenote.document.SFile
-import com.taiko.noblenote.document.TreeUriUtil
-import com.taiko.noblenote.document.toSFile
 import com.taiko.noblenote.extensions.queryText
 import com.taiko.noblenote.extensions.queryTextChanges
+import com.taiko.noblenote.preferences.PreferencesActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.toolbar.*
 import rx.Subscription
@@ -22,8 +19,6 @@ import rx.lang.kotlin.plusAssign
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
 import rx.subscriptions.Subscriptions
-import rx_activity_result.RxActivityResult
-import java.io.File
 import java.util.concurrent.TimeUnit
 
 
@@ -42,9 +37,9 @@ class MainToolbarController(val activity: MainActivity) {
 
     init {
 
-        activity.toolbar.menu.findItem(R.id.action_folder_picker)
+        activity.toolbar.menu.findItem(R.id.action_settings)
                 .setOnMenuItemClickListener{
-                    startFolderPicker()
+                    activity.startActivity(Intent(activity, PreferencesActivity::class.java))
                     true
                 }
 
@@ -117,62 +112,6 @@ class MainToolbarController(val activity: MainActivity) {
         }
     }
 
-    private fun startFolderPicker()
-    {
-        if(Build.VERSION.SDK_INT == Build.VERSION_CODES.M) // google play version min sdk is 24, sdk 21-23 is only for internal use
-        {
-            Snackbar.make(activity.coordinator_layout, "Android 6 Marshmallow does not support writing notebooks to the external storage",
-                    Snackbar.LENGTH_LONG).show();
-            return;
-        }
-
-        val filePickerDialogIntent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-                .apply {
-                    putExtra("android.content.extra.SHOW_ADVANCED", true);
-                    putExtra("android.content.extra.FANCY", true);
-                    putExtra("android.content.extra.SHOW_FILESIZE", true);
-                }
-
-
-         RxActivityResult.on(activity).startIntent(filePickerDialogIntent).subscribe {
-             if ((it.resultCode() == Activity.RESULT_OK)) {
-                 val uri: Uri? = it.data().data
-
-                 val takeFlags = it.data().flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-
-                 //noinspection WrongConstant
-                 activity.contentResolver.takePersistableUriPermission(uri!!, takeFlags)
-
-                 if (uri != Uri.parse(Pref.rootPath.toString())) {
-                     SFile.clearGlobalDocumentCache();
-
-
-                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)  // dont forget to grant runtime permission when testing this on newer devices
-                     {
-                         // check if selected uri is 3rd party document provider which does not work,
-                         // for example content://com.pleco.chinesesystem.localstorage.documents
-                         val isExternalStorageDocument = "com.android.externalstorage.documents" == uri.authority;
-
-                         if (!isExternalStorageDocument) {
-                             Snackbar.make(activity.coordinator_layout, "This document cannot be used. Please select the default external storage when there are multiple document providers",
-                                     Snackbar.LENGTH_LONG).show();
-                             return@subscribe;
-                         }
-
-                         // use java.io.File API wrapped in SFile because SAF limitations for Android 5
-                         val path = TreeUriUtil.treeUriToFilePath(uri, activity);
-                         Pref.rootPath.onNext(File(path).toSFile().uri.toString());
-                     } else {
-                         Pref.rootPath.onNext(SFile(uri).uri.toString());
-                     }
-                 }
-                 Snackbar.make(activity.coordinator_layout, activity.getString(R.string.msg_directory_selected) + " " + SFile(Pref.rootPath.value).uri.path, Snackbar.LENGTH_LONG).show();
-
-             }
-         }
-
-    }
-
 
     private fun initSearch() {
 
@@ -211,6 +150,17 @@ class MainToolbarController(val activity: MainActivity) {
         .distinctUntilChanged();
 
         mSearchAdapter = SuggestionAdapter(activity, suggestions);
+
+        // workaround for the adapter's android.widget.Filter sometimes not calling onFilterCompleted in MaterialSearchView
+        mSearchAdapter.registerDataSetObserver( object : DataSetObserver() {
+
+            override fun onChanged() {
+                if(mSearchAdapter.count > 0)
+                {
+                    activity.search_view.showSuggestions();
+                }
+            }
+        })
         activity.search_view.setAdapter(mSearchAdapter)
         activity.search_view.setOnItemClickListener { adapterView, view, i, l ->
             val item = adapterView.adapter.getItem(i) as SFile;

@@ -1,18 +1,21 @@
 package com.taiko.noblenote
 
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.view.*
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
 import com.google.android.material.snackbar.Snackbar
-import com.jakewharton.rxbinding.view.visible
 import com.taiko.noblenote.document.SFile
 import com.taiko.noblenote.editor.ArrowKeyLinkMovementMethod
 import com.taiko.noblenote.editor.TextViewUndoRedo
+import com.taiko.noblenote.extensions.markTitleAsModified
 import kotlinx.android.synthetic.main.activity_editor.*
 import kotlinx.android.synthetic.main.toolbar.*
 import kotlinx.android.synthetic.main.toolbar_find_in_text.*
@@ -23,6 +26,7 @@ import rx.android.schedulers.AndroidSchedulers
 import rx.lang.kotlin.plusAssign
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
+import java.lang.UnsupportedOperationException
 
 
 class EditorActivity : Activity() {
@@ -281,40 +285,14 @@ class EditorActivity : Activity() {
                 .filter {it }
                 .take(1)
                 .subscribe {
-                    markTitleAsModified()
+                    toolbar.markTitleAsModified()
                     itemDone.isVisible = true;
                 }
 
         //mFormattingMenuItem = MenuHelper.addTextFormatting(this,menu,editor_edit_text);
 
-
-
-
-        menu.add(R.string.action_auto_save)
-                .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER)
-                .setCheckable(true)
-                .setEnabled(mFocusable)
-                .setChecked(Pref.isAutoSaveEnabled)
-                .setOnMenuItemClickListener {
-                    it.isChecked = !it.isChecked;
-                    Pref.isAutoSaveEnabled = it.isChecked
-                    true
-                }
-
-
-
         //item.expandActionView(); // show text formatting toolbar by default
 
-    }
-
-    private fun markTitleAsModified() {
-        if(toolbar.title.isNullOrEmpty())
-            return;
-
-        if(!toolbar.title.endsWith("*"))
-        {
-            toolbar.title = toolbar.title.toString() + "*"; // modified indicator
-        }
     }
 
     override fun onResume() {
@@ -324,7 +302,7 @@ class EditorActivity : Activity() {
         toolbar.title = SFile(mFileUri).nameWithoutExtension;
         if(editor_edit_text.isModified)
         {
-            markTitleAsModified()
+            toolbar.markTitleAsModified()
         }
     }
 

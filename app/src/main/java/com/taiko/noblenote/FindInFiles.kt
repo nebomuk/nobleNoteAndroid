@@ -16,6 +16,7 @@ import java.io.File
  */
 object FindInFiles {
 
+    private val log = loggerFor();
 
     @JvmStatic
     fun findInFiles(file: SFile, queryTextObservable : Observable<CharSequence>): Observable<MapWithIndex.Indexed<SFile>> {
@@ -55,6 +56,7 @@ object FindInFiles {
                                     { it.close() })
                                     .exists { it.contains(queryText, true) }
                                     .filter { it == true } // found
+
                                     .map { filePath }
                         }
                     }
@@ -83,6 +85,7 @@ object FindInFiles {
                                 .exists { it.contains(queryText, true) }
                                 .filter { it == true } // found
                                 .map { note }
+
                     }
                 }
                 .concat()

@@ -1,7 +1,11 @@
 package com.taiko.noblenote
 
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
 import com.chibatching.kotpref.KotprefModel
 import com.taiko.noblenote.document.toSFile
+import rx.Observable
 import rx.lang.kotlin.BehaviorSubject
 import rx.subjects.BehaviorSubject
 import java.io.File
@@ -12,20 +16,30 @@ import java.io.File
 object Pref : KotprefModel()
 {
     // constants
-    // TODO check external storage package
     val fallbackRootPath = File(context.filesDir.absolutePath,"/nn").toSFile().uri.toString()
 
     // backing prefs
     private var mRootPath: String by stringPrefVar(default = fallbackRootPath) // the root path where the folders are stored
     private var mCurrentFolderPath: String by stringPrefVar(default = "") // the folder that has been isSelected in the ui
 
-    // check if the app's stuff is saved on the internal storage
-    var isInternalStorage = false
-     get() = mRootPath.contains(context.filesDir.absolutePath)
+
 
     // reactive prefs
     val rootPath : BehaviorSubject<String> = BehaviorSubject(mRootPath);
     val currentFolderPath : BehaviorSubject<String> = BehaviorSubject(mCurrentFolderPath);
+
+
+    val isExternalOrSafStorage : Boolean get() {
+
+        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.M)
+        {
+            return Uri.parse(Pref.rootPath.value).scheme == "content";
+        }
+        else
+        {
+            return Uri.parse(Pref.rootPath.value).path?.contains(Environment.getExternalStorageDirectory().absolutePath) ?: false
+        }
+    }
 
     // other prefs
     var isAutoSaveEnabled : Boolean by booleanPrefVar(default = true) // file autosave onStop

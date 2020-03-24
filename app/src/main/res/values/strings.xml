@@ -37,7 +37,7 @@
     <string name="noNotebookExists">Cannot create note. You must first create a notebook</string>
     <string name="title_noNotebookExists">No Notebook Found</string>
     <string name="action_settings">Settings</string>
-    <string name="action_rootPath">Select folder</string>
+    <string name="pref_title_store_external_storage">Notebook storage location</string>
     <string name="action_find_in_text">Find in text</string>
     <string name="action_done">Done</string>
     <string name="action_redo">Redo</string>
@@ -64,6 +64,25 @@
     <string name="show_html_source_code">Show HTML Source Code</string>
     <string name="action_paste">Paste</string>
     <string name="msg_n_notes_in_clipboard">%1$d notes in clipboard</string>
+
+    <string name="title_activity_preferences">Settings</string>
+    <string name="pref_summary_off_auto_save">Do not save notes automatically</string>
+    <string name="pref_summary_on_auto_save">Save notes automatically</string>
+    <string name="pref_title_auto_save">Auto save</string>
+    <string name="pref_summary_root_path_internal">Notebooks are saved to the internal storage. Click to Change.</string>
+
+
+
+    <string name="pref_key_internal_storage" translatable="false">pref_key_internal_storage</string>
+    <string name="pref_key_saf_picker" translatable="false">pref_key_saf_picker</string>
+    <string name="msg_existing_notebooks_not_transferred">Warning! Your existing notebooks will not be transferred automatically!</string>
+    <string name="msg_store_internal_storage_again">Your existing notebooks are currently stored on the app private storage.
+        After selecting another storage location, you can always go back to the current storage location by clicking \"Use app private storage\"</string>
+    <string name="title_store_internal_storage">Use app private storage</string>
+    <string name="msg_store_internal_storage">Notebooks  will be stored on the app private storage</string>
+    <string name="title_use_external_storage">Select a folder</string>
+    <string name="pref_summary_store_internal_storage">Click to set the storage location of your notebooks to the app private storage</string>
+    <string name="pref_summary_store_external_storage">Click to select another folder to store your notebooks</string>
 
 
 </resources>

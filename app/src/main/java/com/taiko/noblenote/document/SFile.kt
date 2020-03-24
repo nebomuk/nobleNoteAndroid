@@ -105,9 +105,7 @@ class SFile {
             return doc.name.orEmpty();
         }
 
-    // use proper implementation to only show the names instead of creating sub-files
-    // see https://stackoverflow.com/questions/41096332/issues-traversing-through-directory-hierarchy-with-android-storage-access-framew
-    // and https://www.reddit.com/r/androiddev/comments/bbejc4/caveats_with_documentfile/
+
     fun listFilesSorted(folders: Boolean): List<SFile> {
 
         setDocumentToProposedIfExists()
