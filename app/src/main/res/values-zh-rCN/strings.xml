@@ -9,7 +9,7 @@
     <string name="action_redo">恢复</string>
     <string name="action_undo">撤销</string>
     <string name="action_find_in_text">在文字中寻找</string>
-    <string name="action_rootPath">选择文件夹</string>
+    <string name="pref_title_store_external_storage">选择文件夹</string>
     <string name="action_settings">设置</string>
     <string name="dialogDiscardKeepEditing">不保存更改并退出编辑</string>
     <string name="discard">不保存更改</string>
@@ -59,4 +59,7 @@
     <string name="msg_n_notes_in_clipboard">粘贴板有 %1$d 条笔记</string>
     <string name="list_empty">无笔记</string>
     <string name="notebook_is_empty">无笔记</string>
+    <string name="title_activity_preferences">设置</string>
+    <string name="pref_title_auto_save">自动保存</string>
+
 </resources>

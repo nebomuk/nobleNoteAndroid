@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ViewSwitcher
+import androidx.annotation.CheckResult
 import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
 import androidx.core.graphics.ColorUtils
@@ -17,6 +18,7 @@ import com.taiko.noblenote.extensions.getColorFromAttr
 import com.taiko.noblenote.extensions.toRxObservable
 import kotlinx.android.synthetic.main.recycler_file_item.view.*
 import rx.Observable
+import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
 import rx.lang.kotlin.PublishSubject
 import rx.lang.kotlin.plusAssign
@@ -128,7 +130,7 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
     // reloads the file list by adding, removing files from the observable file list
     fun refresh()
     {
-        val newFileList = path.listFilesSorted(false);
+        val newFileList = path.listFilesSorted(false).filter { !it.name.startsWith(".") };
             // add files that arent contained in the list
             for (newFile in newFileList) {
                 if (!mFiles.any { it.file.name == newFile.name }) {
@@ -319,9 +321,9 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
         add(index, mt)
     }
 
-    fun applyEmptyView(switcher : ViewSwitcher, @IdRes emptyViewId : Int, @IdRes  recyclerViewId : Int)
-    {
-        itemCountChanged()
+    @CheckResult
+    fun applyEmptyView(switcher : ViewSwitcher, @IdRes emptyViewId : Int, @IdRes  recyclerViewId : Int): Subscription {
+        return itemCountChanged()
                 .throttleLast(250, TimeUnit.MILLISECONDS) // avoid interfering with the rv item animation
                 .observeOn(AndroidSchedulers.mainThread()).subscribe {
 
