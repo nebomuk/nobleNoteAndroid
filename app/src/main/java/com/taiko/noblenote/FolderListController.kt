@@ -1,12 +1,12 @@
 package com.taiko.noblenote
 
-import android.app.Fragment
 import android.net.Uri
 import android.os.Bundle
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.view.View
+import androidx.fragment.app.Fragment
 import com.taiko.noblenote.document.SFile
 import kotlinx.android.synthetic.main.fragment_file_list.view.*
 import kotlinx.android.synthetic.main.toolbar.*
@@ -59,7 +59,7 @@ class FolderListController(private var fragment: Fragment, view: View) {
         listSelectionController =ListSelectionController(fragment.activity as MainActivity, recyclerFileAdapter)
         listSelectionController.isTwoPane = mTwoPane;
 
-        val app = (fragment.activity.application as MainApplication)
+        val app = (fragment.activity!!.application as MainApplication)
 
         if(mTwoPane)
         {
@@ -67,10 +67,10 @@ class FolderListController(private var fragment: Fragment, view: View) {
             mCompositeSubscription += recyclerFileAdapter.selectedFolder().subscribe {
                 if(it == RecyclerView.NO_POSITION)
                 {
-                    val noteFragment = fragment.fragmentManager.findFragmentById(R.id.item_detail_container);
+                    val noteFragment = fragment.fragmentManager?.findFragmentById(R.id.item_detail_container);
                     if(noteFragment != null)
                     {
-                        fragment.fragmentManager.beginTransaction().remove(noteFragment).commit();
+                        fragment.fragmentManager?.beginTransaction()?.remove(noteFragment)?.commit();
                     }
                 }
                 else
@@ -116,24 +116,18 @@ class FolderListController(private var fragment: Fragment, view: View) {
         noteFragment.arguments = arguments
 
         if (mTwoPane) {
-            fragment.fragmentManager.beginTransaction().replace(R.id.item_detail_container, noteFragment).commit()
-            fragment.activity.toolbar.title = null; // clear title after orientation change
+            fragment.fragmentManager?.beginTransaction()?.replace(R.id.item_detail_container, noteFragment)?.commit()
+            fragment.activity?.toolbar!!.title = null; // clear title after orientation change
         } else {
-            fragment.fragmentManager.beginTransaction().add(R.id.item_master_container, noteFragment).addToBackStack(null).commit();
-            fragment.activity.toolbar.title = SFile(folderUriString).nameWithoutExtension
+            fragment.fragmentManager!!.beginTransaction().add(R.id.item_master_container, noteFragment).addToBackStack(null).commit();
+            fragment.activity!!.toolbar.title = SFile(folderUriString).nameWithoutExtension
         }
     }
 
     fun onStart()
     {
-        mCompositeSubscription += Pref.rootPath
-                .throttleLast(500,TimeUnit.MILLISECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-
-                    SFile.invalidateAllFileListCaches();
-            recyclerFileAdapter.path = SFile(it);
-            recyclerFileAdapter.refresh(); }
+            recyclerFileAdapter.path = SFile(Pref.rootPath.value);
+            recyclerFileAdapter.refresh();
     }
 
     fun onDestroyView()

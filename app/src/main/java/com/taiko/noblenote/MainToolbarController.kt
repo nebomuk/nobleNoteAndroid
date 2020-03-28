@@ -45,16 +45,16 @@ class MainToolbarController(val activity: MainActivity) {
 
         var pasteFileDisposable = Subscriptions.empty()
 
-        activity.fragmentManager.addOnBackStackChangedListener {
+        activity.supportFragmentManager.addOnBackStackChangedListener {
 
             val pasteFileMenuItem = activity.toolbar.menu.findItem(R.id.action_paste);
 
-            log.v("BackstackEntryCount: ${activity.fragmentManager.backStackEntryCount}")
+            log.v("BackstackEntryCount: ${activity.supportFragmentManager.backStackEntryCount}")
 
-            if(activity.fragmentManager.backStackEntryCount > 0)
+            if(activity.supportFragmentManager.backStackEntryCount > 0)
             {
 
-                val fragment = activity.fragmentManager.findFragmentById(R.id.item_master_container);
+                val fragment = activity.supportFragmentManager.findFragmentById(R.id.item_master_container);
                 val folderPath = fragment?.arguments?.getString(NoteListFragment.ARG_FOLDER_PATH,null).orEmpty();
                 activity.toolbar.title = SFile(folderPath).name;
 
@@ -102,12 +102,12 @@ class MainToolbarController(val activity: MainActivity) {
         {
             activity.toolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp)
             activity.toolbar.setNavigationOnClickListener {
-                activity.fragmentManager.popBackStack()
+                activity.supportFragmentManager.popBackStack()
             }
         }
         else
         {
-            activity.toolbar.setNavigationIcon(null);
+            activity.toolbar.navigationIcon = null;
             activity.toolbar.setNavigationOnClickListener(null)
         }
     }
@@ -175,7 +175,7 @@ class MainToolbarController(val activity: MainActivity) {
 
     private fun showSearchResults(queryText : CharSequence)
     {
-        activity.fragmentManager.popBackStack(FRAGMENT_SEARCH_RESULT, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        activity.supportFragmentManager.popBackStack(FRAGMENT_SEARCH_RESULT, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
         activity.search_view.clearFocus();
         mSearchAdapter.clear();
@@ -185,7 +185,7 @@ class MainToolbarController(val activity: MainActivity) {
         val arguments = Bundle()
         arguments.putString(NoteListFragment.ARG_QUERY_TEXT,queryText.toString())
         frag.arguments = arguments;
-        activity.fragmentManager.beginTransaction().add(R.id.item_master_container,frag).addToBackStack(FRAGMENT_SEARCH_RESULT).commit();
+        activity.supportFragmentManager.beginTransaction().add(R.id.item_master_container,frag).addToBackStack(FRAGMENT_SEARCH_RESULT).commit();
 
     }
 
@@ -206,7 +206,7 @@ class MainToolbarController(val activity: MainActivity) {
 
         if (handled) {
             activity.search_view.closeSearch();
-            activity.fragmentManager.popBackStack(FRAGMENT_SEARCH_RESULT, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            activity.supportFragmentManager.popBackStack(FRAGMENT_SEARCH_RESULT, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             activity.setFabVisible(true);
         }
         return handled;

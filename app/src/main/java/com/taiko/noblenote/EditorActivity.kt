@@ -168,17 +168,21 @@ class EditorActivity : Activity() {
         if (Pref.isAutoSaveEnabled &&  !isChangingConfigurations &&  mFocusable && editor_edit_text.isModified)
         // then save the note
         {
-
-                FileHelper.writeFile(filePath = mFileUri, text = editor_edit_text.textHTML)
-                        .subscribeOn(Schedulers.io())
-                        .subscribe {
-
-                            lastModified = it
-                            editor_edit_text.isModified = false
-                            runOnUiThread { Toast.makeText(this.applicationContext, R.string.noteSaved, Toast.LENGTH_SHORT).show() }
-
-                        }
+            saveNote({})
         }
+    }
+
+    private fun saveNote(saved : () -> Unit ) {
+        FileHelper.writeFile(filePath = mFileUri, text = editor_edit_text.textHTML)
+                .subscribeOn(Schedulers.io())
+                .subscribe {
+
+                    lastModified = it
+                    editor_edit_text.isModified = false
+                    runOnUiThread {
+                        saved.invoke();
+                        Toast.makeText(this.applicationContext, R.string.noteSaved, Toast.LENGTH_SHORT).show() }
+                }
     }
 
     private fun showExitDialog() {
@@ -275,18 +279,18 @@ class EditorActivity : Activity() {
                 .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
 
         itemDone.setOnMenuItemClickListener {
-            finish()
+            saveNote({finish()})
             true
         }
 
-        itemDone.isVisible = editor_edit_text.isModified;
+        itemDone.isEnabled = editor_edit_text.isModified;
 
         mCompositeSubscription += mUndoRedo.canUndoChanged()
                 .filter {it }
                 .take(1)
                 .subscribe {
+                    itemDone.isEnabled = true;
                     toolbar.markTitleAsModified()
-                    itemDone.isVisible = true;
                 }
 
         //mFormattingMenuItem = MenuHelper.addTextFormatting(this,menu,editor_edit_text);
@@ -302,7 +306,9 @@ class EditorActivity : Activity() {
         toolbar.title = SFile(mFileUri).nameWithoutExtension;
         if(editor_edit_text.isModified)
         {
-            toolbar.markTitleAsModified()
+            val handler = Handler();
+            handler.postDelayed({ toolbar.markTitleAsModified()},0L);
+
         }
     }
 

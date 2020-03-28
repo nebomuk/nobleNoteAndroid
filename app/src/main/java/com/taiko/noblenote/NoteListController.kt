@@ -1,9 +1,9 @@
 package com.taiko.noblenote
 
-import android.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import android.util.Log
 import android.view.View
+import androidx.fragment.app.Fragment
 import com.taiko.noblenote.document.SFile
 import kotlinx.android.synthetic.main.fragment_file_list.view.*
 import rx.android.schedulers.AndroidSchedulers
@@ -32,14 +32,14 @@ class NoteListController(private var fragment: Fragment, view: View)
 
 
 
-        if(fragment.arguments != null &&  fragment.arguments.containsKey(NoteListFragment.ARG_QUERY_TEXT))
+        if(fragment.arguments != null &&  fragment.arguments!!.containsKey(NoteListFragment.ARG_QUERY_TEXT))
         {
             recyclerFileAdapter = RecyclerFileAdapter(SFile(""));
 
             view.tv_file_list_empty.setText(R.string.no_results_found);
             view.tv_title_search_results.visibility = View.VISIBLE;
 
-            val queryText = fragment.arguments.getString(NoteListFragment.ARG_QUERY_TEXT,"");
+            val queryText = fragment.arguments!!.getString(NoteListFragment.ARG_QUERY_TEXT,"");
             if (!queryText.isNullOrBlank()) {
                 mCompositeSubscription += FindInFiles.recursiveFullTextSearch(SFile(Pref.rootPath.value),queryText)
                         .subscribeOn(Schedulers.io())
@@ -61,7 +61,7 @@ class NoteListController(private var fragment: Fragment, view: View)
         {
             view.tv_file_list_empty.setText(R.string.notebook_is_empty);
 
-            path = SFile(fragment.arguments.getString(NoteListFragment.ARG_FOLDER_PATH));
+            path = SFile(fragment.arguments?.getString(NoteListFragment.ARG_FOLDER_PATH));
 
             recyclerFileAdapter = RecyclerFileAdapter(path)
 //            recyclerFileAdapter.refresh(activity)
@@ -70,12 +70,12 @@ class NoteListController(private var fragment: Fragment, view: View)
 
         recyclerFileAdapter.showFolders = false
 
-        recyclerFileAdapter.applyEmptyView(view.empty_list_switcher,R.id.text_empty,R.id.recycler_view)
+        mCompositeSubscription += recyclerFileAdapter.applyEmptyView(view.empty_list_switcher,R.id.text_empty,R.id.recycler_view)
 
         recyclerView.adapter = recyclerFileAdapter
         recyclerView.layoutManager = LinearLayoutManager(fragment.activity)
 
-        val app = (fragment.activity.application as MainApplication)
+        val app = (fragment.activity?.application as MainApplication)
 
         listSelectionController = ListSelectionController(fragment.activity as MainActivity,recyclerFileAdapter)
         listSelectionController.isHtmlActionAvailable = true;

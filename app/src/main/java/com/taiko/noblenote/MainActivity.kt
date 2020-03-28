@@ -7,9 +7,11 @@ import android.os.Bundle
 import android.os.Handler
 import android.transition.Fade
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.jakewharton.rxbinding.view.clicks
 import com.taiko.noblenote.document.SFile
+import com.taiko.noblenote.document.VolumeUtil
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main_twopane.fab_menu
 import kotlinx.android.synthetic.main.activity_main_twopane.fab_menu_folder
@@ -20,13 +22,15 @@ import rx.subscriptions.CompositeSubscription
 import rx.subscriptions.Subscriptions
 
 
-class MainActivity : Activity()
+class MainActivity : AppCompatActivity()
 {
 
 
     var twoPane: Boolean = false
 
     private val mCompositeSubscription = CompositeSubscription()
+
+    private var mVolumeSubscription  = Subscriptions.empty()
     private var mMainToolbarController: MainToolbarController? = null
 
 
@@ -35,6 +39,8 @@ class MainActivity : Activity()
         log.d(".onCreate()");
 
         setContentView(R.layout.activity_main)
+
+        supportActionBar?.hide();
 
         // https://stackoverflow.com/questions/26600263/how-do-i-prevent-the-status-bar-and-navigation-bar-from-animating-during-an-acti
         if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.LOLLIPOP) {
@@ -49,10 +55,27 @@ class MainActivity : Activity()
 
         toolbar.inflateMenu(R.menu.menu_main)
 
-        //        setSupportActionBar(toolbar) // required to make styling working, activity options menu callbacks now have to be used
+        // setSupportActionBar(toolbar) // required to make styling working, activity options menu callbacks now have to be used
 
+        val dlg = VolumeNotAccessibleDialog.create(this);
 
-        setupUi();
+        mVolumeSubscription = VolumeUtil.volumeAccessibleObservable(this, Pref.rootPath)
+                .startWith(VolumeUtil.volumeAccessible(this,Pref.rootPath.value))
+                .subscribe {
+                    if(it)
+                    {
+                        if(dlg.isShowing)
+                        {
+                            dlg.dismiss();
+                        }
+                        setupUi();
+                    }
+                    else
+                    {
+                        dlg.show();
+                        clearUiSubscriptions()
+                    }
+                     }
     }
 
 
@@ -60,9 +83,9 @@ class MainActivity : Activity()
     {
         log.d(".setupUi()");
 
-        clearSubscriptions();
+        clearUiSubscriptions();
         // replaces existing fragments that have been retaind in saveInstanceState
-        fragmentManager.beginTransaction().replace(R.id.item_master_container, FolderListFragment()).commit()
+        supportFragmentManager.beginTransaction().replace(R.id.item_master_container, FolderListFragment()).commitAllowingStateLoss()
 
         val app = application as MainApplication
         mCompositeSubscription += app.eventBus.fileSelected.mergeWith(app.eventBus.createFileClick).subscribe { startNoteEditor(this,it, EditorActivity.READ_WRITE) }
@@ -86,7 +109,7 @@ class MainActivity : Activity()
         else
         {
             mCompositeSubscription += fab.clicks().subscribe {
-                if(fragmentManager.backStackEntryCount > 0)
+                if(supportFragmentManager.backStackEntryCount > 0)
                 {
                     Dialogs.showNewNoteDialog(coordinator_layout, {app.eventBus.createFileClick.onNext(it)})
                 }
@@ -113,7 +136,6 @@ class MainActivity : Activity()
 
     }
 
-
     override fun onBackPressed() {
 
         // close search
@@ -126,13 +148,18 @@ class MainActivity : Activity()
     override fun onDestroy() {
         super.onDestroy()
         log.d(".onDestroy()");
-        clearSubscriptions()
+        clearUiSubscriptions()
+        mVolumeSubscription.unsubscribe();
     }
 
-    private fun clearSubscriptions() {
+    private fun clearUiSubscriptions() {
         mCompositeSubscription.clear()
         mMainToolbarController?.clearSubscriptions();
         mMainToolbarController = null;
+
+        for (fragment in supportFragmentManager.fragments) {
+            supportFragmentManager.beginTransaction().remove(fragment).commitAllowingStateLoss()
+        }
     }
 
     /**

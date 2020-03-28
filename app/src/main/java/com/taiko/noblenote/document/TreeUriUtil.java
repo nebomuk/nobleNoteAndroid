@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 
 
 /**
- * this clsas is used to get the path from a tree Uri returned from OPEN_DOCUMENT_TREE via the storage accss framework.
+ * this class is used to get the path from a tree Uri returned from OPEN_DOCUMENT_TREE via the storage access framework.
  * this is needed on Android 5 & 6 because they do not support moving documents via Storage Access Framework
  */
 public final class TreeUriUtil {
