@@ -1,14 +1,10 @@
 package com.taiko.noblenote
 
-import android.app.Fragment
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
-
-
-
+import androidx.fragment.app.Fragment
 
 
 class FolderListFragment : Fragment() {
@@ -23,11 +19,13 @@ class FolderListFragment : Fragment() {
 
     private var mFolderListController : FolderListController? = null
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        mFolderListController = FolderListController(this,view!!)
+        mFolderListController = FolderListController(this, view)
 
     }
+
 
     override fun onStart() {
         super.onStart()

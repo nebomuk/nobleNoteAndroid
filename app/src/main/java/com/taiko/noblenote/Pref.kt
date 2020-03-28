@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import com.chibatching.kotpref.KotprefModel
+import com.taiko.noblenote.document.SFile
 import com.taiko.noblenote.document.toSFile
 import rx.Observable
 import rx.lang.kotlin.BehaviorSubject
@@ -42,12 +43,13 @@ object Pref : KotprefModel()
     }
 
     // other prefs
-    var isAutoSaveEnabled : Boolean by booleanPrefVar(default = true) // file autosave onStop
+    var isAutoSaveEnabled : Boolean by booleanPrefVar(default = false) // file autosave onStop, keep default in sync with pref fragment!
 
     init {
         // update backing prefs
         currentFolderPath.subscribe { mCurrentFolderPath = it }
         rootPath.subscribe {
+            SFile.invalidateAllFileListCaches();
             mRootPath = it
         }
     }

@@ -15,6 +15,7 @@ import com.taiko.noblenote.Pref
 import com.taiko.noblenote.R
 import com.taiko.noblenote.document.SFile
 import com.taiko.noblenote.document.TreeUriUtil
+import com.taiko.noblenote.document.VolumeUtil
 import com.taiko.noblenote.document.toSFile
 import kotlinx.android.synthetic.main.preferences_activity.*
 import rx.lang.kotlin.plusAssign
@@ -46,7 +47,7 @@ class PreferenceFragment : PreferenceFragmentCompat() {
 
         findPreference<Preference>(getString(R.string.pref_key_internal_storage))?.setOnPreferenceClickListener {
 
-            if(SFile(Pref.rootPath.value).listFiles().count() > 0)
+            if(VolumeUtil.volumeAccessible(activity!!,Pref.rootPath.value) && SFile(Pref.rootPath.value).listFiles().count() > 0)
             {
                 showWarningBeforeInternalStorage { useInternalStorage(); }
             }
@@ -59,7 +60,7 @@ class PreferenceFragment : PreferenceFragmentCompat() {
 
         findPreference<Preference>(getString(R.string.pref_key_saf_picker))?.setOnPreferenceClickListener {
 
-            if(SFile(Pref.rootPath.value).listFiles().count() > 0)
+            if(VolumeUtil.volumeAccessible(activity!!,Pref.rootPath.value) && SFile(Pref.rootPath.value).listFiles().count() > 0)
             {
                 showWarningBeforeSaf {startSafFolderPicker(activity!!)}
             }
