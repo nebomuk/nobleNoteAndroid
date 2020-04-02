@@ -1,13 +1,15 @@
 package com.taiko.noblenote.editor
 
-import android.graphics.Color
+import android.R.attr.editable
 import android.text.Spannable
+import android.text.style.ForegroundColorSpan
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import com.taiko.noblenote.R
 import com.taiko.noblenote.extensions.indicesOf
 
@@ -32,7 +34,7 @@ class FindHighlighter constructor(val editText : EditText, val toolbarEditText :
     private var mCurrentIndicesIndex = 0 // the current index in the list of indices
 
 
-    private val highlightSpan: HighlightColorSpan = HighlightColorSpan(toolbarEditText.context.resources.getColor(R.color.findInTextHighlight));
+    private val highlightSpan: HighlightColorSpan = HighlightColorSpan(ContextCompat.getColor(toolbarEditText.context,R.color.findInTextHighlight));
 
     private var mIndices = emptyList<Int>(); // a list of indexes where the searchString can be found in the text
 
@@ -60,7 +62,14 @@ class FindHighlighter constructor(val editText : EditText, val toolbarEditText :
 
     fun clearHighlight()
     {
-        editText.text.removeSpan(highlightSpan)
+
+        // TODO check if there are issues with multiple foreground color spans
+        // https://stackoverflow.com/questions/34631851/multiple-foregroundcolorspan-on-editable-issue-on-android-6-0
+        val editable = editText.text;
+        val spans = editable.getSpans(0, editable.length, HighlightColorSpan::class.java)
+        for (span in spans) {
+            editable.removeSpan(span)
+        }
     }
 
     fun hasNext() : Boolean

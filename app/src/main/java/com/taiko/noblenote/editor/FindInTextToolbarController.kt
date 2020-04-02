@@ -1,4 +1,4 @@
-package com.taiko.noblenote
+package com.taiko.noblenote.editor
 
 import android.content.Context
 import androidx.appcompat.widget.Toolbar
@@ -8,10 +8,8 @@ import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import com.jakewharton.rxbinding.view.clicks
 import com.jakewharton.rxbinding.widget.textChanges
-import com.taiko.noblenote.editor.FindHighlighter
-import com.taiko.noblenote.extensions.setTintCompat
+import com.taiko.noblenote.R
 import kotlinx.android.synthetic.main.activity_editor.*
-import kotlinx.android.synthetic.main.toolbar.*
 import kotlinx.android.synthetic.main.toolbar_find_in_text.*
 import kotlinx.android.synthetic.main.toolbar_find_in_text.view.*
 import rx.lang.kotlin.plusAssign
@@ -96,6 +94,7 @@ class FindInTextToolbarController(val activity : EditorActivity) {
 
     public fun hideToolbar()
     {
+        clearFindText()
         activity.toolbar_find_in_text.visibility = View.INVISIBLE
         mFindHighlighter.clearHighlight()
 
@@ -109,7 +108,7 @@ class FindInTextToolbarController(val activity : EditorActivity) {
         mFindHighlighter.moveNext();
     }
 
-    fun clearFindText() {
+    private fun clearFindText() {
         activity.toolbar_find_in_text.toolbar_find_in_text_edit_text.text.clear();
     }
 

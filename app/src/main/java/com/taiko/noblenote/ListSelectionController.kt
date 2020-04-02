@@ -2,11 +2,13 @@ package com.taiko.noblenote
 
 import android.os.Handler
 import android.os.Looper
-import com.google.android.material.snackbar.Snackbar
 import android.view.ActionMode
+import com.google.android.material.snackbar.Snackbar
 import com.taiko.noblenote.document.SFile
+import com.taiko.noblenote.editor.EditorActivity
 import kotlinx.android.synthetic.main.actionmode.view.*
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.toolbar.*
 import rx.Observable
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
@@ -91,7 +93,7 @@ class ListSelectionController(private val activity: MainActivity, private val ad
 
         mCompositeDisposable += adapter.itemLongClicks().subscribe {
 
-            mActionMode = activity.startActionMode(mFileActionModeCallback);
+            mActionMode = activity.toolbar.startActionMode(mFileActionModeCallback);
             adapter.selectFolderOnClick = false;
             mActionMode?.menu?.findItem(R.id.actionShowHtml)?.isVisible = isHtmlActionAvailable
 

@@ -9,6 +9,7 @@ import android.view.MenuItem
 import com.jakewharton.rxbinding.view.clicks
 import com.miguelcatalan.materialsearchview.MaterialSearchView
 import com.taiko.noblenote.document.SFile
+import com.taiko.noblenote.editor.EditorActivity
 import com.taiko.noblenote.extensions.queryText
 import com.taiko.noblenote.extensions.queryTextChanges
 import com.taiko.noblenote.preferences.PreferencesActivity

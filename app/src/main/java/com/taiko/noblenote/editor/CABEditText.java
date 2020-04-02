@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.EditText;
 
+import androidx.appcompat.widget.AppCompatEditText;
+
 /**
  * Created by taiko on 05.03.15.
  *
@@ -13,7 +15,7 @@ import android.widget.EditText;
  */
 
 
-public class CABEditText extends EditText {
+public class CABEditText extends AppCompatEditText {
 
     private boolean shouldWindowFocusWait;
 
