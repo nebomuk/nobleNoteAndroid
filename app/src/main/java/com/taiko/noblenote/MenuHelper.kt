@@ -14,31 +14,11 @@ import kotlinx.android.synthetic.main.layout_text_formatting.view.*
  *
  * toolbar menu utility methods
  */
+@Deprecated("obsolete")
 object MenuHelper {
 
-    /**
-     * adds a copy text to clipboard action to the given menu
-     */
-    fun addCopyToClipboard(ctx: Context, menu: Menu, textSource: () -> CharSequence) {
-        val itemCopyToClipboard = menu.add(R.string.action_copy_to_clipboard)
-                .setIcon(R.drawable.ic_action_content_copy)
-                .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER)
-        itemCopyToClipboard.setOnMenuItemClickListener {
-            if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-                val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as android.text.ClipboardManager
-                clipboard.text = textSource()
-            } else {
-                val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                val clip = android.content.ClipData.newPlainText("Copied Text", textSource())
-                clipboard.setPrimaryClip(clip);
-            }
 
-            Toast.makeText(ctx, R.string.msg_copied_to_clipboard, Toast.LENGTH_SHORT).show()
-            true
-        }
-
-    }
-
+    @Deprecated("Will be replaced by proper rich text editor")
     fun addTextFormatting(ctx: Context, menu : Menu, editText: DroidWriterEditText): MenuItem? {
         val textFormattingToolbar = LayoutInflater.from(ctx).inflate(R.layout.layout_text_formatting, null)
 

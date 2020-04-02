@@ -1,14 +1,28 @@
 package com.taiko.noblenote.extensions
 
 import android.annotation.SuppressLint
+import android.text.Layout
+import android.view.MenuItem
+import android.view.ViewTreeObserver
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
+import com.jakewharton.rxbinding.view.RxView
 import com.taiko.noblenote.loggerFor
-import java.lang.UnsupportedOperationException
+import rx.android.schedulers.AndroidSchedulers
+import rx.lang.kotlin.subscribeWith
+
 
 @SuppressLint("SetTextI18n")
-public fun Toolbar.markTitleAsModified() {
+public fun Toolbar.setTitleAndModified(defaultTitle : String, isModified : Boolean) {
     val log = loggerFor()
+
+    if(!isModified)
+    {
+        this.title = defaultTitle;
+        return;
+    }
+
+    this.title = defaultTitle;
 
     if(this.title.isNullOrEmpty())
         return;
@@ -21,24 +35,46 @@ public fun Toolbar.markTitleAsModified() {
 
         val layout = textView?.layout;
 
-        if(layout == null)
+        if (layout != null)
         {
-            log.d("markTitleAsModified failed because toolbar text view is not yet attached to a layout.")
-        }
-
-        if (layout != null && layout.getEllipsisStart(0) > 0)
-        {
-            textView.post {
-                val customSuffix = "…*"
-                val newText = textView.text.removeRange(textView.layout.getEllipsisStart(-1) - customSuffix.length, textView.text.length)
-                this.title = String.format("%s%s", newText, customSuffix)
-            }
+            this.addModifiedIndicatorToEllipsis(textView,layout);
         }
         else
         {
-            this.title = "${this.title}*"
+            RxView.preDraws(textView,{true}) // fix not yet attached to layout
+                    .takeUntil { textView?.layout != null } // fix layout still null in onDraw
+                    .last()
+                    .observeOn(AndroidSchedulers.mainThread()) // fix not working when not called on the next ui cycle
+                    .subscribe {
+                        try {
+                            val latestLayout = textView?.layout;
+                            this@setTitleAndModified.addModifiedIndicatorToEllipsis(textView, latestLayout);
+                        } catch (e: Exception) {
+                            log.e("failed to set title as modified in view tree observer",e);
+                        }
+                    }
         }
+
     }
+
+
+}
+
+private fun Toolbar.addModifiedIndicatorToEllipsis(textView: TextView,layout: Layout)
+{
+    if( layout.getEllipsisStart(0) > 0) {
+
+        //textView.post {
+            val customSuffix = "…*"
+            val newText = textView.text.removeRange(layout.getEllipsisStart(-1) - customSuffix.length, textView.text.length)
+            this.title = String.format("%s%s", newText, customSuffix)
+        //}
+    }
+    else
+    {
+        this.title = "${this.title}*"
+    }
+
 }
 
 public fun Toolbar.getTitleTextView(): TextView {
@@ -51,4 +87,17 @@ public fun Toolbar.getTitleTextView(): TextView {
     }
     // FIXME change to error instead of exception
     throw UnsupportedOperationException("This toolbar does not contain a textview");
+}
+
+public fun Toolbar.getMenuItems() : Sequence<MenuItem>
+{
+    if(this.menu == null)
+    {
+        return emptySequence();
+    }
+    return sequence {
+        for (i in 0 until menu.size()) {
+            yield(menu.getItem(i));
+        }
+    }
 }

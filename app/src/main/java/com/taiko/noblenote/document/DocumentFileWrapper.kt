@@ -96,7 +96,7 @@ class DocumentFileWrapper : IDocumentFile {
     }
 
     override fun renameTo(displayName: String): Boolean {
-        return false
+        return documentFile.renameTo(displayName)
     }
 
     override fun findFile(displayName: String): IDocumentFile? {

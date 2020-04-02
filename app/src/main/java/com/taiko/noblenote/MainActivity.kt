@@ -1,6 +1,5 @@
 package com.taiko.noblenote
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -12,6 +11,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.jakewharton.rxbinding.view.clicks
 import com.taiko.noblenote.document.SFile
 import com.taiko.noblenote.document.VolumeUtil
+import com.taiko.noblenote.editor.EditorActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main_twopane.fab_menu
 import kotlinx.android.synthetic.main.activity_main_twopane.fab_menu_folder
@@ -40,8 +40,6 @@ class MainActivity : AppCompatActivity()
 
         setContentView(R.layout.activity_main)
 
-        supportActionBar?.hide();
-
         // https://stackoverflow.com/questions/26600263/how-do-i-prevent-the-status-bar-and-navigation-bar-from-animating-during-an-acti
         if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.LOLLIPOP) {
             val fade = Fade()
@@ -54,8 +52,6 @@ class MainActivity : AppCompatActivity()
         twoPane = findViewById<View>(R.id.item_detail_container) != null // two pane uses the refs.xml reference to reference activity_main_twopane.xml as activity_main.xml
 
         toolbar.inflateMenu(R.menu.menu_main)
-
-        // setSupportActionBar(toolbar) // required to make styling working, activity options menu callbacks now have to be used
 
         val dlg = VolumeNotAccessibleDialog.create(this);
 

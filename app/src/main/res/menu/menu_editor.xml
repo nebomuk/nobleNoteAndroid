@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context=".MainActivity">
+
+    <item
+        android:id="@+id/action_undo"
+        android:enabled="false"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_undo_black_24dp"
+        android:title="@string/action_undo"
+        android:alphabeticShortcut="Z"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_redo"
+        android:icon="@drawable/ic_redo_black_24dp"
+        android:orderInCategory="100"
+        android:alphabeticShortcut="Y"
+        app:showAsAction="always"
+        android:title="@string/action_redo" />
+
+    <item
+        android:id="@+id/action_done"
+        android:icon="@drawable/ic_done_black_24dp"
+        android:orderInCategory="100"
+        android:alphabeticShortcut="S"
+        app:showAsAction="always"
+        android:title="@string/action_done"/>
+
+    <item
+        android:id="@+id/action_copy_to_clipboard"
+        android:icon="@drawable/ic_action_content_copy"
+        android:orderInCategory="100"
+        android:alphabeticShortcut="S"
+        app:showAsAction="never"
+        android:title="@string/action_copy_to_clipboard"/>
+
+
+</menu>

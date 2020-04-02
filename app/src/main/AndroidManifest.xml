@@ -36,7 +36,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity> <!-- android:theme="@style/Theme.Styled" -->
-        <activity android:name=".EditorActivity"></activity>
+        <activity android:name=".editor.EditorActivity"></activity>
     </application>
 
 </manifest>

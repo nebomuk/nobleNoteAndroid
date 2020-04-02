@@ -81,5 +81,14 @@ dependencies {
     implementation 'com.miguelcatalan:materialsearchview:1.4.0'
     implementation 'com.afollestad:material-cab:0.1.12'
 
+        def lifecycle_version = "2.3.0-alpha01"
+        def arch_version = "2.1.0"
+
+    // ViewModel
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    // LiveData
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+
+
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.2'
 }

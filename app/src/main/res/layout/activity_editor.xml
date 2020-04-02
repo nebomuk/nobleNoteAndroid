@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.taiko.noblenote.editor.EditorViewModel" />
+
+    </data>
 
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/layout_root"
-    android:orientation="vertical"
->
+    android:orientation="vertical">
     <!-- shadow, elevation and outlineProvider based on
     https://stackoverflow.com/questions/27477371/android-elevation-not-showing-a-shadow/27518160#27518160 -->
     <FrameLayout
@@ -27,19 +34,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:visibility="visible"
+        android:visibility="@{viewModel.progressBarFileLoadingVisibility}"
         android:elevation="4dp"
         android:maxHeight="3dp"
         android:minHeight="3dp" />
     </FrameLayout>
 
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/editor_scroll_view"
+    <ScrollView
+        android:id="@+id/editor_scroll_view"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/listBackground"
     android:fadingEdge="none"
- 	android:fillViewport="true">
+ 	android:fillViewport="true"
+        android:visibility="@{viewModel.editorScrollViewVisibility}"
+        >
     
     <!-- android:fillViewport expands the border-buttons -->
     <!-- note the case sensitivity -->
@@ -77,8 +86,12 @@
             android:scrollHorizontally="false"
             android:scrollbars="vertical"
             android:saveEnabled="true"
+            android:focusable="@{viewModel.isFocusable}"
+            app:charSequenceText="@={viewModel.editorText}"
+            app:onTextChanged="@{(text, start, before, count) -> viewModel.onEditorTextChanged(text)}"
             >
         </com.taiko.noblenote.editor.DroidWriterEditText>
+
 
         <!-- right border -->
         <Button
@@ -94,3 +107,4 @@
 
 </ScrollView>
 </LinearLayout>
+</layout>

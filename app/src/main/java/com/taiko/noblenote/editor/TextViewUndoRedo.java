@@ -305,6 +305,8 @@ public class TextViewUndoRedo {
          */
         private CharSequence mBeforeChange;
 
+        private boolean textChanged = false;
+
         /**
          * The text that was inserted by the change event.
          */
@@ -324,6 +326,14 @@ public class TextViewUndoRedo {
             if (mIsUndoOrRedo) {
                 return;
             }
+
+            // detect if setText was called by the viewModel after an configuration change
+            if((count > 1 || count == 0) && textChanged == false && start == 0 && before == 0)
+            {
+                return;
+            }
+
+            textChanged = true;
 
             mAfterChange = s.subSequence(start, start + count);
             mEditHistory.add(new EditItem(start, mBeforeChange, mAfterChange));
