@@ -1,7 +1,6 @@
 package com.taiko.noblenote.document
 
 import android.Manifest
-import android.annotation.TargetApi
 import android.content.Context
 import android.content.pm.PackageManager
 import android.database.ContentObserver
@@ -12,8 +11,15 @@ import android.os.Looper
 import android.os.storage.StorageManager
 import android.provider.DocumentsContract
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import com.taiko.noblenote.loggerFor
 import rx.Observable
+import rx.lang.kotlin.PublishSubject
+import rx.lang.kotlin.switchOnNext
+import rx.subjects.BehaviorSubject
+import rx.subjects.PublishSubject
 import rx.subscriptions.Subscriptions
 import java.io.File
 
@@ -21,52 +27,59 @@ import java.io.File
 /**
  * storage access framework helpers, checks if the volumes (sd card, usb stick, primary external storage etc. ) are accessible
  */
-object VolumeUtil {
+object VolumeUtil : LifecycleObserver
+{
 
     private val log = loggerFor();
 
     private const val AUTHORITY = "com.android.externalstorage.documents"
 
+    private val onActivityStartHook : PublishSubject<Unit> = PublishSubject();
 
-    fun volumeAccessibleObservable(context: Context, persistedOpenDocumentTreeIntentUri : Observable<String>) : Observable<Boolean>
+
+    fun volumeAccessibleObservable(context: Context, persistedOpenDocumentTreeIntentUri : BehaviorSubject<String>) : Observable<Boolean>
     {
-        val obs : Observable<Unit> =  Observable.create<Unit> { subscriber ->
 
-            val uri = DocumentsContract.buildRootsUri(AUTHORITY)
+        return persistedOpenDocumentTreeIntentUri.map { uriString ->
+            val uri = Uri.parse(uriString);
 
-            val contentObserver: ContentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
-                override fun onChange(selfChange: Boolean) {
-
-                    subscriber.onNext(Unit);
-                }
+            if(uri.scheme == "file")
+            {
+                return@map Observable.just(isFileUriAccessible(uri, context));
             }
+            else if(context.contentResolver.persistedUriPermissions.isEmpty())
+            {
+                return@map Observable.just(false);
+            }
+            else // uri.scheme == "content"
+            {
+                // this is only allowed when when the uri is a content uri
+                val changed : Observable<Unit> = createExternalStorageChangedObservable(context)
+                        .mergeWith(onActivityStartHook)
+                return@map changed.map { fileOrContentUriAccessible(context,uri.toString()) }
 
-            context.contentResolver.registerContentObserver(uri, false, contentObserver)
+            }
+        }.switchOnNext()
 
-            subscriber.add(Subscriptions.create { context.contentResolver.unregisterContentObserver(contentObserver) })
-        }
-        return Observable.combineLatest(obs.startWith(Unit),persistedOpenDocumentTreeIntentUri
-                ) { _ : Unit, uri : String ->  volumeAccessible(context,uri)} // maybe requires BiFunction in RxJava2 or later
-                .distinctUntilChanged();
+          .startWith(fileOrContentUriAccessible(context,persistedOpenDocumentTreeIntentUri.value))
+         .distinctUntilChanged();
     }
 
 
 
-    fun volumeAccessible(context: Context, persistedOpenDocumentTreeIntentUri : String): Boolean {
+    fun fileOrContentUriAccessible(context: Context, persistedOpenDocumentTreeIntentUri : String): Boolean {
 
         val uri = Uri.parse(persistedOpenDocumentTreeIntentUri);
 
         if(uri.scheme == "file")
         {
-            val f = File(uri.path).absolutePath;
-            if(f.startsWith(context.getExternalFilesDir(null)?.absolutePath.toString(),true) ||
-                    f.startsWith(context.filesDir.absolutePath) ||
+            if (isFileUriAccessible(uri, context)) return true
+        }
 
-                    (f.startsWith(Environment.getExternalStorageDirectory().absolutePath)
-                            && ContextCompat.checkSelfPermission(context,Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED))
-            {
-                return true;
-            }
+        // all uris have been revoked via app detail settings (its not possible to revoke a single uri)
+        if(context.contentResolver.persistedUriPermissions.isEmpty())
+        {
+            return false;
         }
 
         val storageManager = context.getSystemService(Context.STORAGE_SERVICE) as StorageManager
@@ -91,6 +104,18 @@ object VolumeUtil {
         return b;
     }
 
+    private fun isFileUriAccessible(uri: Uri, context: Context): Boolean {
+        val f = File(uri.path).absolutePath;
+        if (f.startsWith(context.getExternalFilesDir(null)?.absolutePath.toString(), true) ||
+                f.startsWith(context.filesDir.absolutePath) ||
+
+                (f.startsWith(Environment.getExternalStorageDirectory().absolutePath)
+                        && ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
+            return true;
+        }
+        return false
+    }
+
     private fun buildVolumeUriFromUuid(uuid: String): String {
         return DocumentsContract.buildTreeDocumentUri(
                 AUTHORITY,
@@ -98,10 +123,38 @@ object VolumeUtil {
         ).toString()
     }
 
+    // used to call hidden API methods on Android 5,6 that later became public
     private fun Any.invokeDynamic(name : String) : Any?
     {
         val method = this.javaClass.getMethod(name);
         return method.invoke(this);
+    }
+
+    // creates a content observer, this must never be called when Uri permission is not granted!
+    private fun createExternalStorageChangedObservable(context: Context): Observable<Unit> {
+        return Observable.create<Unit> { subscriber ->
+
+            val uri = DocumentsContract.buildRootsUri(AUTHORITY)
+
+            val contentObserver: ContentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
+                override fun onChange(selfChange: Boolean) {
+
+                    subscriber.onNext(Unit);
+                }
+            }
+
+            context.contentResolver.registerContentObserver(uri, false, contentObserver)
+
+            subscriber.add(Subscriptions.create { context.contentResolver.unregisterContentObserver(contentObserver) })
+        }
+    }
+
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    fun onStart()
+    {
+        onActivityStartHook.onNext(Unit)
+
     }
 
 }

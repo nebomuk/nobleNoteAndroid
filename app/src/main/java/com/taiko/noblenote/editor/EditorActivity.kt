@@ -57,9 +57,11 @@ class EditorActivity : AppCompatActivity() {
 
         binding.lifecycleOwner = this;
 
-
         editorViewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory(application))
                 .get(EditorViewModel::class.java);
+
+        lifecycle.addObserver(editorViewModel);
+
 
         binding.viewModel = editorViewModel;
 
@@ -123,8 +125,6 @@ class EditorActivity : AppCompatActivity() {
 
         toolbar.inflateMenu(R.menu.menu_editor);
 
-
-
         toolbar.setOnMenuItemClickListener {
             when(it.itemId)
             {
@@ -158,27 +158,10 @@ class EditorActivity : AppCompatActivity() {
         super.onStart()
         log.d( ".onStart()");
 
-        editorViewModel.onStart()
-
         // fix selection & formatting for Honeycomb and newer devices
             editor_edit_text.customSelectionActionModeCallback = SelectionActionModeCallback(editor_edit_text)
 
     }
-
-
-
-    public override fun onStop() {
-        mFindInTextToolbarController.hideToolbar() // required because android serializes the highlight on configuration changes and then removing does not longer work
-
-        super.onStop()
-
-        log.d( ".onStop()");
-
-
-        editorViewModel.onStop(isChangingConfigurations)
-    }
-
-
 
     private fun showExitDialog() {
 
@@ -226,20 +209,6 @@ class EditorActivity : AppCompatActivity() {
 
         return super.onOptionsItemSelected(item)
     }
-
-    override fun onResume() {
-        super.onResume()
-
-        editorViewModel.onResume()
-
-//        if(editorViewModel.isModified.value!!)
-//        {
-//            val handler = Handler();
-//            handler.postDelayed({ toolbar.setTitleModified()},0L);
-//
-//        }
-    }
-
 
 
     override fun onDestroy() {

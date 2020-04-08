@@ -8,6 +8,8 @@ import com.taiko.noblenote.document.SFile
 import rx.Observable
 import rx.lang.kotlin.toObservable
 import rx.schedulers.Schedulers
+import java.io.File
+import kotlin.random.Random
 
 /**
  * file deletion undo helper
@@ -29,7 +31,7 @@ object UndoHelper {
             return;
         }
 
-        val tempDir = SFile(SFile(Pref.rootPath.value.toString()), ".TempTrash0111");
+        val tempDir = SFile(SFile(Pref.rootPath.value.toString()), ".TempTrash"+ Random.nextInt(1,100));
         tempDir.mkdir()
         val originalFolder = files.first().parentFile;
         files.toObservable()

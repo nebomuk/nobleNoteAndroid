@@ -7,10 +7,9 @@ import android.os.Bundle
 import android.text.Spanned
 import android.view.View
 import androidx.annotation.StringRes
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.*
 import com.taiko.noblenote.*
+import com.taiko.noblenote.R
 import com.taiko.noblenote.editor.EditorActivity.Companion.ARG_QUERY_TEXT
 import com.taiko.noblenote.editor.EditorActivity.Companion.HTML
 import com.taiko.noblenote.document.SFile
@@ -77,6 +76,7 @@ class EditorViewModel(app : Application) : AndroidViewModel(app), LifecycleObser
 
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun onStart()
     {
         if (SFile(mFileUri).lastModified() > lastModified.value!!) {
@@ -84,25 +84,17 @@ class EditorViewModel(app : Application) : AndroidViewModel(app), LifecycleObser
         }
     }
 
-
-    fun onStop(isChangingCOnfigurations : Boolean)
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    fun onStop()
     {
+        toolbarFindInTextVisible.value = false;
+
             // if not mFocusable, changes can not be made
-            if (Pref.isAutoSaveEnabled &&  !isChangingCOnfigurations && isFocusable.value!! && isModified.value!!)
-            // then save the note
-            {
-                saveNote()
-            }
-    }
-
-    fun onPause()
-    {
-
-    }
-
-    fun onResume()
-    {
-
+        if (Pref.isAutoSaveEnabled  && isFocusable.value!! && isModified.value!!)
+        // then save the note
+        {
+            saveNote()
+        }
     }
 
     fun onMenuItemDoneClicked()

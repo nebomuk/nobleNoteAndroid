@@ -4,7 +4,9 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:background="@color/listBackground"
+    android:clickable="true"
     >
+    <!-- clickable must be true to disable the "click through" behavior when no recycler view is active" -->
 
     <!-- list empty indicator  when fragment is used for search results-->
     <TextView
@@ -42,10 +44,10 @@
 
         android:layout_height="match_parent"/>
         <!-- list empty indicator used by RecyclerFileAdapter  when there are no files in the given folder-->
-        <TextView android:id="@+id/text_empty"
+        <TextView android:id="@+id/tv_recycler_view_empty"
                   android:layout_width="match_parent"
                   android:layout_height="match_parent"
-                  android:text="@string/list_empty"
+            android:layout_margin="32dp"
                   android:gravity="center"
             />
 

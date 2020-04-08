@@ -20,8 +20,6 @@ class NoteListFragment : Fragment() {
 
     }
 
-    private var mNoteListController : NoteListController? = null;
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -38,22 +36,9 @@ class NoteListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        mNoteListController = NoteListController(this,view);
+        val noteListController = NoteListController(this,view);
+        lifecycle.addObserver(noteListController);
 
     }
-
-    override fun onStart() {
-        super.onStart()
-        mNoteListController?.onStart()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        mNoteListController?.onDestroyView();
-
-    }
-
-
-
 
 }

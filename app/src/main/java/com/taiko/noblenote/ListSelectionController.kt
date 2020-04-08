@@ -48,12 +48,11 @@ class ListSelectionController(private val activity: MainActivity, private val ad
         mCompositeDisposable += mFileActionModeCallback.onRename.subscribe {
             val selectedFile = adapter.selectedFiles.firstOrNull()
             if (selectedFile != null) {
-                Dialogs.showRenameDialog(activity,activity.coordinator_layout, selectedFile, onRenamed = {
+                Dialogs.showRenameDialog(activity.coordinator_layout, selectedFile, onRenamed = {
                     adapter.removeSelected();
                     adapter.addFileName(it.name);
                     mActionMode?.finish();
-                },
-                        onNotRenamed = { mActionMode?.finish() })
+                }, onNotRenamed = { mActionMode?.finish() })
             }
 
         }

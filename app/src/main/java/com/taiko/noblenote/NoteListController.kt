@@ -4,6 +4,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import com.taiko.noblenote.document.SFile
 import kotlinx.android.synthetic.main.fragment_file_list.view.*
 import rx.android.schedulers.AndroidSchedulers
@@ -13,7 +16,7 @@ import rx.subscriptions.CompositeSubscription
 import java.io.FileFilter
 
 class NoteListController(private var fragment: Fragment, view: View)
-{
+    : LifecycleObserver {
 
     private val recyclerFileAdapter: RecyclerFileAdapter
     private val listSelectionController : ListSelectionController
@@ -59,7 +62,6 @@ class NoteListController(private var fragment: Fragment, view: View)
         }
         else
         {
-            view.tv_file_list_empty.setText(R.string.notebook_is_empty);
 
             path = SFile(fragment.arguments?.getString(NoteListFragment.ARG_FOLDER_PATH));
 
@@ -70,7 +72,7 @@ class NoteListController(private var fragment: Fragment, view: View)
 
         recyclerFileAdapter.showFolders = false
 
-        mCompositeSubscription += recyclerFileAdapter.applyEmptyView(view.empty_list_switcher,R.id.text_empty,R.id.recycler_view)
+        mCompositeSubscription += recyclerFileAdapter.applyEmptyView(view.empty_list_switcher,R.id.tv_recycler_view_empty,R.id.recycler_view)
 
         recyclerView.adapter = recyclerFileAdapter
         recyclerView.layoutManager = LinearLayoutManager(fragment.activity)
@@ -107,12 +109,14 @@ class NoteListController(private var fragment: Fragment, view: View)
 
 
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun onStart()
     {
         SFile.invalidateAllFileListCaches();
         recyclerFileAdapter.refresh();
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun onDestroyView()
     {
         mCompositeSubscription.clear();

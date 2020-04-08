@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import com.taiko.noblenote.document.SFile
 import com.taiko.noblenote.editor.Html
+import com.taiko.noblenote.editor.TextConverter
 import rx.Observable
 import java.io.*
 
@@ -19,7 +20,7 @@ object FileHelper {
     @JvmStatic
     fun readFile(filePath : Uri, ctx : Context, parseHtml: Boolean ) : Observable<CharSequence>
     {
-        return Observable.create({ subscriber ->
+        return Observable.create { subscriber ->
             val htmlText = StringBuilder()
             try {
                 SFile(filePath).openInputStream().bufferedReader().use { br ->
@@ -42,14 +43,19 @@ object FileHelper {
             // do slow html parsing
             val span: CharSequence
             if (parseHtml) {
-                span = Html.fromHtml(htmlText.toString(), ctx.resources.displayMetrics.density) // time consuming
+                var htmlString = htmlText.toString();
+                if(!TextConverter.mightBeRichText(htmlString))
+                {
+                    htmlString =  TextConverter.convertFromPlainText(htmlString);
+                }
+                span = Html.fromHtml(htmlString, ctx.resources.displayMetrics.density)// time consuming
             } else {
                 span = htmlText.toString()
             }
 
             subscriber.onNext(span)
             subscriber.onCompleted()
-        })
+        }
     }
 
     @JvmStatic
@@ -119,6 +125,7 @@ object FileHelper {
      * moves the file including it's immediate parent directory
      */
     @JvmStatic
+    @Deprecated("use IDocumentFile implementations")
     fun fileMoveWithParent(oldFile : File, newRoot : File): Boolean {
 
         if(oldFile.parentFile == null)

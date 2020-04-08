@@ -56,7 +56,12 @@ class MainToolbarController(val activity: MainActivity) {
             {
 
                 val fragment = activity.supportFragmentManager.findFragmentById(R.id.item_master_container);
-                val folderPath = fragment?.arguments?.getString(NoteListFragment.ARG_FOLDER_PATH,null).orEmpty();
+                val folderPath = fragment?.arguments?.getString(NoteListFragment.ARG_FOLDER_PATH,null)
+                if(folderPath == null)
+                {
+                    log.e("Fragment argument ARG_FOLDER_PATH is null in mainToolbarControlller in onBackStackChangedListener");
+                    return@addOnBackStackChangedListener;
+                }
                 activity.toolbar.title = SFile(folderPath).name;
 
                 setBackNavigationIconEnabled(true)
@@ -176,7 +181,7 @@ class MainToolbarController(val activity: MainActivity) {
 
     private fun showSearchResults(queryText : CharSequence)
     {
-        activity.supportFragmentManager.popBackStack(FRAGMENT_SEARCH_RESULT, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        activity.supportFragmentManager.popBackStack(FRAGMENT_SEARCH_RESULT, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
         activity.search_view.clearFocus();
         mSearchAdapter.clear();
@@ -207,7 +212,7 @@ class MainToolbarController(val activity: MainActivity) {
 
         if (handled) {
             activity.search_view.closeSearch();
-            activity.supportFragmentManager.popBackStack(FRAGMENT_SEARCH_RESULT, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            activity.supportFragmentManager.popBackStack(FRAGMENT_SEARCH_RESULT, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
             activity.setFabVisible(true);
         }
         return handled;
