@@ -17,32 +17,13 @@ class FolderListFragment : Fragment() {
         return rootView
     }
 
-    private var mFolderListController : FolderListController? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mFolderListController = FolderListController(this, view)
+        val folderListController = FolderListController(this, view)
+        lifecycle.addObserver(folderListController);
 
     }
-
-
-    override fun onStart() {
-        super.onStart()
-
-        mFolderListController?.onStart();
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        mFolderListController?.onDestroyView()
-        mFolderListController = null;
-
-    }
-
-
-
-
-
 
 }

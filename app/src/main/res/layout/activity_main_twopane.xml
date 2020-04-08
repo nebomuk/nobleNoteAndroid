@@ -30,7 +30,7 @@
                 android:id="@+id/item_master_container"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"/>
+                android:layout_weight="1.5"/>
 
             <FrameLayout
                 android:id="@+id/item_detail_container"
@@ -101,7 +101,7 @@
             android:layout_gravity="bottom|right"
             android:layout_marginBottom="8dp"
             android:layout_marginRight="8dp"
-            android:src="@drawable/ic_insert_drive_file_24dp"
+            android:src="@drawable/ic_event_note_black_24dp"
             fab:fab_size="mini"
             fab:fab_label="@string/newNote"
             fab:fab_colorNormal="@color/colorAccent"

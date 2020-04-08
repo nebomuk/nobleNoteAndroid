@@ -55,8 +55,10 @@ class MainActivity : AppCompatActivity()
 
         val dlg = VolumeNotAccessibleDialog.create(this);
 
+        lifecycle.addObserver(VolumeUtil);
+
         mVolumeSubscription = VolumeUtil.volumeAccessibleObservable(this, Pref.rootPath)
-                .startWith(VolumeUtil.volumeAccessible(this,Pref.rootPath.value))
+
                 .subscribe {
                     if(it)
                     {

@@ -47,7 +47,7 @@ class PreferenceFragment : PreferenceFragmentCompat() {
 
         findPreference<Preference>(getString(R.string.pref_key_internal_storage))?.setOnPreferenceClickListener {
 
-            if(VolumeUtil.volumeAccessible(activity!!,Pref.rootPath.value) && SFile(Pref.rootPath.value).listFiles().count() > 0)
+            if(VolumeUtil.fileOrContentUriAccessible(activity!!,Pref.rootPath.value) && SFile(Pref.rootPath.value).listFiles().count() > 0)
             {
                 showWarningBeforeInternalStorage { useInternalStorage(); }
             }
@@ -60,7 +60,7 @@ class PreferenceFragment : PreferenceFragmentCompat() {
 
         findPreference<Preference>(getString(R.string.pref_key_saf_picker))?.setOnPreferenceClickListener {
 
-            if(VolumeUtil.volumeAccessible(activity!!,Pref.rootPath.value) && SFile(Pref.rootPath.value).listFiles().count() > 0)
+            if(VolumeUtil.fileOrContentUriAccessible(activity!!,Pref.rootPath.value) && SFile(Pref.rootPath.value).listFiles().count() > 0)
             {
                 showWarningBeforeSaf {startSafFolderPicker(activity!!)}
             }

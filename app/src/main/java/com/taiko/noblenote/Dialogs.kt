@@ -1,11 +1,8 @@
 package com.taiko.noblenote
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.snackbar.Snackbar
-import android.text.InputFilter
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -26,9 +23,9 @@ import java.io.IOException
 object Dialogs {
 
     @JvmStatic
-    fun showNewNoteDialog(layout: CoordinatorLayout, fileCreated: (f : SFile) -> Unit) {
+    fun showNewNoteDialog(rootView: View, fileCreated: (f : SFile) -> Unit) {
 
-        val context = layout.context;
+        val context = rootView.context;
 
             val
                  dialogBuilder = AlertDialog.Builder(context)
@@ -49,7 +46,6 @@ object Dialogs {
 
                     // Set an EditText view to get user input
                     val input = EditText(context)
-                    input.filters = arrayOf<InputFilter>(FileNameFilter())
 
                     val parent = SFile(Pref.rootPath.value);
                     val proposedFileName = context.getString(R.string.newNote)
@@ -65,11 +61,15 @@ object Dialogs {
                     dialogBuilder.setPositiveButton(
                             android.R.string.ok) { dialog, whichButton ->
                         val newName = input.text.trim()
+
+                        if (isNameInvalidAndErrorSnackbar(newName, rootView, R.string.noteNotCreated)) return@setPositiveButton
+
+
                         val newFile = SFile(SFile(Pref.currentFolderPath.value), newName.toString())
                         try {
                             if(newFile.exists())
                             {
-                                Snackbar.make(layout, R.string.notCreatedNoteExists, Snackbar.LENGTH_LONG).show()
+                                Snackbar.make(rootView, R.string.notCreatedNoteExists, Snackbar.LENGTH_LONG).show()
                             }
                             else if (newFile.createNewFile()) {
                                 // FIXME exception thrown
@@ -77,7 +77,7 @@ object Dialogs {
                             } else
                             // error occured
                             {
-                                Snackbar.make(layout, R.string.noteNotCreated, Snackbar.LENGTH_SHORT).show()
+                                Snackbar.make(rootView, R.string.noteNotCreated, Snackbar.LENGTH_SHORT).show()
                             }
                         } catch (e: IOException) {
                             e.printStackTrace()
@@ -107,9 +107,9 @@ object Dialogs {
     }
 
     @JvmStatic
-    fun showNewFolderDialog(layout: CoordinatorLayout, folderCreated: (f : SFile) -> Unit) {
+    fun showNewFolderDialog(rootView: View, folderCreated: (f : SFile) -> Unit) {
 
-        val context = layout.context;
+        val context = rootView.context;
                     val dialogBuilder = AlertDialog.Builder(context)
 
                     dialogBuilder.setTitle(R.string.newNotebook)
@@ -117,7 +117,6 @@ object Dialogs {
 
                     // Set an EditText view to get user input
                     val input = EditText(context)
-                    input.filters = arrayOf<InputFilter>(FileNameFilter())
 
                     val parent = SFile(Pref.rootPath.value);
                     val proposedFileName = context.getString(R.string.newNotebook)
@@ -133,13 +132,16 @@ object Dialogs {
                     dialogBuilder.setPositiveButton(
                             android.R.string.ok) { dialog, whichButton ->
                         val newName = input.text.trim()
+
+                        if (isNameInvalidAndErrorSnackbar(newName, rootView, R.string.notebookNotCreated)) return@setPositiveButton
+
                         val dir = SFile(SFile(Pref.rootPath.value), newName.toString())
                         if(dir.exists())
                         {
-                            Snackbar.make(layout, R.string.notCreatedNotebookExists, Snackbar.LENGTH_LONG).show()
+                            Snackbar.make(rootView, R.string.notCreatedNotebookExists, Snackbar.LENGTH_LONG).show()
                         }
                         else if (!dir.mkdir()) {
-                            Snackbar.make(layout, R.string.notebookNotCreated, Snackbar.LENGTH_LONG).show()
+                            Snackbar.make(rootView, R.string.notebookNotCreated, Snackbar.LENGTH_LONG).show()
                         } else {
                             folderCreated(dir)
                         }
@@ -156,7 +158,7 @@ object Dialogs {
      * shows a dialog to rename a folder or file relative to the root path
      */
     @JvmStatic
-    fun showRenameDialog(activity : Activity, rootView: View, file: SFile, onRenamed : (renamedFile: SFile) -> Unit, onNotRenamed : () -> Unit)
+    fun showRenameDialog(rootView: View, file: SFile, onRenamed: (renamedFile: SFile) -> Unit, onNotRenamed: () -> Unit)
     {
 
                     val dialogBuilder = AlertDialog.Builder(rootView.context)
@@ -174,14 +176,13 @@ object Dialogs {
 
                     // Set an EditText view to get user input
                     val input = EditText(rootView.context)
-                    input.filters = arrayOf(FileNameFilter())
                     input.setText(file.name)
                     input.setSelection(input.text.length)
                     dialogBuilder.setView(wrapWithMargins(input))
 
                     dialogBuilder.setPositiveButton(
                             android.R.string.ok) { dialog, whichButton ->
-                        val newName = input.text.toString().trim()
+                        val newName = input.text.trim().toString()
 
 
                         if (newName == file.name) // name wasnt changed by user
@@ -189,6 +190,8 @@ object Dialogs {
                             onNotRenamed();
                             return@setPositiveButton;
                         }
+
+                        if (isNameInvalidAndErrorSnackbar(newName, rootView, msgNotRenamed)) return@setPositiveButton
 
                         var proposed = SFile(file.parentFile,newName)
                         if (proposed.exists()) {
@@ -229,6 +232,18 @@ object Dialogs {
                     dialogBuilder.show()
     }
 
+    private fun isNameInvalidAndErrorSnackbar(newName: CharSequence, rootView: View, msgNotRenamed: Int): Boolean {
+        if (FileNameValidator.containsDisallowedCharacter(newName)) {
+            val errorMessage = (rootView.context.getString(msgNotRenamed) + ": " +
+                    rootView.context.getString(R.string.msg_error_disallowed_characters_in_filename)
+                    + FileNameValidator.disallowedCharacters.joinToString())
+            Snackbar.make(rootView, errorMessage
+                    , Snackbar.LENGTH_LONG)
+                    .setDuration(5000).show()
+            return true
+        }
+        return false
+    }
 
 
 }

@@ -21,12 +21,12 @@ import rx.subscriptions.CompositeSubscription
 class FindInTextToolbarController(val activity : EditorActivity) {
 
     private val mCompositeSubscription : CompositeSubscription = CompositeSubscription();
-    private lateinit var mFindHighlighter: FindHighlighter
+    private val mFindHighlighter: FindHighlighter
 
 
     init {
 
-        val itemFindInText = activity.findViewById<Toolbar>(R.id.toolbar).menu.add(R.string.action_find_in_text)
+        val itemFindInText = activity.findViewById<Toolbar>(R.id.toolbar).menu.add(R.string.find_in_text)
                 .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER)
         itemFindInText.setOnMenuItemClickListener {
             showToolbarWithoutMove();

@@ -50,7 +50,7 @@ public fun Toolbar.setTitleAndModified(defaultTitle : String, isModified : Boole
                             val latestLayout = textView?.layout;
                             this@setTitleAndModified.addModifiedIndicatorToEllipsis(textView, latestLayout);
                         } catch (e: Exception) {
-                            log.e("failed to set title as modified in view tree observer",e);
+                            log.d("failed to set title as modified in view tree observer",e);
                         }
                     }
         }

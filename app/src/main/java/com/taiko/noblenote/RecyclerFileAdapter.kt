@@ -1,6 +1,5 @@
 package com.taiko.noblenote
 
-import android.content.res.Configuration
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -16,7 +15,8 @@ import com.jakewharton.rxbinding.view.longClicks
 import com.taiko.noblenote.document.SFile
 import com.taiko.noblenote.extensions.getColorFromAttr
 import com.taiko.noblenote.extensions.toRxObservable
-import kotlinx.android.synthetic.main.recycler_file_item.view.*
+import kotlinx.android.synthetic.main.fragment_file_list.view.*
+import kotlinx.android.synthetic.main.recycler_file_item2.view.*
 import rx.Observable
 import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
@@ -178,7 +178,12 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         // create a new view
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.recycler_file_item, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.recycler_file_item2, parent, false)
+
+        if(!showFolders)
+        {
+            view.iconImageView.setImageResource(R.drawable.ic_event_note_black_24dp);
+        }
         // set the view's size, margins, paddings and layout parameters
 
         return ViewHolder(view)
@@ -252,12 +257,12 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
 
         holder.mCompositeSubscription.clear() // clear subscriptions from previous bindings
 
-        holder.mCompositeSubscription += holder.itemView.inner_layout
+        holder.mCompositeSubscription += holder.itemView.outer_layout
                 .clicks()
                 .doOnNext{ log.i("item click pos: " + position )}
                 .subscribe { mClickSubject.onNext(holder.layoutPosition) }
 
-        holder.mCompositeSubscription += holder.itemView.inner_layout
+        holder.mCompositeSubscription += holder.itemView.outer_layout
                 .longClicks()
                 .doOnNext{ log.i("item long click pos: " + position )}
                 .subscribe { mLongClickSubject.onNext(holder.layoutPosition) }
@@ -303,18 +308,12 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
         }
     }
 
-//    fun MutableList<File>.addSorted(mt : File)
-//    {
-//        var index = Collections.binarySearch<File>(this,mt, { lhs, rhs -> Collator.getInstance().compare(lhs.name, rhs.name) })
-//        if (index < 0) index = index.inv()
-//        add(index, mt)
-//    }
 
     /**
      * based on
      * https://stackoverflow.com/questions/4903611/java-list-sorting-is-there-a-way-to-keep-a-list-permantly-sorted-automatically
      */
-    fun <T> MutableList<T>.addSorted(mt : T, c : ((T, T) -> Int)) where T : Comparable<T>
+    private fun <T> MutableList<T>.addSorted(mt : T, c : ((T, T) -> Int)) where T : Comparable<T>
     {
         var index = Collections.binarySearch<T>(this,mt, c)
         if (index < 0) index = index.inv()
@@ -333,6 +332,15 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
             else if(it == 0 && switcher.nextView.id == emptyViewId)
             {
                 switcher.showNext()
+
+                if(showFolders)
+                {
+                    switcher.tv_recycler_view_empty.setText(R.string.notebook_list_empty);
+                }
+                else
+                {
+                    switcher.tv_recycler_view_empty.setText(R.string.note_list_empty);
+                }
             }
         }
     }

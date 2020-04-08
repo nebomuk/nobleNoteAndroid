@@ -7,20 +7,21 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import com.taiko.noblenote.document.SFile
 import kotlinx.android.synthetic.main.fragment_file_list.view.*
 import kotlinx.android.synthetic.main.toolbar.*
-import rx.android.schedulers.AndroidSchedulers
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
 import java.io.File
 import java.io.FileFilter
-import java.util.concurrent.TimeUnit
 
 /**
  * Created by taiko
  */
-class FolderListController(private var fragment: Fragment, view: View) {
+class FolderListController(private var fragment: Fragment, view: View) : LifecycleObserver {
 
     private var mTwoPane = false
     private val mCompositeSubscription = CompositeSubscription()
@@ -44,14 +45,11 @@ class FolderListController(private var fragment: Fragment, view: View) {
         }
 
 
-        // the following code lists only visible folders and push their names into an ArrayAdapter
-        val folderFilter = FileFilter { pathname -> pathname.isDirectory && !pathname.isHidden }
-
         recyclerFileAdapter = RecyclerFileAdapter(SFile(Pref.rootPath.value))
 
         recyclerFileAdapter.showFolders = true;
 
-        mCompositeSubscription += recyclerFileAdapter.applyEmptyView(view.empty_list_switcher,R.id.text_empty,R.id.recycler_view)
+        mCompositeSubscription += recyclerFileAdapter.applyEmptyView(view.empty_list_switcher,R.id.tv_recycler_view_empty,R.id.recycler_view)
 
         recyclerView.adapter = recyclerFileAdapter
         recyclerView.layoutManager = LinearLayoutManager(fragment.activity)
@@ -124,12 +122,14 @@ class FolderListController(private var fragment: Fragment, view: View) {
         }
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun onStart()
     {
             recyclerFileAdapter.path = SFile(Pref.rootPath.value);
             recyclerFileAdapter.refresh();
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun onDestroyView()
     {
         mCompositeSubscription.clear();

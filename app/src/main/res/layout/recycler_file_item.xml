@@ -5,9 +5,26 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     >
-<LinearLayout
+
+    <FrameLayout
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="10dp"
+        android:id="@+id/layoutWithCircleDrawable"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/circle_drawable">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/imageView36"
+            android:src="@drawable/ic_folder_24dp"/>
+    </FrameLayout>
+
+    <LinearLayout
     android:id="@+id/inner_layout"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:layout_width="match_parent"
@@ -29,7 +46,7 @@
           android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
           android:minHeight="?android:attr/listPreferredItemHeightSmall" />
 
-</LinearLayout>
+    </LinearLayout>
     <!-- separator -->
     <View
         android:layout_width="match_parent"
