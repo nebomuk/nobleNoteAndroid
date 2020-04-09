@@ -11,6 +11,11 @@ import kotlinx.android.synthetic.main.toolbar.*
 
 class PreferencesActivity : AppCompatActivity() {
 
+    companion object
+    {
+        const val LAUNCH_SAF_FOLDER_PICKER = "show_saf_folder_picker"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.preferences_activity)

@@ -35,7 +35,7 @@ class NoteListController(private var fragment: Fragment, view: View)
 
 
 
-        if(fragment.arguments != null &&  fragment.arguments!!.containsKey(NoteListFragment.ARG_QUERY_TEXT))
+        if(fragment.arguments?.containsKey(NoteListFragment.ARG_QUERY_TEXT) == true)
         {
             recyclerFileAdapter = RecyclerFileAdapter(SFile(""));
 

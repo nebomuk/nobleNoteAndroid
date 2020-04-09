@@ -3,27 +3,28 @@ package com.taiko.noblenote
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
-import android.net.Uri
-import com.taiko.noblenote.document.VolumeUtil
 import com.taiko.noblenote.preferences.PreferencesActivity
-import rx.Subscription
-import java.util.*
+import com.taiko.noblenote.preferences.PreferencesActivity.Companion.LAUNCH_SAF_FOLDER_PICKER
 
 object VolumeNotAccessibleDialog {
 
-     fun create(activity: Activity): AlertDialog {
+    fun create(activity: Activity): AlertDialog {
         val builder = AlertDialog.Builder(activity)
 
-        builder.setTitle("Storage device not available")
 
-        builder.setMessage("The storage location is not longer available. ")
+             builder.setTitle(R.string.title_storage_removed)
 
-        builder.setPositiveButton("Select another storage location") { dialog, id ->
-            if(activity::class.java != PreferencesActivity::class.java)
-            activity.startActivity(Intent(activity,PreferencesActivity::class.java))
-        }
+             builder.setMessage(R.string.msg_storage_removed)
 
         builder.setCancelable(false);
+
+        builder.setPositiveButton(android.R.string.ok) { dialog, id ->
+            if(activity::class.java != PreferencesActivity::class.java) {
+                val intent = Intent(activity, PreferencesActivity::class.java);
+                intent.putExtra(LAUNCH_SAF_FOLDER_PICKER, false);
+                activity.startActivity(intent)
+            }
+        }
 
         return builder.create()
     }
