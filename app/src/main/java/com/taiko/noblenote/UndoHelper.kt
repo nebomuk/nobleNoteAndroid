@@ -74,6 +74,11 @@ object UndoHelper {
                                                                     {},
                                                                     // onCompleted
                                                                     {
+                                                                        val b = tempDir.deleteRecursively();
+                                                                        if(!b)
+                                                                        {
+                                                                            log.d("Could not remove temporary directory after undo $tempDir");
+                                                                        }
                                                                         // call undo callback
                                                                         handler.post {
                                                                             onUndo()
