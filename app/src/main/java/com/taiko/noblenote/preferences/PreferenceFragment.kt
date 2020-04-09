@@ -71,6 +71,12 @@ class PreferenceFragment : PreferenceFragmentCompat() {
             true;
         }
 
+        val showFolderPicker = activity?.intent?.extras?.getBoolean(PreferencesActivity.LAUNCH_SAF_FOLDER_PICKER);
+        if(showFolderPicker == true)
+        {
+            startSafFolderPicker(activity!!)
+        }
+
     }
 
     private fun useInternalStorage() {

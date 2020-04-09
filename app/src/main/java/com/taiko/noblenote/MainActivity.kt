@@ -57,6 +57,8 @@ class MainActivity : AppCompatActivity()
 
         lifecycle.addObserver(VolumeUtil);
 
+        LegacyStorageMigration.migrateFromLegacyStorage(this);
+
         mVolumeSubscription = VolumeUtil.volumeAccessibleObservable(this, Pref.rootPath)
 
                 .subscribe {
@@ -66,22 +68,22 @@ class MainActivity : AppCompatActivity()
                         {
                             dlg.dismiss();
                         }
-                        setupUi();
+                        attachUi();
                     }
                     else
                     {
                         dlg.show();
-                        clearUiSubscriptions()
+                        detachUi()
                     }
                      }
     }
 
 
-    private fun setupUi()
+    private fun attachUi()
     {
         log.d(".setupUi()");
 
-        clearUiSubscriptions();
+        detachUi();
         // replaces existing fragments that have been retaind in saveInstanceState
         supportFragmentManager.beginTransaction().replace(R.id.item_master_container, FolderListFragment()).commitAllowingStateLoss()
 
@@ -137,7 +139,7 @@ class MainActivity : AppCompatActivity()
     override fun onBackPressed() {
 
         // close search
-        if(mMainToolbarController != null && !mMainToolbarController!!.onBackPressed())
+        if(mMainToolbarController?.onBackPressed() == false)
         {
             super.onBackPressed();
         }
@@ -146,11 +148,11 @@ class MainActivity : AppCompatActivity()
     override fun onDestroy() {
         super.onDestroy()
         log.d(".onDestroy()");
-        clearUiSubscriptions()
+        detachUi()
         mVolumeSubscription.unsubscribe();
     }
 
-    private fun clearUiSubscriptions() {
+    private fun detachUi() {
         mCompositeSubscription.clear()
         mMainToolbarController?.clearSubscriptions();
         mMainToolbarController = null;
