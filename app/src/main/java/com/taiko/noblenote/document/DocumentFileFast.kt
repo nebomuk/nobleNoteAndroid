@@ -178,7 +178,15 @@ public class DocumentFileFast : IDocumentFile {
             return false;
         }
 
-        val resUri =  DocumentsContract.moveDocument(mContext.contentResolver,mUri,mParent.mUri,targetParentDocumentUri);
+        var resUri : Uri? = null
+        try {
+            resUri =  DocumentsContract.moveDocument(mContext.contentResolver,mUri,mParent.mUri,targetParentDocumentUri);
+        }
+        catch (e : java.lang.Exception) // some Android versions throw exceptions, others don't
+        {
+            log.d("failed to move document: DocumentsContract.moveDocument threw an exception: " + e.message); // probably exists
+            return false;
+        }
         if(resUri == null)
         {
             log.d("failed to move document: DocumentsContract.moveDocument returned null");

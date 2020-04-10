@@ -129,7 +129,12 @@ class DocumentFileWrapper : IDocumentFile {
         }
 
         val origFile = File(documentFile.uri.path);
-        return origFile.renameTo(File(targetDir,origFile.name));
+        val targetFile = File(targetDir, origFile.name)
+        if(targetFile.exists())
+        {
+            return false;
+        }
+        return origFile.renameTo(targetFile);
     }
 
     companion object {

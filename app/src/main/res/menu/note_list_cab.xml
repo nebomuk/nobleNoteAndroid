@@ -12,7 +12,7 @@
           app:showAsAction="ifRoom"/>
     <item android:id="@+id/actionCut"
           android:icon="@drawable/ic_content_cut_black_24dp"
-          android:title="@string/cut"
+          android:title="@android:string/cut"
           android:showAsAction="ifRoom"
           app:showAsAction="ifRoom"/>
     <item android:id="@+id/actionShowHtml"
