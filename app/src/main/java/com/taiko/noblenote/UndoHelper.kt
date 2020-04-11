@@ -45,6 +45,7 @@ object UndoHelper {
                             if(!res)
                             {
                                 log.d("Could not move $it to temporary directory for later removal");
+                                Snackbar.make(snackbarRootView,R.string.notesNotRemoved,Snackbar.LENGTH_SHORT);
                             }
 
                         },

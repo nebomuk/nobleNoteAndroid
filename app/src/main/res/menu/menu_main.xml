@@ -9,14 +9,14 @@
         android:enabled="false"
         android:orderInCategory="100"
         android:icon="@drawable/ic_content_paste_black_24dp"
-        android:title="@string/action_paste"
+        android:title="@android:string/paste"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_search"
         android:icon="@drawable/ic_search_24dp"
         android:orderInCategory="100"
         app:showAsAction="always"
-        android:title="@string/search_hint"/>
+        android:title="@android:string/search_go" />
 
     <item
         android:id="@+id/action_settings"

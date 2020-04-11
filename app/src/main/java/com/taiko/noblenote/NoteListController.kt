@@ -80,7 +80,7 @@ class NoteListController(private var fragment: Fragment, view: View)
         val app = (fragment.activity?.application as MainApplication)
 
         listSelectionController = ListSelectionController(fragment.activity as MainActivity,recyclerFileAdapter)
-        listSelectionController.isHtmlActionAvailable = true;
+        listSelectionController.isNoteList = true;
 
 
         mCompositeSubscription += listSelectionController.itemClicks()

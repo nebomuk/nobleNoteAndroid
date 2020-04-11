@@ -4,8 +4,11 @@ import android.app.Application
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Spanned
 import android.view.View
+import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.lifecycle.*
 import com.taiko.noblenote.*
@@ -133,7 +136,7 @@ class EditorViewModel(app : Application) : AndroidViewModel(app), LifecycleObser
 
                 }, {
                     log.e(it.message)
-                    toast.postValue(R.string.msg_file_loading_error)
+                    applicationToast(R.string.msg_file_loading_error)
                     finishActivity.postValue(true);
 
                 });
@@ -151,7 +154,7 @@ class EditorViewModel(app : Application) : AndroidViewModel(app), LifecycleObser
 
                     lastModified.value = it
                     isModified.postValue(false);
-                    toast.postValue(R.string.noteSaved)
+                    applicationToast(R.string.noteSaved)
                 }
     }
 
@@ -173,6 +176,15 @@ class EditorViewModel(app : Application) : AndroidViewModel(app), LifecycleObser
         clipboard.setPrimaryClip(clip);
 
        toast.postValue(R.string.msg_copied_to_clipboard);
+    }
+
+    // toast not bound by EditorActivity's scope
+    private fun applicationToast(@StringRes msg :  Int)
+    {
+        val handler = Handler(Looper.getMainLooper())
+        handler.post {
+           Toast.makeText(this.getApplication(),msg,Toast.LENGTH_SHORT).show();
+        }
     }
 
 }

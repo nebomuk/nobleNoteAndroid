@@ -22,7 +22,7 @@ class ListSelectionController(private val activity: MainActivity, private val ad
     private val log = loggerFor()
 
     var isTwoPane: Boolean = false; // folder list in two pane, colors each list item when clicked
-    var isHtmlActionAvailable = false // show html source action
+    var isNoteList = false // show html source and cut action
 
 
     private var mActionMode : ActionMode? = null
@@ -94,7 +94,9 @@ class ListSelectionController(private val activity: MainActivity, private val ad
 
             mActionMode = activity.toolbar.startActionMode(mFileActionModeCallback);
             adapter.selectFolderOnClick = false;
-            mActionMode?.menu?.findItem(R.id.actionShowHtml)?.isVisible = isHtmlActionAvailable
+            mActionMode?.menu?.findItem(R.id.actionShowHtml)?.isVisible = isNoteList
+            mActionMode?.menu?.findItem(R.id.actionCut)?.isVisible = isNoteList
+
 
             adapter.setSelected(it,true);
             activity.setFabVisible(false);
@@ -113,7 +115,7 @@ class ListSelectionController(private val activity: MainActivity, private val ad
                 val count = adapter.selectedFiles.size
 
                 mActionMode?.menu?.findItem(R.id.actionCut)?.isVisible = count > 1
-                mActionMode?.menu?.findItem(R.id.actionShowHtml)?.isVisible = (count == 1 && isHtmlActionAvailable == true);
+                mActionMode?.menu?.findItem(R.id.actionShowHtml)?.isVisible = (count == 1 && isNoteList == true);
                 mActionMode?.menu?.findItem(R.id.actionRename)?.isVisible = count == 1;
                 mActionMode?.customView?.item_count?.text = if(count > 0) count.toString() else "";
 
