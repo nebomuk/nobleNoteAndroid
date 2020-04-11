@@ -2,30 +2,21 @@
 <resources>
     <string name="app_name">nobleNote笔记本</string>
     <string name="action_done">完成</string>
-    <string name="cut">剪切</string>
     <string name="search_hint">搜索</string>
     <string name="show_html_source_code">显示HTML源码</string>
-    <string name="action_paste">粘贴</string>
     <string name="action_redo">恢复</string>
     <string name="action_undo">撤销</string>
     <string name="pref_title_store_external_storage">选择文件夹</string>
-    <string name="action_settings">设置</string>
     <string name="dialogDiscardKeepEditing">不保存更改并退出编辑</string>
     <string name="discard">不保存更改</string>
-    <string name="edit_message">编辑</string>
     <string name="find_in_text">在文字中寻找</string>
     <string name="msg_copied_to_clipboard">复制到粘贴板</string>
     <string name="remove">删除</string>
     <string name="rename">重命名</string>
     <string name="renameNote">重命名</string>
     <string name="renameNotebook">重命名</string>
-    <string name="rename_dialog_text">输入新名称</string>
     <string name="action_copy_to_clipboard">复制到粘贴板</string>
     <string name="newNotebook">新笔记本</string>
-    <string name="removeMultipleNotesQuestion">您确定要删除选中的笔记</string>
-    <string name="removeMultipleNotes">删除多个笔记</string>
-    <string name="notebooks">笔记本</string>
-    <string name="notes">笔记</string>
     <string name="noteExists">笔记已存在</string>
     <string name="notebookExists">笔记本已存在</string>
     <string name="italic">斜体字</string>
@@ -55,8 +46,23 @@
     <string name="keepEditing">继续编辑</string>
     <string name="title_search_results">所有搜索结果</string>
     <string name="msg_n_notes_in_clipboard">粘贴板有 %1$d 条笔记</string>
-    <string name="notebook_list_empty">无笔记</string>
+    <string name="notebook_list_empty">没有笔记本。 点击 + 创建笔记本</string>
     <string name="title_activity_preferences">设置</string>
     <string name="pref_title_auto_save">自动保存</string>
+    <string name="pref_summary_on_auto_save">自动保存已打开</string>
+    <string name="pref_summary_off_auto_save">自动保存已关闭</string>
+    <string name="title_use_external_storage">选择公共文件夹</string>
+    <string name="title_storage_removed">存储器被卸载</string>
+    <string name="msg_error_disallowed_characters_in_filename">不能使用以下字符:</string>
+    <string name="msg_storage_removed">无法访问笔记本的存储器</string>
+    <string name="title_store_internal_storage">使用App 私人存储</string>
+    <string name="pref_summary_store_internal_storage">把笔记本保存于App 私人存储空间. 其他 App无法访问您的笔记本</string>
+    <string name="msg_store_internal_storage">私人文件存储区域已打开</string>
+    <string name="pref_summary_store_external_storage">把笔记本保存于公共文件夹</string>
+    <string name="msg_existing_notebooks_not_transferred">笔记本现在在保存于私人存储空间。 已存在的笔记本不会被移至您选的文件夹。</string>
+    <string name="msg_store_internal_storage_again">您的笔记本现在保存于私人存储空间。如果您选择于公共存储空间保存，可在随时点击“使用App 私人存储”返回原笔记。</string>
+    <string name="note_list_empty">没有笔记。 点击 + 创建笔记</string>
+    <string name="msg_saf_downloads_not_supported">不能使用 下载 里的文件夹</string>
+    <string name="msg_saf_provider_not_supported">"不能使用此存储空间。 请选USB，内存或者SD卡里的文件夹。 "</string>
 
 </resources>

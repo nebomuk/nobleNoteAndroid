@@ -2,10 +2,12 @@ package com.taiko.noblenote.preferences
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.storage.StorageManager
 import android.view.View
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -138,7 +140,18 @@ class PreferenceFragment : PreferenceFragmentCompat() {
             return;
         }
 
-        val filePickerDialogIntent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+
+
+        val filePickerDialogIntent: Intent
+        filePickerDialogIntent = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val storageManager = context!!.getSystemService(Context.STORAGE_SERVICE) as StorageManager;
+            storageManager.primaryStorageVolume.createOpenDocumentTreeIntent()
+        } else {
+            Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+        }
+
+
+        filePickerDialogIntent
                 .apply {
                     putExtra("android.content.extra.SHOW_ADVANCED", true);
                     putExtra("android.content.extra.FANCY", true);
@@ -151,6 +164,31 @@ class PreferenceFragment : PreferenceFragmentCompat() {
 
                 val takeFlags = it.data().flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
 
+
+                // check if selected uri is 3rd party document provider which does not work,
+                // for example content://com.pleco.chinesesystem.localstorage.documents
+
+                val downloadsDocumentProviderAuthority =  "com.android.providers.downloads.documents"
+                val externalStorageAuthority = "com.android.externalstorage.documents"
+
+                val isDownloadsFolder = externalStorageAuthority == uri?.authority;
+
+
+                if (!isDownloadsFolder) {
+                    Snackbar.make(activity.linear_layout, R.string.msg_saf_downloads_not_supported,
+                            Snackbar.LENGTH_LONG).show();
+                    return@subscribe;
+                }
+
+
+                val isExternalStorageDocument = externalStorageAuthority == uri?.authority;
+
+                if (!isExternalStorageDocument) {
+                    Snackbar.make(activity.linear_layout, R.string.msg_saf_provider_not_supported,
+                            Snackbar.LENGTH_LONG).show();
+                    return@subscribe;
+                }
+
                 //noinspection WrongConstant
                 activity.contentResolver.takePersistableUriPermission(uri!!, takeFlags)
 
@@ -160,15 +198,6 @@ class PreferenceFragment : PreferenceFragmentCompat() {
 
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)  // dont forget to grant runtime permission when testing this on newer devices
                     {
-                        // check if selected uri is 3rd party document provider which does not work,
-                        // for example content://com.pleco.chinesesystem.localstorage.documents
-                        val isExternalStorageDocument = "com.android.externalstorage.documents" == uri.authority;
-
-                        if (!isExternalStorageDocument) {
-                            Snackbar.make(activity.linear_layout, "This document cannot be used. Please select the default external storage when there are multiple document providers",
-                                    Snackbar.LENGTH_LONG).show();
-                            return@subscribe;
-                        }
 
                         // use java.io.File API wrapped in SFile because SAF limitations for Android 5
                         val path = TreeUriUtil.treeUriToFilePath(uri, activity);
