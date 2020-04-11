@@ -74,6 +74,7 @@
     <!-- non translatable because earlier versions did only support english locale -->
     <string name="msg_upgrade" translatable="false">It seems you are upgrading from an earlier, incompatible version of nobleNote. Your notebooks are currently stored in this path: %1$s. Please choose this folder in the following dialog to complete the upgrade.</string>
     <string name="title_upgrade_info" translatable="false">Upgrade info</string>
+
     <string name="title_storage_removed">Storage device removed</string>
     <string name="msg_storage_removed">The public folder where your notebooks are stored is currently not accessible</string>
     <string name="msg_saf_downloads_not_supported">"Folders inside \"Downloads\" cannot be used. Please select another folder. "</string>
