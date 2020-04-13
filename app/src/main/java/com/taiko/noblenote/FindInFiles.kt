@@ -37,31 +37,6 @@ object FindInFiles {
 
     }
 
-    /**
-     * @return the file paths of the files
-     */
-    @JvmStatic
-    private fun  recursiveFullTextSearch(file: File, queryText: CharSequence) : Observable<String> =
-            file.walkBottomUp().filter { it.isFile && !it.isHidden }
-                    .toObservable()
-                    .map {
-                        val filePath = it.path;
-                        //                Timber.i(it.name)
-                        if (it.name.contains(queryText, true)) {
-                            filePath.toSingletonObservable() // file name contains the queryText, return the filePath
-                        } else {
-                            Observable.using(// open the file and try to find the queryText inside
-                                    { it.bufferedReader() },
-                                    { it.lineSequence().toObservable() },
-                                    { it.close() })
-                                    .exists { it.contains(queryText, true) }
-                                    .filter { it == true } // found
-
-                                    .map { filePath }
-                        }
-                    }
-                    .concat()
-
 
     private fun <T> Observable<Observable<T>>.concat(): Observable<T> = Observable.concat(this)
 
@@ -90,6 +65,8 @@ object FindInFiles {
                 }
                 .concat()
                 .map { SFile(it) }
+
+
     }
 
 
@@ -129,4 +106,30 @@ object FindInFiles {
 
         private val documentsWithoutQueryText : HashSet<Uri> = HashSet();
     }
+
+    /**
+     * @return the file paths of the files
+     */
+    @Deprecated("Use the recursiveFullTextSearch with SFile")
+    @JvmStatic
+    private fun  recursiveFullTextSearch(file: File, queryText: CharSequence) : Observable<String> =
+            file.walkBottomUp().filter { it.isFile && !it.isHidden }
+                    .toObservable()
+                    .map {
+                        val filePath = it.path;
+                        //                Timber.i(it.name)
+                        if (it.name.contains(queryText, true)) {
+                            filePath.toSingletonObservable() // file name contains the queryText, return the filePath
+                        } else {
+                            Observable.using(// open the file and try to find the queryText inside
+                                    { it.bufferedReader() },
+                                    { it.lineSequence().toObservable() },
+                                    { it.close() })
+                                    .exists { it.contains(queryText, true) }
+                                    .filter { it == true } // found
+
+                                    .map { filePath }
+                        }
+                    }
+                    .concat()
 }

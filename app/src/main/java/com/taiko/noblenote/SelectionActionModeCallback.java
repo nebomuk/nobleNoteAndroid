@@ -13,6 +13,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ShareActionProvider;
 
+import androidx.core.view.MenuItemCompat;
+
 import com.taiko.noblenote.editor.DroidWriterEditText;
 import com.taiko.noblenote.editor.Format;
 
@@ -25,8 +27,7 @@ import com.taiko.noblenote.editor.Format;
  * for Honeycomb and newer devices *
  */
 
-
-@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+// This class cannot use Android X because as of April 2020, TextViewCompat does not supportin the Android X action mode callback
 public class SelectionActionModeCallback implements android.view.ActionMode.Callback {
 
 	
@@ -43,7 +44,15 @@ public class SelectionActionModeCallback implements android.view.ActionMode.Call
         MenuInflater inflater = mode.getMenuInflater();
         inflater.inflate(R.menu.selection_cab, menu);
         MenuItem item = menu.findItem(R.id.menu_item_share);
-        mShareActionProvider = (ShareActionProvider) item.getActionProvider();
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+        {
+            mShareActionProvider = new ShareActionProvider(editText.getContext());
+            item.setActionProvider(mShareActionProvider);
+        }
+        else
+        {
+            item.setVisible(false); // share is available on newer Android versions anyways
+        }
 
         return true;
     }
@@ -79,6 +88,10 @@ public class SelectionActionModeCallback implements android.view.ActionMode.Call
                 return true;
             }
             case R.id.menu_item_share: {
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)   // item is not visible
+                {
+                    break;
+                }
                 int selectionStart = editText.getSelectionStart();
                 int selectionEnd = editText.getSelectionEnd();
                 if (selectionStart > selectionEnd) {

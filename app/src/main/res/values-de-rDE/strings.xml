@@ -64,4 +64,5 @@
     <string name="msg_storage_removed">Kein Zugriff auf den Speicherort der Notizbücher möglich</string>
     <string name="msg_saf_downloads_not_supported">Ordner innerhalb von \"Downloads\" werden nicht unterstützt. Bitte wählen Sie einen anderen Ordner.</string>
     <string name="msg_saf_provider_not_supported">Dieser Speicherort wird nicht unterstützt. Bitte wählen Sie einen Ordner auf einem Usb-Stick, auf der SD Karte oder im Internen Speicher</string>
+    <string name="bold">Fett</string>
 </resources>

@@ -23,7 +23,7 @@ public class MainApplication extends Application
         mEventBus = new EventBus();
 
 
-        SFile.register(this);
+        SFile.register(this, Pref.INSTANCE.getRootPath());
 
 
 

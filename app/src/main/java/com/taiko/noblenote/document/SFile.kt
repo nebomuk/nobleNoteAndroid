@@ -2,8 +2,8 @@ package com.taiko.noblenote.document
 
 import android.content.Context
 import android.net.Uri
-import com.taiko.noblenote.Pref.rootPath
 import com.taiko.noblenote.loggerFor
+import rx.subjects.BehaviorSubject
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -37,9 +37,6 @@ class SFile {
         val u =  doc.uri
         return u;
     }
-
-    val rootUri: Uri
-        get() = Uri.parse(rootPath.value)
 
     constructor(uriString: String?) {
         val parsedUri = Uri.parse(uriString);
@@ -277,7 +274,7 @@ class SFile {
             {
                 return SFile(doc.parentFile!!);
             }
-            else if(doc.uri == rootUri)
+            else if(doc.uri == Uri.parse(rootPathSubject.value))
             {
                 throw UnsupportedOperationException("parentFile cannot be accessed because this file is already the root of the document tree");
             }
@@ -294,6 +291,8 @@ class SFile {
             return SFile(parentDoc!!);
         }
     }
+
+
 
     companion object
     {
@@ -317,7 +316,7 @@ class SFile {
         }
         else
         {
-            throw UnsupportedOperationException(("Uri scheme not supported:" + uri.scheme));
+            throw UnsupportedOperationException(("Uri scheme not supported, Uri:" + uri.toString()));
         }
 
         cachedDoc.add(doc);
@@ -349,10 +348,13 @@ class SFile {
         * this methods needs to be called once before using SFile
          */
         @JvmStatic
-        fun register(context : Context)
+        fun register(context : Context, rootPath : BehaviorSubject<String>)
         {
             Companion.context = context.applicationContext;
+            rootPathSubject = rootPath;
         }
+
+        private lateinit var rootPathSubject: BehaviorSubject<String>
 
         private lateinit var context : Context;
     }

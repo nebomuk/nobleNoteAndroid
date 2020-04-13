@@ -21,7 +21,7 @@ object Pref : KotprefModel()
 
     // backing prefs
     private var mRootPath: String by stringPrefVar(default = fallbackRootPath) // the root path where the folders are stored
-    private var mCurrentFolderPath: String by stringPrefVar(default = "") // the folder that has been isSelected in the ui
+    private var mCurrentFolderPath: String by stringPrefVar(default = fallbackRootPath) // the folder that has been isSelected in the ui
 
 
 

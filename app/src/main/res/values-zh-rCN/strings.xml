@@ -64,5 +64,6 @@
     <string name="note_list_empty">没有笔记。 点击 + 创建笔记</string>
     <string name="msg_saf_downloads_not_supported">不能使用 下载 里的文件夹</string>
     <string name="msg_saf_provider_not_supported">"不能使用此存储空间。 请选USB，内存或者SD卡里的文件夹。 "</string>
+    <string name="bold">粗体字</string>
 
 </resources>

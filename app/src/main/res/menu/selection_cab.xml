@@ -1,27 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/italic"
-          android:showAsAction="ifRoom"
-          android:icon="@drawable/italic"
-          android:title="Italic"/>
+        android:icon="@drawable/italic"
+          android:title="@string/italic"
+        app:showAsAction="ifRoom" />
     <item android:id="@+id/bold"
-          android:showAsAction="ifRoom"
-          android:icon="@drawable/bold"
-          android:title="Bold"/>
+        android:icon="@drawable/bold"
+          android:title="@string/bold"
+        app:showAsAction="ifRoom" />
     <item android:id="@+id/underline"
-          android:showAsAction="ifRoom"
-          android:icon="@drawable/underline"
-          android:title="Underline"/>
+        android:icon="@drawable/underline"
+          android:title="@string/underline"
+        app:showAsAction="ifRoom" />
     <item android:id="@+id/strikethrough"
-          android:showAsAction="ifRoom"
-          android:icon="@drawable/strikethrough"
-          android:title="Strikethrough"/>
+        android:icon="@drawable/strikethrough"
+          android:title="@string/strikethrough"
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menu_item_share"
-        android:showAsAction="ifRoom"
         android:title="Share"
-        android:actionProviderClass=
-            "android.widget.ShareActionProvider" />
+        app:showAsAction="ifRoom" />
 </menu>
 
 

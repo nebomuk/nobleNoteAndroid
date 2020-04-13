@@ -116,6 +116,8 @@ class FolderListController(private var fragment: Fragment, view: View) : Lifecyc
         if (mTwoPane) {
             fragment.fragmentManager?.beginTransaction()?.replace(R.id.item_detail_container, noteFragment)?.commit()
             fragment.activity?.toolbar!!.title = null; // clear title after orientation change
+            val pasteFileMenuItem = fragment.activity?.toolbar?.menu?.findItem(R.id.action_paste);
+            pasteFileMenuItem?.isEnabled = mTwoPane && FileClipboard.hasContent;
         } else {
             fragment.fragmentManager!!.beginTransaction().add(R.id.item_master_container, noteFragment).addToBackStack(null).commit();
             fragment.activity!!.toolbar.title = SFile(folderUriString).nameWithoutExtension

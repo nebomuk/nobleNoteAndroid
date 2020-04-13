@@ -1,6 +1,5 @@
 package com.taiko.noblenote
 
-import android.app.FragmentManager
 import android.content.Intent
 import android.database.DataSetObserver
 import android.os.Bundle
@@ -33,22 +32,29 @@ class MainToolbarController(val activity: MainActivity) {
 
     private val mCompositeSubscription: CompositeSubscription = CompositeSubscription();
 
-    private lateinit var mSearchAdapter: SuggestionAdapter
+    private lateinit var mSearchAdapter: ArrayAdapter<SFile>
 
 
     init {
 
         activity.toolbar.menu.findItem(R.id.action_settings)
                 .setOnMenuItemClickListener{
+
+                    // fixes issues when another root path has been selected and a folder is still open
+                    if(!activity.twoPane && activity.supportFragmentManager.backStackEntryCount > 0)
+                    {
+                        activity.supportFragmentManager.popBackStack();
+                    }
                     activity.startActivity(Intent(activity, PreferencesActivity::class.java))
                     true
                 }
 
-        var pasteFileDisposable = Subscriptions.empty()
+        val pasteFileMenuItem = activity.toolbar.menu.findItem(R.id.action_paste);
+
+        mCompositeSubscription += addPasteFileListener(pasteFileMenuItem);
 
         activity.supportFragmentManager.addOnBackStackChangedListener {
 
-            val pasteFileMenuItem = activity.toolbar.menu.findItem(R.id.action_paste);
 
             log.v("BackstackEntryCount: ${activity.supportFragmentManager.backStackEntryCount}")
 
@@ -65,21 +71,15 @@ class MainToolbarController(val activity: MainActivity) {
                 activity.toolbar.title = SFile(folderPath).name;
 
                 setBackNavigationIconEnabled(true)
-                val instance = FileClipboard;
-                pasteFileMenuItem.isEnabled = instance.hasContent;
-
-                pasteFileDisposable.unsubscribe()
+                pasteFileMenuItem.isEnabled = FileClipboard.hasContent;
 
                 log.v("addPasteFileListener folderPath: $folderPath");
-
-                pasteFileDisposable = addPasteFileListener(pasteFileMenuItem,folderPath);
 
             }
             else
             {
-                pasteFileDisposable.unsubscribe()
                 setBackNavigationIconEnabled(false)
-                pasteFileMenuItem.isEnabled = false;
+                pasteFileMenuItem.isEnabled = activity.twoPane && FileClipboard.hasContent; // disabled when not two pane and back stack 0 (folders visible)
 
                 activity.toolbar.title = null;
             }
@@ -89,10 +89,12 @@ class MainToolbarController(val activity: MainActivity) {
         initSearch();
     }
 
-    private fun addPasteFileListener(item : MenuItem, folderPath : String): Subscription {
-        item.isEnabled = FileClipboard.hasContent && !folderPath.isEmpty();
+    private fun addPasteFileListener(item : MenuItem): Subscription {
 
         return item.clicks().subscribe {
+            val folderPath = Pref.currentFolderPath.value;
+
+
             if(!FileClipboard.pasteContentIntoFolder(SFile(folderPath)))
             {
                 Snackbar.make(activity.coordinator_layout,R.string.msg_paste_error, Snackbar.LENGTH_LONG).show();
@@ -137,25 +139,27 @@ class MainToolbarController(val activity: MainActivity) {
         }
         )
 
-        mCompositeSubscription.add(Subscriptions.create {
+        mCompositeSubscription += Subscriptions.create {
             activity.search_view.setOnSearchViewListener(null);
-        })
+        }
 
 //        val searchAutoComplete = searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text) as SearchView.SearchAutoComplete
 //        searchAutoComplete.threshold = 2
 
         val queryTextObs = activity.search_view.queryTextChanges().share();
 
-        mCompositeSubscription += queryTextObs.filter { it.isSubmit }.subscribe {
-            showSearchResults(it.text);
-        }
+//        mCompositeSubscription += queryTextObs.filter { it.isSubmit }.subscribe {
+//            showSearchResults(it.text);
+//        }
 
-        val suggestions = queryTextObs.filter { !it.isSubmit && !it.text.isNullOrBlank() }
+        val suggestions = queryTextObs.filter { /*!it.isSubmit &&*/ !it.text.isNullOrBlank() }
         .map { it.text }
         .throttleWithTimeout(400, TimeUnit.MILLISECONDS, Schedulers.io())
         .distinctUntilChanged();
 
-        mSearchAdapter = SuggestionAdapter(activity, suggestions);
+        mSearchAdapter = ArrayAdapter(activity,android.R.layout.simple_dropdown_item_1line)
+
+        mCompositeSubscription += SearchSuggestions.apply(mSearchAdapter,suggestions,Pref.rootPath.map { SFile(it) })
 
         // workaround for the adapter's android.widget.Filter sometimes not calling onFilterCompleted in MaterialSearchView
         mSearchAdapter.registerDataSetObserver( object : DataSetObserver() {

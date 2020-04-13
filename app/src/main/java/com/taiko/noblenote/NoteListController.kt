@@ -35,30 +35,13 @@ class NoteListController(private var fragment: Fragment, view: View)
 
 
 
+        // FIXME search submit is currently broken because this is not working
         if(fragment.arguments?.containsKey(NoteListFragment.ARG_QUERY_TEXT) == true)
         {
-            recyclerFileAdapter = RecyclerFileAdapter(SFile(""));
+            // file path of the adapter is not used, because it is only used to display search results
+            recyclerFileAdapter = RecyclerFileAdapter(SFile(Pref.rootPath.value));
 
-            view.tv_file_list_empty.setText(R.string.no_results_found);
-            view.tv_title_search_results.visibility = View.VISIBLE;
-
-            val queryText = fragment.arguments!!.getString(NoteListFragment.ARG_QUERY_TEXT,"");
-            if (!queryText.isNullOrBlank()) {
-                mCompositeSubscription += FindInFiles.recursiveFullTextSearch(SFile(Pref.rootPath.value),queryText)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe( {
-                            recyclerFileAdapter.addFileName(it.name)
-                        },
-
-                                {},
-                                // on Completed
-                                {
-                                    // show "no results" text
-
-                                    view.tv_file_list_empty.visibility = if(recyclerFileAdapter.itemCount == 0) View.VISIBLE else View.GONE;
-                                })
-            }
+            displaySearchResults(view)
         }
         else
         {
@@ -107,6 +90,28 @@ class NoteListController(private var fragment: Fragment, view: View)
         }
     }
 
+    private fun displaySearchResults(view: View) {
+        view.tv_file_list_empty.setText(R.string.no_results_found);
+        view.tv_title_search_results.visibility = View.VISIBLE;
+
+        val queryText = fragment.arguments!!.getString(NoteListFragment.ARG_QUERY_TEXT, "");
+        if (!queryText.isNullOrBlank()) {
+            mCompositeSubscription += FindInFiles.recursiveFullTextSearch(SFile(Pref.rootPath.value), queryText)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({
+                        recyclerFileAdapter.addFileName(it.name)
+                    },
+
+                            {},
+                            // on Completed
+                            {
+                                // show "no results" text
+
+                                view.tv_file_list_empty.visibility = if (recyclerFileAdapter.itemCount == 0) View.VISIBLE else View.GONE;
+                            })
+        }
+    }
 
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
