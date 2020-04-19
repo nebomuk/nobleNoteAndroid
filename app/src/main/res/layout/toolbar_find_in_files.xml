@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+
+    >
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.taiko.noblenote.MainViewModel" />
+
+    </data>
+<androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/toolbar_find_in_files"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:background="?android:attr/colorBackground"
+    android:elevation="8dp"
+    android:visibility="@{viewModel.toolbarFindInFilesVisibility}"
+    app:navigationIcon="@drawable/ic_arrow_back_black_24dp"
+    app:navigationOnClickListener="@{() -> viewModel.onToolbarFindInFilesBackClick()}"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+
+        android:paddingEnd="16dp"
+        >
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:singleLine="true"
+            android:hint="@android:string/search_go"
+            android:background="@android:color/transparent"
+            android:text="@={viewModel.toolbarFindInFilesText}"
+            />
+
+        <ImageView
+            android:onClick="@{() -> viewModel.onClearTextClick()}"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:id="@+id/closeSearch"
+            android:src="@drawable/ic_close_black_24dp"
+            android:contentDescription="@android:string/cancel" />
+
+
+    </LinearLayout>
+
+
+</androidx.appcompat.widget.Toolbar>
+</layout>

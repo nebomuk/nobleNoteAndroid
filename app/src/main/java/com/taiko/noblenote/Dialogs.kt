@@ -47,7 +47,7 @@ object Dialogs {
                     // Set an EditText view to get user input
                     val input = EditText(context)
 
-                    val parent = SFile(Pref.rootPath.value);
+                    val parent = SFile(Pref.currentFolderPath.value);
                     val proposedFileName = context.getString(R.string.newNote)
                     var proposed = SFile(parent, proposedFileName)
                     var counter = 0

@@ -7,8 +7,14 @@ import android.os.Handler
 import android.transition.Fade
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.distinctUntilChanged
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.jakewharton.rxbinding.view.clicks
+import com.taiko.noblenote.databinding.ActivityMainBinding
 import com.taiko.noblenote.document.SFile
 import com.taiko.noblenote.document.VolumeUtil
 import com.taiko.noblenote.editor.EditorActivity
@@ -25,7 +31,7 @@ import rx.subscriptions.Subscriptions
 class MainActivity : AppCompatActivity()
 {
 
-
+    lateinit var mainViewModel: MainViewModel
     var twoPane: Boolean = false
 
     private val mCompositeSubscription = CompositeSubscription()
@@ -38,7 +44,16 @@ class MainActivity : AppCompatActivity()
         super.onCreate(null) // do not save instance state because we create fragments manually with updates filesystem state
         log.d(".onCreate()");
 
-        setContentView(R.layout.activity_main)
+        val binding : ActivityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+
+        binding.lifecycleOwner = this;
+
+        mainViewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory(application))
+                .get(MainViewModel::class.java);
+
+        lifecycle.addObserver(mainViewModel);
+
+        binding.viewModel = mainViewModel;
 
         // https://stackoverflow.com/questions/26600263/how-do-i-prevent-the-status-bar-and-navigation-bar-from-animating-during-an-acti
         if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.LOLLIPOP) {
@@ -53,9 +68,29 @@ class MainActivity : AppCompatActivity()
 
         toolbar.inflateMenu(R.menu.menu_main)
 
+        Transformations.distinctUntilChanged(mainViewModel.fragmentFindInFilesVisible)
+                .observe(this, Observer {
+            if(it)
+            {
+                supportFragmentManager.beginTransaction()
+                        .add(R.id.item_master_container,FindInFilesFragment(),FRAGMENT_SEARCH_RESULT)
+                        .addToBackStack(null).commit();
+
+            }
+            else
+            {
+                val frag = supportFragmentManager.findFragmentByTag(FRAGMENT_SEARCH_RESULT)
+                if (frag != null) {
+                    supportFragmentManager.beginTransaction().remove(frag).commit()
+                };
+            }
+        });
+
+
         val dlg = VolumeNotAccessibleDialog.create(this);
 
         lifecycle.addObserver(VolumeUtil);
+
 
         LegacyStorageMigration.migrateFromLegacyStorage(this);
 
@@ -138,11 +173,7 @@ class MainActivity : AppCompatActivity()
 
     override fun onBackPressed() {
 
-        // close search
-        if(mMainToolbarController?.onBackPressed() == false)
-        {
-            super.onBackPressed();
-        }
+        super.onBackPressed();
     }
 
     override fun onDestroy() {
@@ -182,6 +213,8 @@ class MainActivity : AppCompatActivity()
 
     companion object {
         private val log = loggerFor();
+
+        private const val FRAGMENT_SEARCH_RESULT: String = "fragment_search_result"
 
 
         @JvmStatic

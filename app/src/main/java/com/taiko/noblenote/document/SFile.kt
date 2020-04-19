@@ -22,6 +22,14 @@ class SFile {
 
     private val log = loggerFor();
 
+    override fun equals(other: Any?): Boolean {
+        return (other as? SFile)?.uri == this.uri;
+    }
+
+    override fun hashCode(): Int {
+        return uri.hashCode();
+    }
+
     val nameWithoutExtension: String get()
     {
         return File(name).nameWithoutExtension

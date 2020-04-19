@@ -1,9 +1,15 @@
 <!-- this overrides  activity_main.xml via  refs.xml-->
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.taiko.noblenote.MainViewModel" />
+
+    </data>
+<androidx.coordinatorlayout.widget.CoordinatorLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     app:layout_behavior="com.taiko.noblenote.FAMBehavior"
     xmlns:fab="http://schemas.android.com/apk/res-auto"
@@ -54,12 +60,8 @@
         >
 
         <include layout="@layout/toolbar"/>
-        <com.miguelcatalan.materialsearchview.MaterialSearchView
-            android:id="@+id/search_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:elevation="@dimen/elevation_toolbar"
-            />
+        <include layout="@layout/toolbar_find_in_files"/>
+
         <ViewStub
             android:id="@+id/cab_stub"
             android:layout_width="match_parent"
@@ -109,5 +111,6 @@
             fab:fab_colorRipple="@color/ripple"/>
     </com.github.clans.fab.FloatingActionMenu>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>
 
 <!-- if you rename this file, you must also update the reference to this file inside refs.xml -->

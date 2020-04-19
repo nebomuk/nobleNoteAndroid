@@ -6,14 +6,13 @@ import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
 import android.view.MenuItem
 import com.jakewharton.rxbinding.view.clicks
-import com.miguelcatalan.materialsearchview.MaterialSearchView
+import com.jakewharton.rxbinding.view.focusChanges
 import com.taiko.noblenote.document.SFile
 import com.taiko.noblenote.editor.EditorActivity
-import com.taiko.noblenote.extensions.queryText
-import com.taiko.noblenote.extensions.queryTextChanges
 import com.taiko.noblenote.preferences.PreferencesActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.toolbar.*
+import rx.Observable
 import rx.Subscription
 import rx.lang.kotlin.plusAssign
 import rx.schedulers.Schedulers
@@ -124,102 +123,15 @@ class MainToolbarController(val activity: MainActivity) {
     private fun initSearch() {
 
         val actionSearch = activity.toolbar.menu.findItem(R.id.action_search)
+        mCompositeSubscription += actionSearch.clicks().subscribe { activity.mainViewModel.onActionSearchClick() }
 
-        activity.search_view.setMenuItem(actionSearch)
-
-        activity.search_view.setOnSearchViewListener(object : MaterialSearchView.SearchViewListener
-        {
-            override fun onSearchViewShown() {
-                activity.setFabVisible(false);
-            }
-
-            override fun onSearchViewClosed() {
-                activity.setFabVisible(true);
-            }
-        }
-        )
-
-        mCompositeSubscription += Subscriptions.create {
-            activity.search_view.setOnSearchViewListener(null);
-        }
-
-//        val searchAutoComplete = searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text) as SearchView.SearchAutoComplete
-//        searchAutoComplete.threshold = 2
-
-        val queryTextObs = activity.search_view.queryTextChanges().share();
-
-//        mCompositeSubscription += queryTextObs.filter { it.isSubmit }.subscribe {
-//            showSearchResults(it.text);
-//        }
-
-        val suggestions = queryTextObs.filter { /*!it.isSubmit &&*/ !it.text.isNullOrBlank() }
-        .map { it.text }
-        .throttleWithTimeout(400, TimeUnit.MILLISECONDS, Schedulers.io())
-        .distinctUntilChanged();
-
-        mSearchAdapter = ArrayAdapter(activity,android.R.layout.simple_dropdown_item_1line)
-
-        mCompositeSubscription += SearchSuggestions.apply(mSearchAdapter,suggestions,Pref.rootPath.map { SFile(it) })
-
-        // workaround for the adapter's android.widget.Filter sometimes not calling onFilterCompleted in MaterialSearchView
-        mSearchAdapter.registerDataSetObserver( object : DataSetObserver() {
-
-            override fun onChanged() {
-                if(mSearchAdapter.count > 0)
-                {
-                    activity.search_view.showSuggestions();
-                }
-            }
-        })
-        activity.search_view.setAdapter(mSearchAdapter)
-        activity.search_view.setOnItemClickListener { adapterView, view, i, l ->
-            val item = adapterView.adapter.getItem(i) as SFile;
-            MainActivity.startNoteEditor(activity,item, EditorActivity.READ_WRITE, activity.search_view.queryText.toString());
-            activity.search_view.closeSearch();
-        }
-//        // requires some manifest stuff https://stackoverflow.com/questions/27378981/how-to-use-searchview-in-toolbar-android
-//        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
-//        searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
-    }
-
-
-    private fun showSearchResults(queryText : CharSequence)
-    {
-        activity.supportFragmentManager.popBackStack(FRAGMENT_SEARCH_RESULT, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
-
-        activity.search_view.clearFocus();
-        mSearchAdapter.clear();
-        activity.setFabVisible(false);
-
-        val frag = NoteListFragment()
-        val arguments = Bundle()
-        arguments.putString(NoteListFragment.ARG_QUERY_TEXT,queryText.toString())
-        frag.arguments = arguments;
-        activity.supportFragmentManager.beginTransaction().add(R.id.item_master_container,frag).addToBackStack(FRAGMENT_SEARCH_RESULT).commit();
+        //MainActivity.startNoteEditor(activity,item, EditorActivity.READ_WRITE, activity.search_view.queryText.toString());
 
     }
 
     companion object
     {
-        @JvmStatic
-        val FRAGMENT_SEARCH_RESULT = "fragment_search_result";
-
         val log = loggerFor();
-    }
-
-    /**
-     * @return true when handled, false when super class should be called
-     */
-    fun onBackPressed() : Boolean
-    {
-        val handled = activity.search_view.isSearchOpen;
-
-        if (handled) {
-            activity.search_view.closeSearch();
-            activity.supportFragmentManager.popBackStack(FRAGMENT_SEARCH_RESULT, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            activity.setFabVisible(true);
-        }
-        return handled;
     }
 
     fun clearSubscriptions()

@@ -13,9 +13,6 @@ class NoteListFragment : Fragment() {
     companion object {
 
         @JvmStatic
-        val ARG_QUERY_TEXT = "query_text" // used to display results of a full text search
-
-        @JvmStatic
         val ARG_FOLDER_PATH = "folder_path";
 
     }

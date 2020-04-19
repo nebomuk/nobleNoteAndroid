@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:clickable="true"
+    android:background="@color/listBackground"
+
+
+    >
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.taiko.noblenote.MainViewModel" />
+
+    </data>
+    <ViewSwitcher
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/empty_list_switcher"
+        >
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+
+            android:layout_height="match_parent"/>
+        <!-- list empty indicator used by RecyclerFileAdapter  when there are no files in the given folder-->
+        <TextView android:id="@+id/tv_recycler_view_empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="32dp"
+            android:gravity="center"
+            />
+
+    </ViewSwitcher>
+
+</layout>

@@ -16,7 +16,7 @@ import com.taiko.noblenote.document.SFile
 import com.taiko.noblenote.extensions.getColorFromAttr
 import com.taiko.noblenote.extensions.toRxObservable
 import kotlinx.android.synthetic.main.fragment_file_list.view.*
-import kotlinx.android.synthetic.main.recycler_file_item2.view.*
+import kotlinx.android.synthetic.main.recycler_item_file.view.*
 import rx.Observable
 import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
@@ -178,7 +178,7 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         // create a new view
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.recycler_file_item2, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.recycler_item_file, parent, false)
 
         if(!showFolders)
         {

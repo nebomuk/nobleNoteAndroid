@@ -22,8 +22,8 @@ android {
         minSdkVersion 21
         // minimum level for DocumentFile support // actual min should be 24 because of DocumentsContract.move support
         targetSdkVersion 29
-        versionCode 6
-        versionName '0.1.6'
+        versionCode 7
+        versionName '0.1.7'
         signingConfig signingConfigs.debugsigning
     }
     buildTypes {
@@ -82,8 +82,8 @@ dependencies {
     implementation 'com.github.clans:fab:1.6.4'
     implementation 'jp.wasabeef:recyclerview-animators:2.2.4'
     implementation 'net.yanzm:actionbarprogress:1.0.0'
-    implementation 'com.miguelcatalan:materialsearchview:1.4.0'
     implementation 'com.afollestad:material-cab:0.1.12'
+    implementation group: 'org.apache.commons', name: 'commons-text', version: '1.8'
 
         def lifecycle_version = "2.3.0-alpha01"
         def arch_version = "2.1.0"
@@ -97,5 +97,5 @@ dependencies {
 
 
 
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.2'
+    //debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.2'
 }
