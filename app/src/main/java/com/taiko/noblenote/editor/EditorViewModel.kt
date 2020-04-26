@@ -13,8 +13,6 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.*
 import com.taiko.noblenote.*
 import com.taiko.noblenote.R
-import com.taiko.noblenote.editor.EditorActivity.Companion.ARG_QUERY_TEXT
-import com.taiko.noblenote.editor.EditorActivity.Companion.HTML
 import com.taiko.noblenote.document.SFile
 import rx.android.schedulers.AndroidSchedulers
 import rx.lang.kotlin.plusAssign
@@ -71,11 +69,11 @@ class EditorViewModel(app : Application) : AndroidViewModel(app), LifecycleObser
             return;
         }
 
-        mFileUri = Uri.parse(extras.getString(EditorActivity.ARG_NOTE_URI))
-        mOpenMode = extras.getString(EditorActivity.ARG_OPEN_MODE)!!
-        isFocusable.postValue(!(mOpenMode == EditorActivity.HTML || mOpenMode == EditorActivity.READ_ONLY)) // no editing if html source should be shown
+        mFileUri = Uri.parse(extras.getString(EditorFragment.ARG_NOTE_URI))
+        mOpenMode = extras.getString(EditorFragment.ARG_OPEN_MODE)!!
+        isFocusable.postValue(!(mOpenMode == EditorFragment.HTML || mOpenMode == EditorFragment.READ_ONLY)) // no editing if html source should be shown
         toolbarTitle.postValue(SFile(mFileUri).nameWithoutExtension)
-        queryText.postValue(extras.getString(ARG_QUERY_TEXT).orEmpty());
+        queryText.postValue(extras.getString(EditorFragment.ARG_QUERY_TEXT).orEmpty());
 
     }
 
@@ -114,7 +112,7 @@ class EditorViewModel(app : Application) : AndroidViewModel(app), LifecycleObser
         // load file contents and parse html thread
         log.d( ".reload()");
 
-        mCompositeSubscription += FileHelper.readFile(mFileUri, this.getApplication(), parseHtml = mOpenMode != HTML) // don't parse html if it should display the html source of the note
+        mCompositeSubscription += FileHelper.readFile(mFileUri, this.getApplication(), parseHtml = mOpenMode != EditorFragment.HTML) // don't parse html if it should display the html source of the note
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({

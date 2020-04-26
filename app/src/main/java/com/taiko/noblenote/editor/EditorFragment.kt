@@ -1,18 +1,21 @@
 package com.taiko.noblenote.editor
 
-
 import android.app.AlertDialog
 import android.os.Bundle
 import android.view.*
+import androidx.fragment.app.Fragment
+import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.addCallback
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.distinctUntilChanged
+import androidx.navigation.fragment.findNavController
 import com.taiko.noblenote.*
 import com.taiko.noblenote.databinding.ActivityEditorBinding
+import com.taiko.noblenote.databinding.FragmentEditorBinding
+import com.taiko.noblenote.document.VolumeUtil
 import com.taiko.noblenote.extensions.getMenuItems
 import com.taiko.noblenote.extensions.setTitleAndModified
 import kotlinx.android.synthetic.main.activity_editor.*
@@ -24,9 +27,23 @@ import net.yanzm.actionbarprogress.MaterialProgressDrawable
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
 
+/**
+ * A simple [Fragment] subclass.
+ */
+class EditorFragment : Fragment() {
 
-class EditorActivity : AppCompatActivity() {
+    private lateinit var binding: FragmentEditorBinding
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+
+        //requireActivity().window.requestFeature(Window.FEATURE_ACTION_MODE_OVERLAY)
+
+        binding = FragmentEditorBinding.inflate(inflater,container,false);
+        binding.lifecycleOwner = this;
+
+        return binding.root;
+    }
 
     private val log = loggerFor()
 
@@ -40,36 +57,21 @@ class EditorActivity : AppCompatActivity() {
     private lateinit var  mFindInTextToolbarController: FindInTextToolbarController
 
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        //requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        super.onCreate(savedInstanceState)
+        log.d( ".onViewCreated()");
 
-
-        log.d( ".onCreate()");
-
-        //This has to be called before setContentVie
-
-
-        window.requestFeature(Window.FEATURE_ACTION_MODE_OVERLAY)
-
-        val binding : ActivityEditorBinding = DataBindingUtil.setContentView(this, R.layout.activity_editor)
-
-        binding.lifecycleOwner = this;
-
-        editorViewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory(application))
+        editorViewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory(requireActivity().application))
                 .get(EditorViewModel::class.java);
 
         lifecycle.addObserver(editorViewModel);
 
-
         binding.viewModel = editorViewModel;
 
-        supportActionBar?.hide();
 
-
-        progress_bar_file_loading.progressDrawable = MaterialProgressDrawable.create(this)
-        progress_bar_file_loading.indeterminateDrawable = MaterialIndeterminateProgressDrawable.create(this)
+        progress_bar_file_loading.progressDrawable = MaterialProgressDrawable.create(requireContext())
+        progress_bar_file_loading.indeterminateDrawable = MaterialIndeterminateProgressDrawable.create(requireContext())
 
         editor_edit_text.movementMethod = ArrowKeyLinkMovementMethod()
 
@@ -77,7 +79,7 @@ class EditorActivity : AppCompatActivity() {
 
 
         // hide soft keyboard by default
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
 
         mUndoRedo = TextViewUndoRedo(editor_edit_text);
 
@@ -85,13 +87,13 @@ class EditorActivity : AppCompatActivity() {
 /*        toolbar.setNavigationIcon(R.drawable.ic_close_black_24dp)
         toolbar.setNavigationOnClickListener { showExitDialog() }*/
 
-        val extras = intent.extras ?: return
+        val extras = arguments ?: return
 
         editorViewModel.populateFromBundle(extras);
 
-        editorViewModel.isModified.observe(this, Observer { editor_edit_text.isModified = it })
+        editorViewModel.isModified.observe(viewLifecycleOwner, Observer { editor_edit_text.isModified = it })
 
-        editorViewModel.toolbarFindInTextVisible.observe(this,
+        editorViewModel.toolbarFindInTextVisible.observe(viewLifecycleOwner,
                 Observer { if(it)
                 {
                     mFindInTextToolbarController.showToolbar();
@@ -101,25 +103,23 @@ class EditorActivity : AppCompatActivity() {
                     mFindInTextToolbarController.hideToolbar();
                 }})
 
-        editorViewModel.queryText.observe(this, Observer {
+        editorViewModel.queryText.observe(viewLifecycleOwner, Observer {
             toolbar_find_in_text.toolbar_find_in_text_edit_text.setText(it);
         })
 
-        Transformations.distinctUntilChanged(editorViewModel.toolbarTitle).observe(this, Observer {
+        Transformations.distinctUntilChanged(editorViewModel.toolbarTitle).observe(viewLifecycleOwner, Observer {
             toolbar.setTitleAndModified(it, editorViewModel.isModified.value!!) })
 
-        Transformations.distinctUntilChanged(editorViewModel.isModified).observe(this, Observer {
+        Transformations.distinctUntilChanged(editorViewModel.isModified).observe(viewLifecycleOwner, Observer {
             toolbar.getMenuItems().firstOrNull { menuItem -> menuItem.itemId == R.id.action_done }?.isEnabled = it
             toolbar.setTitleAndModified(editorViewModel.toolbarTitle.value!!,it);
         })
 
-        editorViewModel.toast.observe(this, Observer { Toast.makeText(this,it,Toast.LENGTH_SHORT).show(); })
+        editorViewModel.toast.observe(viewLifecycleOwner, Observer { Toast.makeText(requireActivity(),it, Toast.LENGTH_SHORT).show(); })
 
-        editorViewModel.finishActivity.observe(this, Observer { finish() })
-
+        editorViewModel.finishActivity.observe(viewLifecycleOwner, Observer { findNavController().popBackStack() })
 
         editor_edit_text.isTextWatcherEnabled = false
-
 
         mFindInTextToolbarController = FindInTextToolbarController(this);
 
@@ -133,9 +133,7 @@ class EditorActivity : AppCompatActivity() {
                 R.id.action_done -> editorViewModel.onMenuItemDoneClicked();
                 R.id.action_copy_to_clipboard -> editorViewModel.onCopyToClipboardClicked();
             }
-
             true
-
         }
 
         val itemRedo = toolbar.getMenuItems().first { it.itemId == R.id.action_redo }
@@ -143,15 +141,29 @@ class EditorActivity : AppCompatActivity() {
 
         mCompositeSubscription += mUndoRedo.canUndoChanged()
                 .subscribe {
-            itemUndo.isEnabled = it
-        }
-
+                    itemUndo.isEnabled = it
+                }
 
         mCompositeSubscription += mUndoRedo.canRedoChanged()
                 .subscribe {
-            itemRedo.isEnabled = it
-        }
+                    itemRedo.isEnabled = it
+                }
 
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            onBackPressed()
+        }
+    }
+
+    private fun onBackPressed() {
+        if (toolbar_find_in_text.visibility == View.VISIBLE) {
+            mFindInTextToolbarController.hideToolbar();
+        } else {
+            if (editorViewModel.isModified.value!!) {
+                showExitDialog()
+            } else {
+                findNavController().navigateUp();
+            }
+        }
     }
 
     public override fun onStart() {
@@ -159,42 +171,21 @@ class EditorActivity : AppCompatActivity() {
         log.d( ".onStart()");
 
         // fix selection & formatting for Honeycomb and newer devices
-            editor_edit_text.customSelectionActionModeCallback = SelectionActionModeCallback(editor_edit_text)
-
+        editor_edit_text.customSelectionActionModeCallback = SelectionActionModeCallback(editor_edit_text)
     }
 
     private fun showExitDialog() {
 
-            val builder = AlertDialog.Builder(this@EditorActivity)
-            builder.setMessage(R.string.dialogDiscardKeepEditing)
-                    .setPositiveButton(R.string.discard) { dialog, id ->
-                        editorViewModel.onDiscardChangesClicked();
-                    }
-                    .setNegativeButton(R.string.keepEditing, null)
-            // Create the AlertDialog object and return it
-            builder.create().show()
-
+        val builder = AlertDialog.Builder(requireActivity())
+        builder.setMessage(R.string.dialogDiscardKeepEditing)
+                .setPositiveButton(R.string.discard) { dialog, id ->
+                    editorViewModel.onDiscardChangesClicked();
+                }
+                .setNegativeButton(R.string.keepEditing, null)
+        // Create the AlertDialog object and return it
+        builder.create().show()
     }
 
-    override fun onBackPressed() {
-
-        if(toolbar_find_in_text.visibility == View.VISIBLE)
-        {
-            mFindInTextToolbarController.hideToolbar();
-        }
-        else {
-            if(editorViewModel.isModified.value!!)
-            {
-                showExitDialog()
-            }
-            else
-            {
-                super.onBackPressed();
-            }
-            
-        }
-
-    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
@@ -205,19 +196,16 @@ class EditorActivity : AppCompatActivity() {
             }
             return false
         }
-
-
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
 
-    override fun onDestroy() {
-        super.onDestroy()
-        log.d( ".onDestroy()");
+        log.d( ".onDestroyView()");
 
         mCompositeSubscription.clear();
     }
-
 
     companion object {
 
@@ -240,5 +228,5 @@ class EditorActivity : AppCompatActivity() {
         val READ_ONLY = "read_only"
 
     }
-}
 
+}

@@ -1,66 +1,24 @@
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:bind="http://schemas.android.com/apk/res-auto">
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.taiko.noblenote.MainViewModel" />
-
-    </data>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    android:id="@+id/coordinator_layout"
+<?xml version="1.0" encoding="utf-8"?>
+<!-- same as activity_main.xml, this is automatically used in landscape mode via refs.xml and uses another navigation graph-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    >
+    tools:context=".MainActivity">
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipe_refresh"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize">
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
 
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/nav_graph" />
 
-        <FrameLayout xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/item_master_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            tools:context=".MainActivity" />
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clipToPadding="false"
-        android:elevation="@dimen/elevation_toolbar"
-        android:outlineProvider="bounds">
-
-        <include layout="@layout/toolbar" />
-
-        <include layout="@layout/toolbar_find_in_files"
-            bind:viewModel="@{viewModel}"
-            />
-
-        <ViewStub
-            android:id="@+id/cab_stub"
-            android:layout_width="match_parent"
-            android:layout_height="?actionBarSize"
-            android:elevation="@dimen/elevation_toolbar" />
-
-    </FrameLayout>
-
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:clickable="true"
-        android:src="@drawable/ic_add_24dp" />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
-</layout>
-
-    <!-- if you rename this file, you must also update the reference to this file inside refs.xml -->
+</androidx.constraintlayout.widget.ConstraintLayout>

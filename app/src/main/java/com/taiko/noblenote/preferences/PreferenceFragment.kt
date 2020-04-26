@@ -9,17 +9,24 @@ import android.os.Build
 import android.os.Bundle
 import android.os.storage.StorageManager
 import android.view.View
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
+import androidx.navigation.NavArgs
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
 import com.taiko.noblenote.Pref
 import com.taiko.noblenote.R
+import com.taiko.noblenote.VolumeNotAccessibleDialog
 import com.taiko.noblenote.document.SFile
 import com.taiko.noblenote.document.TreeUriUtil
 import com.taiko.noblenote.document.VolumeUtil
 import com.taiko.noblenote.document.toSFile
-import kotlinx.android.synthetic.main.preferences_activity.*
+import kotlinx.android.synthetic.main.fragment_preferences.view.*
+import kotlinx.android.synthetic.main.toolbar.view.*
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
 import rx_activity_result.RxActivityResult
@@ -28,7 +35,14 @@ import java.io.File
 
 class PreferenceFragment : PreferenceFragmentCompat() {
 
+    private lateinit var rootView: View
     private val mCompositeSubscription = CompositeSubscription();
+
+    companion object
+    {
+        const val LAUNCH_SAF_FOLDER_PICKER = "show_saf_folder_picker"
+    }
+
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
 
@@ -43,13 +57,19 @@ class PreferenceFragment : PreferenceFragmentCompat() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        rootView = view;
+
+        rootView.toolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp);
+        rootView.toolbar.setNavigationOnClickListener { findNavController().popBackStack() }
+        rootView.toolbar.setTitle(R.string.title_activity_preferences)
+
         mCompositeSubscription += Pref.rootPath.map { Pref.isExternalOrSafStorage }.subscribe {
             findPreference<Preference>(getString(R.string.pref_key_internal_storage))?.isEnabled = it;
         }
 
         findPreference<Preference>(getString(R.string.pref_key_internal_storage))?.setOnPreferenceClickListener {
 
-            if(VolumeUtil.fileOrContentUriAccessible(activity!!,Pref.rootPath.value) && SFile(Pref.rootPath.value).listFiles().count() > 0)
+            if(VolumeUtil.fileOrContentUriAccessible(requireActivity(),Pref.rootPath.value) && SFile(Pref.rootPath.value).listFiles().count() > 0)
             {
                 showWarningBeforeInternalStorage { useInternalStorage(); }
             }
@@ -62,28 +82,37 @@ class PreferenceFragment : PreferenceFragmentCompat() {
 
         findPreference<Preference>(getString(R.string.pref_key_saf_picker))?.setOnPreferenceClickListener {
 
-            if(VolumeUtil.fileOrContentUriAccessible(activity!!,Pref.rootPath.value) && SFile(Pref.rootPath.value).listFiles().count() > 0)
+            if(VolumeUtil.fileOrContentUriAccessible(requireActivity(),Pref.rootPath.value) && SFile(Pref.rootPath.value).listFiles().count() > 0)
             {
-                showWarningBeforeSaf {startSafFolderPicker(activity!!)}
+                showWarningBeforeSaf {startSafFolderPicker(requireActivity())}
             }
             else
             {
-                startSafFolderPicker(activity!!)
+                startSafFolderPicker(requireActivity())
             }
             true;
         }
 
-        val showFolderPicker = activity?.intent?.extras?.getBoolean(PreferencesActivity.LAUNCH_SAF_FOLDER_PICKER);
+        val showFolderPicker = activity?.intent?.extras?.getBoolean(LAUNCH_SAF_FOLDER_PICKER);
         if(showFolderPicker == true)
         {
-            startSafFolderPicker(activity!!)
+            startSafFolderPicker(requireActivity())
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            onBackPressed()
+        }
+
+        if(arguments?.getString(LAUNCH_SAF_FOLDER_PICKER,null) != null)
+        {
+            startSafFolderPicker(requireActivity());
         }
 
     }
 
     private fun useInternalStorage() {
         Pref.rootPath.onNext(Pref.fallbackRootPath)
-        Snackbar.make(activity!!.linear_layout, R.string.msg_store_internal_storage, Snackbar.LENGTH_LONG).show()
+        Snackbar.make(rootView.linear_layout, R.string.msg_store_internal_storage, Snackbar.LENGTH_LONG).show()
     }
 
     override fun onDestroyView() {
@@ -135,7 +164,7 @@ class PreferenceFragment : PreferenceFragmentCompat() {
     private fun startSafFolderPicker(activity: Activity) {
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M) // google play version min sdk is 24, sdk 21-23 is only for internal use
         {
-            Snackbar.make(activity.linear_layout, "Android 6 Marshmallow does not support writing notebooks to the external storage",
+            Snackbar.make(rootView.linear_layout, "Android 6 Marshmallow does not support writing notebooks to the external storage",
                     Snackbar.LENGTH_LONG).show();
             return;
         }
@@ -144,7 +173,7 @@ class PreferenceFragment : PreferenceFragmentCompat() {
 
         val filePickerDialogIntent: Intent
         filePickerDialogIntent = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val storageManager = context!!.getSystemService(Context.STORAGE_SERVICE) as StorageManager;
+            val storageManager = requireContext().getSystemService(Context.STORAGE_SERVICE) as StorageManager;
             storageManager.primaryStorageVolume.createOpenDocumentTreeIntent()
         } else {
             Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
@@ -175,7 +204,7 @@ class PreferenceFragment : PreferenceFragmentCompat() {
 
 
                 if (!isDownloadsFolder) {
-                    Snackbar.make(activity.linear_layout, R.string.msg_saf_downloads_not_supported,
+                    Snackbar.make(rootView.linear_layout, R.string.msg_saf_downloads_not_supported,
                             Snackbar.LENGTH_LONG).show();
                     return@subscribe;
                 }
@@ -184,7 +213,7 @@ class PreferenceFragment : PreferenceFragmentCompat() {
                 val isExternalStorageDocument = externalStorageAuthority == uri?.authority;
 
                 if (!isExternalStorageDocument) {
-                    Snackbar.make(activity.linear_layout, R.string.msg_saf_provider_not_supported,
+                    Snackbar.make(rootView.linear_layout, R.string.msg_saf_provider_not_supported,
                             Snackbar.LENGTH_LONG).show();
                     return@subscribe;
                 }
@@ -209,12 +238,21 @@ class PreferenceFragment : PreferenceFragmentCompat() {
                 val selected = SFile(Pref.rootPath.value).uri.lastPathSegment?.split(":")?.lastOrNull()
                 if(selected != null)
                 {
-                    Snackbar.make(activity.linear_layout, getString(R.string.msg_directory_selected) + " " + selected, Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(rootView.linear_layout, getString(R.string.msg_directory_selected) + " " + selected, Snackbar.LENGTH_LONG).show();
                 }
 
             }
         }
 
+    }
+
+    private fun onBackPressed() {
+        val dlg = VolumeNotAccessibleDialog.create(this@PreferenceFragment);
+        if (!VolumeUtil.fileOrContentUriAccessible(requireContext(), Pref.rootPath.value)) {
+            dlg.show();
+        } else {
+            findNavController().navigateUp();
+        }
     }
 
 

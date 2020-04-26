@@ -1,27 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/tools"
     android:clickable="true"
     android:background="@color/listBackground"
-
-
     >
-
     <data>
 
         <variable
             name="viewModel"
-            type="com.taiko.noblenote.MainViewModel" />
+            type="com.taiko.noblenote.findinfiles.FindInFilesViewModel" />
 
     </data>
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinator_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+    <include layout="@layout/toolbar_find_in_files"
+        android:id="@+id/toolbar"
+        bind:viewModel="@{viewModel}"
+        />
     <ViewSwitcher
+        android:layout_marginTop="?attr/actionBarSize"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/empty_list_switcher"
         >
         <androidx.recyclerview.widget.RecyclerView
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
-
+            app:itemSource="@{viewModel.findInFilesResults}"
+            app:onItemClick="@{item -> viewModel.onFindItemClick(item)}"
             android:layout_height="match_parent"/>
         <!-- list empty indicator used by RecyclerFileAdapter  when there are no files in the given folder-->
         <TextView android:id="@+id/tv_recycler_view_empty"
@@ -32,5 +45,6 @@
             />
 
     </ViewSwitcher>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </layout>

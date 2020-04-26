@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout
-
-    >
-
+<layout>
     <data>
-
         <variable
             name="viewModel"
-            type="com.taiko.noblenote.MainViewModel" />
-
+            type="com.taiko.noblenote.findinfiles.FindInFilesViewModel" />
     </data>
 <androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -17,9 +12,8 @@
     android:layout_height="?attr/actionBarSize"
     android:background="?android:attr/colorBackground"
     android:elevation="8dp"
-    android:visibility="@{viewModel.toolbarFindInFilesVisibility}"
+
     app:navigationIcon="@drawable/ic_arrow_back_black_24dp"
-    app:navigationOnClickListener="@{() -> viewModel.onToolbarFindInFilesBackClick()}"
     >
 
     <LinearLayout
@@ -31,6 +25,7 @@
         >
 
         <EditText
+            android:id="@+id/edit_text"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"

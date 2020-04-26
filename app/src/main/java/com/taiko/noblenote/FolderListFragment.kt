@@ -22,7 +22,7 @@ class FolderListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val folderListController = FolderListController(this, view)
-        lifecycle.addObserver(folderListController);
+        viewLifecycleOwner.lifecycle.addObserver(folderListController);
 
     }
 

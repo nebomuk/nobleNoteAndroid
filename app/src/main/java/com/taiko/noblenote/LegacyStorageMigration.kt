@@ -1,12 +1,13 @@
 package com.taiko.noblenote
 
-import android.app.Activity
 import android.app.AlertDialog
-import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.taiko.noblenote.document.toSFile
-import com.taiko.noblenote.preferences.PreferencesActivity
+import com.taiko.noblenote.preferences.PreferenceFragment
 import java.io.File
 
 /**
@@ -14,7 +15,7 @@ import java.io.File
  */
 object LegacyStorageMigration {
 
-    fun migrateFromLegacyStorage(activity: Activity)
+    fun migrateFromLegacyStorage(fragment: Fragment)
     {
         if(Uri.parse(Pref.rootPath.value).scheme == null)
         {
@@ -36,27 +37,25 @@ object LegacyStorageMigration {
                     // activate the fallback rootPath just in case the user cancels
                     // the system file picker and we would end up with an invalid rootPath
                     useFallbackRootPath()
-                    showResolutionDialog(activity,legacyRootPath);
+                    showResolutionDialog(fragment,legacyRootPath);
                 }
             }
         }
     }
 
-    private fun showResolutionDialog(activity : Activity, legacyRootPath : String): AlertDialog {
-        val builder = AlertDialog.Builder(activity)
+    private fun showResolutionDialog(fragment: Fragment, legacyRootPath : String): AlertDialog {
+        val builder = AlertDialog.Builder(fragment.requireActivity())
 
         builder.setTitle(R.string.title_upgrade_info);
 
-        builder.setMessage(activity.getString(R.string.msg_upgrade, legacyRootPath));
+        builder.setMessage(fragment.requireActivity().getString(R.string.msg_upgrade, legacyRootPath));
         builder.setNegativeButton(android.R.string.cancel) { _, _ ->
         }
 
         builder.setPositiveButton(android.R.string.ok) { dialog, id ->
-            if(activity::class.java != PreferencesActivity::class.java) {
-                val intent = Intent(activity, PreferencesActivity::class.java);
-                intent.putExtra(PreferencesActivity.LAUNCH_SAF_FOLDER_PICKER,true);
-                activity.startActivity(intent)
-            }
+            val bundle = Bundle();
+            bundle.putString(PreferenceFragment.LAUNCH_SAF_FOLDER_PICKER,PreferenceFragment.LAUNCH_SAF_FOLDER_PICKER);
+            fragment.findNavController().navigate(R.id.preferenceFragment,bundle)
         }
 
         return builder.show()

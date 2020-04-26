@@ -1,37 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@color/listBackground"
-    android:clickable="true"
-    >
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/listBackground"
+    android:clickable="true">
     <!-- clickable must be true to disable the "click through" behavior when no recycler view is active" -->
 
-    <!-- list empty indicator  when fragment is used for search results-->
-    <TextView
-        android:id="@+id/tv_file_list_empty"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
         android:visibility="gone"
-        android:text=""
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:textColor="@color/md_grey_400"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:layout_marginTop="8dp"
-        android:gravity="top|center_horizontal"
-        />
-    <!-- search result title -->
-    <TextView
-        android:id="@+id/tv_title_search_results"
-        android:visibility="gone"
-        android:text="@string/title_search_results"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/md_grey_400"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:gravity="top|center_horizontal"/>
+        android:fitsSystemWindows="true">
+
+    <include layout="@layout/toolbar"
+        />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:id="@+id/swipe_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
     <ViewSwitcher
         android:layout_width="match_parent"
@@ -47,9 +39,22 @@
         <TextView android:id="@+id/tv_recycler_view_empty"
                   android:layout_width="match_parent"
                   android:layout_height="match_parent"
+            android:textAppearance="?android:attr/textAppearanceMedium"
             android:layout_margin="32dp"
                   android:gravity="center"
             />
 
     </ViewSwitcher>
-</LinearLayout>
+
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:clickable="true"
+        android:src="@drawable/ic_add_24dp" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

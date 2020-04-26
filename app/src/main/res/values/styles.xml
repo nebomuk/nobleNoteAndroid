@@ -13,6 +13,12 @@
 
         <!-- api lvl >= 21-->
         <item name="android:windowActionModeOverlay">true</item>
+
+        <item name="preferenceTheme">@style/AppTheme.PreferenceThemeOverlay</item>
+    </style>
+
+    <style name="AppTheme.PreferenceThemeOverlay" parent="PreferenceThemeOverlay">
+        <item name="android:layout">@layout/fragment_preferences</item>
     </style>
 
 

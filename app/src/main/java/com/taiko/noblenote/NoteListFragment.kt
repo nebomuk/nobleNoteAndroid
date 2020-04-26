@@ -34,8 +34,12 @@ class NoteListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         val noteListController = NoteListController(this,view);
-        lifecycle.addObserver(noteListController);
+        viewLifecycleOwner.lifecycle.addObserver(noteListController);
 
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
     }
 
 }

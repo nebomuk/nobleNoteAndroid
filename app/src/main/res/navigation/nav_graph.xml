@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/nav_graph"
+    app:startDestination="@id/folderListFragment">
+    <fragment
+        android:id="@+id/preferenceFragment"
+        android:name="com.taiko.noblenote.preferences.PreferenceFragment"
+        android:label="PreferenceFragment" />
+    <fragment
+        android:id="@+id/findInFilesFragment"
+        android:name="com.taiko.noblenote.findinfiles.FindInFilesFragment"
+        android:label="FindInFilesFragment" >
+        <action
+            android:id="@+id/action_findInFilesFragment_to_editorFragment"
+            app:destination="@id/editorFragment"
+            app:popUpTo="@id/findInFilesFragment"
+            app:popUpToInclusive="true"
+            />
+    </fragment>
+    <fragment
+        android:id="@+id/editorFragment"
+        android:name="com.taiko.noblenote.editor.EditorFragment"
+        android:label="EditorFragment" />
+    <fragment
+        android:id="@+id/folderListFragment"
+        android:name="com.taiko.noblenote.FolderListFragment"
+        android:label="FolderListFragment" >
+        <action
+            android:id="@+id/action_folderListFragment_to_noteListFragment"
+            app:destination="@id/noteListFragment" />
+        <action
+            android:id="@+id/action_folderListFragment_to_preferenceFragment"
+            app:destination="@id/preferenceFragment" />
+        <action
+            android:id="@+id/action_folderListFragment_to_findInFilesFragment"
+            app:destination="@id/findInFilesFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/noteListFragment"
+        android:name="com.taiko.noblenote.NoteListFragment"
+        android:label="NoteListFragment" >
+        <action
+            android:id="@+id/action_noteListFragment_to_editorFragment"
+            app:destination="@id/editorFragment" />
+    </fragment>
+</navigation>

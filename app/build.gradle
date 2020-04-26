@@ -39,6 +39,10 @@ android {
     }
     productFlavors {
     }
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
 }
 
 repositories {
@@ -66,7 +70,6 @@ dependencies {
     implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta4"
 
 
-
     implementation 'org.ccil.cowan.tagsoup:tagsoup:1.2.1'
 
     // updating rx java to 3.0 requires testing on android 5.0
@@ -84,18 +87,26 @@ dependencies {
     implementation 'net.yanzm:actionbarprogress:1.0.0'
     implementation 'com.afollestad:material-cab:0.1.12'
     implementation group: 'org.apache.commons', name: 'commons-text', version: '1.8'
+    implementation 'com.google.android.material:material:1.0.0'
 
-        def lifecycle_version = "2.3.0-alpha01"
-        def arch_version = "2.1.0"
+    def lifecycle_version = "2.3.0-alpha01"
+    def arch_version = "2.1.0"
 
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     // LiveData
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
 
+    def nav_version = "2.3.0-alpha05"
+
+
+    implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
+    implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
+
+
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     kapt "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
 
 
-
-    //debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.2'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.2'
 }

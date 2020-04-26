@@ -1,20 +1,24 @@
-package com.taiko.noblenote
+package com.taiko.noblenote.findinfiles
 
 import android.annotation.SuppressLint
+import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.DiffUtil.calculateDiff
 import androidx.recyclerview.widget.RecyclerView
+import com.taiko.noblenote.R
 import com.taiko.noblenote.document.SFile
 import kotlinx.android.synthetic.main.recycler_item_file.view.text1
 import kotlinx.android.synthetic.main.recycler_item_find_in_files.view.*
+import rx.lang.kotlin.PublishSubject
+import rx.subjects.PublishSubject
 
 class FindInFilesAdapter : RecyclerView.Adapter<ResultViewHolder>() {
 
-
-    fun update(input : List<FindResult>)
+    fun setItemSource(input : List<FindResult>)
     {
         val newItems = input.sortedBy { it.file.name };
 
@@ -24,6 +28,8 @@ class FindInFilesAdapter : RecyclerView.Adapter<ResultViewHolder>() {
         //notifyDataSetChanged();
         diffResult.dispatchUpdatesTo(this)
     }
+
+    val clicks : PublishSubject<SFile> = PublishSubject();
 
     private var items : List<FindResult> = emptyList();
 
@@ -43,12 +49,36 @@ class FindInFilesAdapter : RecyclerView.Adapter<ResultViewHolder>() {
         val findResult = items[position]
         holder.itemView.text1.text = findResult.file.parentFile.name + " / " + findResult.file.name
         holder.itemView.text2.text = findResult.line;
+        holder.itemView.setOnClickListener { clicks.onNext(items[holder.layoutPosition].file) }
     }
 
 
 }
 
-class ResultViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+@BindingAdapter("itemSource")
+fun <T> setRecyclerViewItemSoure(recyclerView: RecyclerView, items: List<FindResult>) {
+
+    if (recyclerView.adapter is FindInFilesAdapter) {
+        (recyclerView.adapter as FindInFilesAdapter).setItemSource(items)
+    }
+}
+
+@BindingAdapter("onItemClick")
+fun setRecyclerViewOnItemClick(recyclerView: RecyclerView, onItemClickListener : OnItemClickListener)
+{
+    if (recyclerView.adapter is FindInFilesAdapter) {
+        (recyclerView.adapter as FindInFilesAdapter).clicks.subscribe { onItemClickListener.onItemClick(it) }
+
+    }
+}
+
+interface OnItemClickListener {
+    fun onItemClick(file: SFile);
+}
+
+
+class ResultViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+{
 
 }
 

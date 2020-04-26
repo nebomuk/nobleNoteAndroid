@@ -15,63 +15,22 @@ import java.util.concurrent.TimeUnit
 
 class MainViewModel(app : Application) : AndroidViewModel(app), LifecycleObserver {
 
+    private val log = loggerFor()
 
-    val toolbarFindInFilesVisibility = MutableLiveData<Int>(View.GONE);
+    val showNewNoteDialog = SingleLiveEvent<Unit>()
 
-    val toolbarFindInFilesText = MutableLiveData<String>("");
-
-    val fragmentFindInFilesVisible = MutableLiveData<Boolean>(false);
-
-    val findInFilesResults = MutableLiveData<Collection<FindResult>>(emptyList());
-
-    private val compositeSubscription = CompositeSubscription();
-
-    init {
-        toolbarFindInFilesText.observeForever {
-            if(it.isNotBlank())
-            {
-                fragmentFindInFilesVisible.value = true;
-            }
-        }
-
-        val inputText = toolbarFindInFilesText.toObservable();
-
-        val queryTextObservable = inputText.filter { !it.isNullOrBlank() }
-                //.throttleWithTimeout(400, TimeUnit.MILLISECONDS, Schedulers.io())
-                .distinctUntilChanged();
-
-        compositeSubscription += Pref.rootPath.map { path -> FindInFiles.findInFiles(SFile(path), queryTextObservable) }
-                .switchOnNext()
-                .subscribe {
-                    findInFilesResults.postValue(it);
-                }
-    }
+    val showNewFolderDialog = SingleLiveEvent<Unit>()
 
 
-    fun onFabClick()
+    fun onFabFolderClick()
     {
-
+        showNewFolderDialog.value = Unit;
     }
 
-    fun onActionSearchClick() {
-        toolbarFindInFilesVisibility.value = View.VISIBLE;
-    }
-
-    fun onClearTextClick()
+    fun onFabNoteClick()
     {
-        toolbarFindInFilesText.value = "";
+        showNewNoteDialog.value = Unit;
     }
 
-
-    fun onToolbarFindInFilesBackClick()
-    {
-        toolbarFindInFilesVisibility.value = View.GONE;
-        fragmentFindInFilesVisible.value = false;
-        toolbarFindInFilesText.value = "";
-    }
-
-    override fun onCleared() {
-        compositeSubscription.clear();
-    }
 
 }

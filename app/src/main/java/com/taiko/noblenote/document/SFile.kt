@@ -46,7 +46,7 @@ class SFile {
         return u;
     }
 
-    constructor(uriString: String?) {
+    constructor(uriString: String) {
         val parsedUri = Uri.parse(uriString);
         doc = toDocumentFile(parsedUri);
 

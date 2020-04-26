@@ -3,11 +3,14 @@ package com.taiko.noblenote
 import android.os.Handler
 import android.os.Looper
 import android.view.ActionMode
+import android.view.View
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.taiko.noblenote.document.SFile
-import com.taiko.noblenote.editor.EditorActivity
+import com.taiko.noblenote.editor.EditorFragment
+import com.taiko.noblenote.extensions.createNoteEditorArgs
 import kotlinx.android.synthetic.main.actionmode.view.*
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.toolbar.*
 import rx.Observable
 import rx.lang.kotlin.plusAssign
@@ -17,7 +20,7 @@ import java.util.*
 /***
  * handles file list selection and contextual toolbar actions
  */
-class ListSelectionController(private val activity: MainActivity, private val adapter: RecyclerFileAdapter)
+class ListSelectionController(private val fragment: Fragment, private val view : View, private val adapter: RecyclerFileAdapter)
 {
     private val log = loggerFor()
 
@@ -27,7 +30,7 @@ class ListSelectionController(private val activity: MainActivity, private val ad
 
     private var mActionMode : ActionMode? = null
 
-    private val mFileActionModeCallback = FileActionModeCallback(activity);
+    private val mFileActionModeCallback = FileActionModeCallback(fragment.requireContext());
 
     private val  mCompositeDisposable : CompositeSubscription = CompositeSubscription()
 
@@ -48,7 +51,7 @@ class ListSelectionController(private val activity: MainActivity, private val ad
         mCompositeDisposable += mFileActionModeCallback.onRename.subscribe {
             val selectedFile = adapter.selectedFiles.firstOrNull()
             if (selectedFile != null) {
-                Dialogs.showRenameDialog(activity.coordinator_layout, selectedFile, onRenamed = {
+                Dialogs.showRenameDialog(view, selectedFile, onRenamed = {
                     adapter.removeSelected();
                     adapter.addFileName(it.name);
                     mActionMode?.finish();
@@ -61,7 +64,7 @@ class ListSelectionController(private val activity: MainActivity, private val ad
 
             val selectedFile = adapter.selectedFiles.firstOrNull()
             if (selectedFile != null) {
-                MainActivity.startNoteEditor(activity,selectedFile, EditorActivity.HTML)
+                fragment.findNavController().navigate(R.id.editorFragment,createNoteEditorArgs(selectedFile, EditorFragment.HTML))
                 mActionMode?.finish()
             }
         }
@@ -69,14 +72,14 @@ class ListSelectionController(private val activity: MainActivity, private val ad
         // remove files from the fs with undo snackbar
         mCompositeDisposable += mFileActionModeCallback.onRemove.subscribe {
             val selectedFiles = ArrayList<SFile>(adapter.selectedFiles.map { it  }) // shallow copy
-            UndoHelper.remove(selectedFiles,activity.coordinator_layout,  onUndo = {selectedFiles.forEach { adapter.addFileName(it.name) }})
+            UndoHelper.remove(selectedFiles,view,  onUndo = {selectedFiles.forEach { adapter.addFileName(it.name) }})
             adapter.removeSelected()
             mActionMode?.finish()
         }
 
         mCompositeDisposable += mFileActionModeCallback.onCut.subscribe {
             FileClipboard.cutFiles(adapter.selectedFiles.map { it }) // warning: Singleton causes memory leak when listener not disposed
-            Snackbar.make(activity.coordinator_layout,activity.getString(R.string.msg_n_notes_in_clipboard,adapter.selectedFiles.size), Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(view,fragment.getString(R.string.msg_n_notes_in_clipboard,adapter.selectedFiles.size), Snackbar.LENGTH_SHORT).show();
             adapter.clearSelection();
             mActionMode?.finish()
         }
@@ -87,19 +90,19 @@ class ListSelectionController(private val activity: MainActivity, private val ad
             if(isTwoPane) {
                 adapter.selectFolderOnClick = true;
             }
-            activity.setFabVisible(true);
+            //fragment.setFabVisible(true);
         }
 
         mCompositeDisposable += adapter.itemLongClicks().subscribe {
 
-            mActionMode = activity.toolbar.startActionMode(mFileActionModeCallback);
+            mActionMode = fragment.toolbar.startActionMode(mFileActionModeCallback);
             adapter.selectFolderOnClick = false;
             mActionMode?.menu?.findItem(R.id.actionShowHtml)?.isVisible = isNoteList
             mActionMode?.menu?.findItem(R.id.actionCut)?.isVisible = isNoteList
 
 
             adapter.setSelected(it,true);
-            activity.setFabVisible(false);
+           // fragment.setFabVisible(false);
         }
 
 

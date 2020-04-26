@@ -1,17 +1,15 @@
-package com.taiko.noblenote
+package com.taiko.noblenote.findinfiles
 
 import android.net.Uri
-import android.text.TextUtils
 import com.taiko.noblenote.document.IDocumentFile
 import com.taiko.noblenote.document.SFile
 import com.taiko.noblenote.document.openInputStream
-import com.taiko.noblenote.editor.TextConverter
+import com.taiko.noblenote.loggerFor
 import org.apache.commons.text.StringEscapeUtils
 import rx.Observable
 import rx.lang.kotlin.toObservable
 import rx.lang.kotlin.toSingletonObservable
 import rx.schedulers.Schedulers
-import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
@@ -27,19 +25,25 @@ data class FindResult(val file : SFile,val line : CharSequence) : Comparable<Fin
 /**
  * full text search inside files and subdirs
  */
-object FindInFiles {
+object FindInFilesEngine {
 
     private val log = loggerFor();
 
 
 
     @JvmStatic
-    fun findInFiles(file: SFile, queryTextObservable : Observable<out CharSequence>): Observable<Collection<FindResult>> {
-        val obs: Observable<Collection<FindResult>> = queryTextObservable
+    fun findInFiles(file: SFile, queryTextObservable : Observable<out CharSequence>): Observable<List<FindResult>> {
+        val obs: Observable<List<FindResult>> = queryTextObservable
                 .observeOn(Schedulers.io())
                 .switchMap {
 
                     val queryText = it;
+
+                    if(queryText.isBlank())
+                    {
+                        return@switchMap Observable.just<List<FindResult>>(emptyList());
+                    }
+
                     val searchRes = recursiveFullTextSearch(file, queryText)
                             .delaySubscription(400,TimeUnit.MILLISECONDS);
                     return@switchMap searchRes;
@@ -71,7 +75,7 @@ object FindInFiles {
                     .subscribeOn(Schedulers.io())
                     .map { note ->
                         if (note.name.orEmpty().contains(rawQueryText, true)) {
-                            FindResult(SFile(note),"").toSingletonObservable() // file name contains the queryText, return the filePath
+                            FindResult(SFile(note), "").toSingletonObservable() // file name contains the queryText, return the filePath
                         } else {
 
                             val text = note.openInputStream().bufferedReader().use { it.readText() }
@@ -85,7 +89,7 @@ object FindInFiles {
 
                                     }
                                     .take(1)
-                                    .map { line -> FindResult(SFile(note),StringEscapeUtils.unescapeHtml4(line)) }
+                                    .map { line -> FindResult(SFile(note), StringEscapeUtils.unescapeHtml4(line)) }
                                     .toObservable()
                         }
                     }
@@ -141,7 +145,7 @@ object FindInFiles {
 
                             if (first != null) {
 
-                                results.add(FindResult(SFile(note),StringEscapeUtils.unescapeHtml4(first)));
+                                results.add(FindResult(SFile(note), StringEscapeUtils.unescapeHtml4(first)));
                             }
                         }
 
@@ -191,30 +195,4 @@ object FindInFiles {
 
         private val documentsWithoutQueryText : HashSet<Uri> = HashSet();
     }
-
-    /**
-     * @return the file paths of the files
-     */
-    @Deprecated("Use the recursiveFullTextSearch with SFile")
-    @JvmStatic
-    private fun  recursiveFullTextSearch(file: File, queryText: CharSequence) : Observable<String> =
-            file.walkBottomUp().filter { it.isFile && !it.isHidden }
-                    .toObservable()
-                    .map {
-                        val filePath = it.path;
-                        //                Timber.i(it.name)
-                        if (it.name.contains(queryText, true)) {
-                            filePath.toSingletonObservable() // file name contains the queryText, return the filePath
-                        } else {
-                            Observable.using(// open the file and try to find the queryText inside
-                                    { it.bufferedReader() },
-                                    { it.lineSequence().toObservable() },
-                                    { it.close() })
-                                    .exists { it.contains(queryText, true) }
-                                    .filter { it == true } // found
-
-                                    .map { filePath }
-                        }
-                    }
-                    .concat()
 }

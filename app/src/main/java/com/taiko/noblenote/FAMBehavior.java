@@ -12,7 +12,7 @@ import android.view.View;
 import com.github.clans.fab.FloatingActionMenu;
 
 /**
- * used inside the activity_main_two_pane.xml layout to animate the clans FAB menu when a snackbar appears
+ * used inside the fragment_main_two_pane.xml layout to animate the clans FAB menu when a snackbar appears
  */
 
 @SuppressWarnings("unused")

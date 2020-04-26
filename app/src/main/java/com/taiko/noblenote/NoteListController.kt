@@ -7,13 +7,18 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
+import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
+import com.jakewharton.rxbinding.view.clicks
 import com.taiko.noblenote.document.SFile
+import com.taiko.noblenote.editor.EditorFragment
+import com.taiko.noblenote.extensions.createNoteEditorArgs
 import kotlinx.android.synthetic.main.fragment_file_list.view.*
-import rx.android.schedulers.AndroidSchedulers
+import kotlinx.android.synthetic.main.fragment_twopane.*
+import kotlinx.android.synthetic.main.toolbar.view.*
 import rx.lang.kotlin.plusAssign
-import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
-import java.io.FileFilter
+import java.lang.IllegalStateException
 
 class NoteListController(private var fragment: Fragment, view: View)
     : LifecycleObserver {
@@ -28,11 +33,10 @@ class NoteListController(private var fragment: Fragment, view: View)
         val recyclerView = view.recycler_view
         //recyclerView.itemAnimator = SlideInLeftAnimator();
 
-        var path : SFile;
+        val path  = fragment.arguments?.getString(NoteListFragment.ARG_FOLDER_PATH)
+                ?: throw IllegalStateException("ARG_FOLDER_PATH is null");
 
-        path = SFile(fragment.arguments?.getString(NoteListFragment.ARG_FOLDER_PATH));
-
-        recyclerFileAdapter = RecyclerFileAdapter(path)
+        recyclerFileAdapter = RecyclerFileAdapter(SFile(path))
 //            recyclerFileAdapter.refresh(activity)
 
 
@@ -45,13 +49,54 @@ class NoteListController(private var fragment: Fragment, view: View)
 
         val app = (fragment.activity?.application as MainApplication)
 
-        listSelectionController = ListSelectionController(fragment.activity as MainActivity,recyclerFileAdapter)
+
+        val mTwoPane = (fragment.parentFragment is TwoPaneFragment)
+
+        if(mTwoPane)
+        {
+            val mf = fragment.parentFragment as TwoPaneFragment;
+            listSelectionController = ListSelectionController(mf,mf.coordinator_layout, recyclerFileAdapter)
+        }
+        else
+        {
+            listSelectionController = ListSelectionController(fragment, view, recyclerFileAdapter)
+            view.appbar.visibility = View.VISIBLE;
+            view.fab.visibility = View.VISIBLE;
+
+            view.toolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp)
+            view.toolbar.setNavigationOnClickListener {
+                fragment.findNavController().navigateUp();
+            }
+
+            val folderPath = fragment.arguments?.getString(NoteListFragment.ARG_FOLDER_PATH,null)
+            view.toolbar.title = folderPath?.let { SFile(it).name };
+
+            if(FileClipboard.hasContent)
+            {
+                view.toolbar.inflateMenu(R.menu.menu_paste);
+                val pasteItem = view.toolbar.menu.findItem(R.id.action_paste);
+                pasteItem
+                        .setOnMenuItemClickListener {
+
+                            if(!FileClipboard.pasteContentIntoFolder(SFile(folderPath!!)))
+                            {
+                                Snackbar.make(view,R.string.msg_paste_error, Snackbar.LENGTH_LONG).show();
+                            }
+                            pasteItem.isVisible = FileClipboard.hasContent;
+                            true;
+                        }
+            }
+        }
         listSelectionController.isNoteList = true;
 
 
         mCompositeSubscription += listSelectionController.itemClicks()
                 .doOnNext { Log.d("","item pos clicked: " + it) }
                 .subscribe { app.eventBus.fileSelected.onNext(recyclerFileAdapter.getItem(it)) }
+
+        mCompositeSubscription += app.eventBus.fileSelected.mergeWith(app.eventBus.createFileClick)
+                .subscribe { fragment.findNavController().navigate(R.id.editorFragment,createNoteEditorArgs(it,EditorFragment.READ_WRITE)) }
+
 
         mCompositeSubscription += app.eventBus.createFileClick.subscribe { recyclerFileAdapter.addFileName(it.name) }
 
@@ -65,11 +110,16 @@ class NoteListController(private var fragment: Fragment, view: View)
                     log.e("exception in swipe refresh",it);
                 });
 
+
         mCompositeSubscription += FileClipboard.pastedFileNames.subscribe {
             for (fileName : String in it)
             {
                 recyclerFileAdapter.addFileName(fileName)
             };
+        }
+
+        mCompositeSubscription += view.fab.clicks().subscribe {
+                Dialogs.showNewNoteDialog(view, {app.eventBus.createFileClick.onNext(it)})
         }
     }
 
