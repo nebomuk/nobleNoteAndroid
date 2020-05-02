@@ -4,24 +4,16 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.addCallback
-import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.taiko.noblenote.*
-import com.taiko.noblenote.databinding.ActivityEditorBinding
 import com.taiko.noblenote.databinding.FragmentEditorBinding
-import com.taiko.noblenote.document.VolumeUtil
 import com.taiko.noblenote.extensions.getMenuItems
 import com.taiko.noblenote.extensions.setTitleAndModified
-import kotlinx.android.synthetic.main.activity_editor.*
-import kotlinx.android.synthetic.main.toolbar.*
-import kotlinx.android.synthetic.main.toolbar_find_in_text.*
-import kotlinx.android.synthetic.main.toolbar_find_in_text.view.*
 import net.yanzm.actionbarprogress.MaterialIndeterminateProgressDrawable
 import net.yanzm.actionbarprogress.MaterialProgressDrawable
 import rx.lang.kotlin.plusAssign
@@ -70,18 +62,18 @@ class EditorFragment : Fragment() {
         binding.viewModel = editorViewModel;
 
 
-        progress_bar_file_loading.progressDrawable = MaterialProgressDrawable.create(requireContext())
-        progress_bar_file_loading.indeterminateDrawable = MaterialIndeterminateProgressDrawable.create(requireContext())
+        binding.progressBarFileLoading.progressDrawable = MaterialProgressDrawable.create(requireContext())
+        binding.progressBarFileLoading.indeterminateDrawable = MaterialIndeterminateProgressDrawable.create(requireContext())
 
-        editor_edit_text.movementMethod = ArrowKeyLinkMovementMethod()
+        binding.editorEditText.movementMethod = ArrowKeyLinkMovementMethod()
 
-        editor_edit_text.textHTML
+        binding.editorEditText.textHTML
 
 
         // hide soft keyboard by default
         requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
 
-        mUndoRedo = TextViewUndoRedo(editor_edit_text);
+        mUndoRedo = TextViewUndoRedo(binding.editorEditText);
 
         // uncomment to enable close button
 /*        toolbar.setNavigationIcon(R.drawable.ic_close_black_24dp)
@@ -91,7 +83,7 @@ class EditorFragment : Fragment() {
 
         editorViewModel.populateFromBundle(extras);
 
-        editorViewModel.isModified.observe(viewLifecycleOwner, Observer { editor_edit_text.isModified = it })
+        editorViewModel.isModified.observe(viewLifecycleOwner, Observer { binding.editorEditText.isModified = it })
 
         editorViewModel.toolbarFindInTextVisible.observe(viewLifecycleOwner,
                 Observer { if(it)
@@ -104,28 +96,34 @@ class EditorFragment : Fragment() {
                 }})
 
         editorViewModel.queryText.observe(viewLifecycleOwner, Observer {
-            toolbar_find_in_text.toolbar_find_in_text_edit_text.setText(it);
+            binding.toolbarFindInTextInclude.searchInput.setText(it);
         })
 
         Transformations.distinctUntilChanged(editorViewModel.toolbarTitle).observe(viewLifecycleOwner, Observer {
-            toolbar.setTitleAndModified(it, editorViewModel.isModified.value!!) })
+            binding.toolbarInclude.toolbar.setTitleAndModified(it, editorViewModel.isModified.value!!) })
 
         Transformations.distinctUntilChanged(editorViewModel.isModified).observe(viewLifecycleOwner, Observer {
-            toolbar.getMenuItems().firstOrNull { menuItem -> menuItem.itemId == R.id.action_done }?.isEnabled = it
-            toolbar.setTitleAndModified(editorViewModel.toolbarTitle.value!!,it);
+            binding.toolbarInclude.toolbar.getMenuItems().firstOrNull { menuItem -> menuItem.itemId == R.id.action_done }?.isEnabled = it
+            binding.toolbarInclude.toolbar.setTitleAndModified(editorViewModel.toolbarTitle.value!!,it);
         })
 
         editorViewModel.toast.observe(viewLifecycleOwner, Observer { Toast.makeText(requireActivity(),it, Toast.LENGTH_SHORT).show(); })
 
         editorViewModel.finishActivity.observe(viewLifecycleOwner, Observer { findNavController().popBackStack() })
 
-        editor_edit_text.isTextWatcherEnabled = false
+        binding.editorEditText.isTextWatcherEnabled = false
 
-        mFindInTextToolbarController = FindInTextToolbarController(this);
 
-        toolbar.inflateMenu(R.menu.menu_editor);
 
-        toolbar.setOnMenuItemClickListener {
+        mFindInTextToolbarController = FindInTextToolbarController(
+                binding.editorEditText,
+                binding.editorScrollView,
+                binding.toolbarInclude.toolbar,
+                binding.toolbarFindInTextInclude);
+
+        binding.toolbarInclude.toolbar.inflateMenu(R.menu.menu_editor);
+
+        binding.toolbarInclude.toolbar.setOnMenuItemClickListener {
             when(it.itemId)
             {
                 R.id.action_redo -> mUndoRedo.redo();
@@ -136,8 +134,8 @@ class EditorFragment : Fragment() {
             true
         }
 
-        val itemRedo = toolbar.getMenuItems().first { it.itemId == R.id.action_redo }
-        val itemUndo = toolbar.getMenuItems().first { it.itemId == R.id.action_undo }
+        val itemRedo = binding.toolbarInclude.toolbar.getMenuItems().first { it.itemId == R.id.action_redo }
+        val itemUndo = binding.toolbarInclude.toolbar.getMenuItems().first { it.itemId == R.id.action_undo }
 
         mCompositeSubscription += mUndoRedo.canUndoChanged()
                 .subscribe {
@@ -155,7 +153,7 @@ class EditorFragment : Fragment() {
     }
 
     private fun onBackPressed() {
-        if (toolbar_find_in_text.visibility == View.VISIBLE) {
+        if (binding.toolbarFindInTextInclude.toolbar.visibility == View.VISIBLE) {
             mFindInTextToolbarController.hideToolbar();
         } else {
             if (editorViewModel.isModified.value!!) {
@@ -171,7 +169,7 @@ class EditorFragment : Fragment() {
         log.d( ".onStart()");
 
         // fix selection & formatting for Honeycomb and newer devices
-        editor_edit_text.customSelectionActionModeCallback = SelectionActionModeCallback(editor_edit_text)
+        binding.editorEditText.customSelectionActionModeCallback = SelectionActionModeCallback(binding.editorEditText)
     }
 
     private fun showExitDialog() {

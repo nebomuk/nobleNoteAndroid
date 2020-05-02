@@ -23,9 +23,21 @@
             android:clipToPadding="false"
             android:outlineProvider="bounds"
             >
-            <include
-                layout="@layout/toolbar_editor"
-                />
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <include
+                    layout="@layout/toolbar_find_in_text"
+                    android:id="@+id/toolbar_find_in_text_include"
+                    />
+
+                <include
+                    layout="@layout/toolbar"
+                    android:id="@+id/toolbar_include"
+                    />
+
+            </FrameLayout>
             <!-- elevation must be the same as the toolbar , requires MaterialProgressDrawable to work properly-->
             <ProgressBar
                 android:id="@+id/progress_bar_file_loading"

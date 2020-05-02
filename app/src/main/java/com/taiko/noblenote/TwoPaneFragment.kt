@@ -13,9 +13,6 @@ import com.jakewharton.rxbinding.view.clicks
 import com.taiko.noblenote.databinding.FragmentTwopaneBinding
 import com.taiko.noblenote.document.SFile
 import com.taiko.noblenote.document.VolumeUtil
-import kotlinx.android.synthetic.main.fragment_twopane.*
-import kotlinx.android.synthetic.main.fragment_twopane.coordinator_layout
-import kotlinx.android.synthetic.main.toolbar.view.*
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
 import rx.subscriptions.Subscriptions
@@ -40,7 +37,6 @@ class TwoPaneFragment : Fragment() {
 
         binding.lifecycleOwner = viewLifecycleOwner;
 
-
         return binding.root;
     }
 
@@ -51,12 +47,9 @@ class TwoPaneFragment : Fragment() {
                 .get(MainViewModel::class.java);
 
         lifecycle.addObserver(mainViewModel);
+        binding.toolbarTwoPane.toolbar.inflateMenu(R.menu.menu_main_twopane)
 
-        binding.viewModel = mainViewModel;
-
-        binding.root.toolbar.inflateMenu(R.menu.menu_main_twopane)
-
-        view.toolbar.setOnMenuItemClickListener {
+        binding.toolbarTwoPane.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.action_settings -> {
                     findNavController().navigate(R.id.preferenceFragment);
@@ -115,16 +108,16 @@ class TwoPaneFragment : Fragment() {
 
         val app = requireActivity().application as MainApplication
 
-            fab_menu.setClosedOnTouchOutside(true)
+            binding.fabMenu.setClosedOnTouchOutside(true)
 
-            mCompositeSubscription += fab_menu_note.clicks().subscribe {
-                Dialogs.showNewNoteDialog(this.coordinator_layout) {app.eventBus.createFileClick.onNext(it)}
-                fab_menu.close(true);
+            mCompositeSubscription += binding.fabMenuNote.clicks().subscribe {
+                Dialogs.showNewNoteDialog(binding.coordinatorLayout) {app.eventBus.createFileClick.onNext(it)}
+                binding.fabMenu.close(true);
             }
 
-            mCompositeSubscription += fab_menu_folder.clicks().subscribe {
-                Dialogs.showNewFolderDialog(this.coordinator_layout,{app.eventBus.createFolderClick.onNext(it)})
-                fab_menu.close(true);
+            mCompositeSubscription += binding.fabMenuFolder.clicks().subscribe {
+                Dialogs.showNewFolderDialog(binding.coordinatorLayout,{app.eventBus.createFolderClick.onNext(it)})
+                binding.fabMenu.close(true);
             }
 
         val handler = Handler();
@@ -163,12 +156,12 @@ class TwoPaneFragment : Fragment() {
     {
         if(b)
         {
-            this.fab_menu?.visibility = View.VISIBLE;
+            binding.fabMenu.visibility = View.VISIBLE;
         }
         else
         {
-            this.fab_menu?.close(false);
-            this.fab_menu?.visibility = View.INVISIBLE;
+            binding.fabMenu.close(false);
+            binding.fabMenu.visibility = View.INVISIBLE;
         }
     }
 

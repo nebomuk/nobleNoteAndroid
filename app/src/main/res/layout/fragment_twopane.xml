@@ -1,5 +1,6 @@
 <!-- this overrides  activity_main.xml via  refs.xml-->
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
 
@@ -10,9 +11,7 @@
     </data>
     <androidx.coordinatorlayout.widget.CoordinatorLayout android:layout_width="match_parent"
         android:layout_height="match_parent"
-        xmlns:tools="http://schemas.android.com/tools"
         app:layout_behavior="com.taiko.noblenote.FAMBehavior"
-        xmlns:fab="http://schemas.android.com/apk/res-auto"
         android:id="@+id/coordinator_layout">
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -59,7 +58,9 @@
             android:outlineProvider="bounds"
             >
 
-            <include layout="@layout/toolbar"/>
+            <include layout="@layout/toolbar"
+                android:id="@+id/toolbarTwoPane"
+                />
 
             <ViewStub
                 android:id="@+id/cab_stub"
@@ -78,9 +79,9 @@
             android:layout_gravity="bottom|right"
             android:layout_marginBottom="@dimen/fab_margin"
             android:layout_marginRight="@dimen/fab_margin"
-            fab:menu_colorNormal="@color/colorAccent"
-            fab:menu_colorPressed="@color/primary_pressed"
-            fab:menu_colorRipple="@color/ripple"
+            app:menu_colorNormal="@color/colorAccent"
+            app:menu_colorPressed="@color/primary_pressed"
+            app:menu_colorRipple="@color/ripple"
             >
             <com.github.clans.fab.FloatingActionButton
                 android:id="@+id/fab_menu_folder"
@@ -90,11 +91,11 @@
                 android:layout_marginBottom="8dp"
                 android:layout_marginRight="8dp"
                 android:src="@drawable/ic_folder_24dp"
-                fab:fab_size="mini"
-                fab:fab_label="@string/newNotebook"
-                fab:fab_colorNormal="@color/colorAccent"
-                fab:fab_colorPressed="@color/primary_pressed"
-                fab:fab_colorRipple="@color/ripple"/>
+                app:fab_size="mini"
+                app:fab_label="@string/newNotebook"
+                app:fab_colorNormal="@color/colorAccent"
+                app:fab_colorPressed="@color/primary_pressed"
+                app:fab_colorRipple="@color/ripple"/>
             <com.github.clans.fab.FloatingActionButton
                 android:id="@+id/fab_menu_note"
                 android:layout_width="wrap_content"
@@ -103,11 +104,11 @@
                 android:layout_marginBottom="8dp"
                 android:layout_marginRight="8dp"
                 android:src="@drawable/ic_event_note_black_24dp"
-                fab:fab_size="mini"
-                fab:fab_label="@string/newNote"
-                fab:fab_colorNormal="@color/colorAccent"
-                fab:fab_colorPressed="@color/primary_pressed"
-                fab:fab_colorRipple="@color/ripple"/>
+                app:fab_size="mini"
+                app:fab_label="@string/newNote"
+                app:fab_colorNormal="@color/colorAccent"
+                app:fab_colorPressed="@color/primary_pressed"
+                app:fab_colorRipple="@color/ripple"/>
         </com.github.clans.fab.FloatingActionMenu>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

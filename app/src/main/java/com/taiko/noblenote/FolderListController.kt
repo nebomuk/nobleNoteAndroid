@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.view.View
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
@@ -16,8 +17,7 @@ import com.jakewharton.rxbinding.view.clicks
 import com.taiko.noblenote.document.SFile
 import kotlinx.android.synthetic.main.fragment_file_list.view.*
 import kotlinx.android.synthetic.main.fragment_twopane.*
-import kotlinx.android.synthetic.main.toolbar.*
-import kotlinx.android.synthetic.main.toolbar.view.*
+
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
 import java.io.File
@@ -88,9 +88,9 @@ class FolderListController(private var fragment: Fragment, view: View) : Lifecyc
             listSelectionController = ListSelectionController(fragment, view, recyclerFileAdapter)
             view.appbar.visibility = View.VISIBLE;
             view.fab.visibility = View.VISIBLE;
-            view.toolbar.inflateMenu(R.menu.menu_main)
+            view.findViewById<Toolbar>(R.id.toolbar).inflateMenu(R.menu.menu_main)
 
-            view.toolbar.setOnMenuItemClickListener {
+            view.findViewById<Toolbar>(R.id.toolbar).setOnMenuItemClickListener {
                 when (it.itemId) {
                     R.id.action_settings -> {
                         fragment.findNavController().navigate(R.id.preferenceFragment);
@@ -143,12 +143,12 @@ class FolderListController(private var fragment: Fragment, view: View) : Lifecyc
             val noteFragment = NoteListFragment()
             noteFragment.arguments = arguments
             fragment.parentFragmentManager.beginTransaction().replace(R.id.item_detail_container, noteFragment).commit()
-            fragment.requireParentFragment().toolbar.title = null; // clear title after orientation change
-            val pasteFileMenuItem = fragment.activity?.toolbar?.menu?.findItem(R.id.action_paste);
+            fragment.requireParentFragment().view?.findViewById<Toolbar>(R.id.toolbar)?.title = null; // clear title after orientation change
+            val pasteFileMenuItem = fragment.activity?.findViewById<Toolbar>(R.id.toolbar)?.menu?.findItem(R.id.action_paste);
             pasteFileMenuItem?.isEnabled = mTwoPane && FileClipboard.hasContent;
         } else {
             fragment.findNavController().navigate(R.id.noteListFragment,arguments);
-            fragment.toolbar.title = SFile(folderUriString).nameWithoutExtension
+            fragment.view?.findViewById<Toolbar>(R.id.toolbar)?.title = SFile(folderUriString).nameWithoutExtension
         }
     }
 

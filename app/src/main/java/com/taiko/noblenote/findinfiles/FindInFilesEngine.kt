@@ -22,6 +22,8 @@ data class FindResult(val file : SFile,val line : CharSequence) : Comparable<Fin
     }
 }
 
+data class FindResultList(val list : List<FindResult> = emptyList(), val nothingFound: Boolean = false)
+
 /**
  * full text search inside files and subdirs
  */
@@ -32,23 +34,24 @@ object FindInFilesEngine {
 
 
     @JvmStatic
-    fun findInFiles(file: SFile, queryTextObservable : Observable<out CharSequence>): Observable<List<FindResult>> {
-        val obs: Observable<List<FindResult>> = queryTextObservable
+    fun findInFiles(file: SFile, queryTextObservable : Observable<out CharSequence>): Observable<FindResultList> {
+        val obs: Observable<FindResultList> = queryTextObservable
                 .observeOn(Schedulers.io())
-                .switchMap {
-
-                    val queryText = it;
+                .switchMap { queryText ->
 
                     if(queryText.isBlank())
                     {
-                        return@switchMap Observable.just<List<FindResult>>(emptyList());
+                        return@switchMap Observable.just(FindResultList());
                     }
 
                     val searchRes = recursiveFullTextSearch(file, queryText)
-                            .delaySubscription(400,TimeUnit.MILLISECONDS);
-                    return@switchMap searchRes;
+                            .delaySubscription(400,TimeUnit.MILLISECONDS)
+                            .map {
+                                    FindResultList(list = it)
+                                }
+                            .defaultIfEmpty(FindResultList(nothingFound = true))
 
-                    //searchRes.concatWith(Observable.never()) // never complete
+                    return@switchMap searchRes.startWith(FindResultList())
                 }
 
         return obs;
@@ -96,17 +99,20 @@ object FindInFilesEngine {
                     .concat()
 
         }, 8)
-        .startWith(emptyList())
-        .scan(ArrayList<FindResult>(), { list, newVal ->
+
+                .scan(ArrayList<FindResult>(), { list, newVal ->
             list.add(newVal)
             list
         } )
+        .filter { it.isNotEmpty() }
+
 
 
     }
 
     // assumes the regular folder structure without subfolders except for root for performance
     @JvmStatic
+    @Deprecated("Use recursiveFullTextSearch")
     fun recursiveFullTextSearchSynchronous(directoryToSearch : SFile, queryText: CharSequence) : Observable<List<FindResult>> {
 
 

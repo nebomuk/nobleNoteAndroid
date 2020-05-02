@@ -6,7 +6,7 @@
     android:background="@color/listBackground"
     >
     <data>
-
+        <import type="android.view.View"/>
         <variable
             name="viewModel"
             type="com.taiko.noblenote.findinfiles.FindInFilesViewModel" />
@@ -22,15 +22,11 @@
         android:id="@+id/toolbar"
         bind:viewModel="@{viewModel}"
         />
-    <ViewSwitcher
-        android:layout_marginTop="?attr/actionBarSize"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/empty_list_switcher"
-        >
-        <androidx.recyclerview.widget.RecyclerView
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_marginTop="?attr/actionBarSize"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:visibility="@{viewModel.nothingFound ? View.GONE : View.VISIBLE}"
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             app:itemSource="@{viewModel.findInFilesResults}"
@@ -38,13 +34,14 @@
             android:layout_height="match_parent"/>
         <!-- list empty indicator used by RecyclerFileAdapter  when there are no files in the given folder-->
         <TextView android:id="@+id/tv_recycler_view_empty"
+            android:visibility="@{viewModel.nothingFound ? View.VISIBLE : View.GONE}"
+            android:layout_marginTop="?attr/actionBarSize"
+            android:text="@string/no_results_found"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="32dp"
+            android:layout_height="128dp"
             android:gravity="center"
             />
-
-    </ViewSwitcher>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </layout>

@@ -1,13 +1,10 @@
 package com.taiko.noblenote.findinfiles
 
 import android.app.Application
-import android.graphics.Color
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.MutableLiveData
 import com.taiko.noblenote.Pref
-import com.taiko.noblenote.R
 import com.taiko.noblenote.SingleLiveEvent
 import com.taiko.noblenote.document.SFile
 import com.taiko.noblenote.extensions.toObservable
@@ -24,7 +21,9 @@ class FindInFilesViewModel(app : Application) : AndroidViewModel(app), Lifecycle
 
     val findInFilesResults = MutableLiveData<List<FindResult>>(emptyList());
 
-    val backgroundTransparent = MutableLiveData<Boolean>(true);
+    val nothingFound = MutableLiveData<Boolean>(false);
+
+    val queryTextBlank = MutableLiveData<Boolean>(true);
 
     val startNoteEditor = SingleLiveEvent<SFile>()
 
@@ -33,7 +32,7 @@ class FindInFilesViewModel(app : Application) : AndroidViewModel(app), Lifecycle
 
     init {
         toolbarFindInFilesText.observeForever {
-            backgroundTransparent.value = it.isBlank()
+            queryTextBlank.value = it.isBlank()
         }
 
         val inputText = toolbarFindInFilesText.toObservable();
@@ -42,8 +41,16 @@ class FindInFilesViewModel(app : Application) : AndroidViewModel(app), Lifecycle
                 //.throttleWithTimeout(400, TimeUnit.MILLISECONDS, Schedulers.io())
                 .distinctUntilChanged();
 
-        compositeSubscription += Pref.rootPath.map { path -> FindInFilesEngine.findInFiles(SFile(path), queryTextObservable) }
+        val findResults = Pref.rootPath
+                .map { path -> FindInFilesEngine.findInFiles(SFile(path), queryTextObservable) }
                 .switchOnNext()
+                .share();
+
+        compositeSubscription += findResults.subscribe {
+            nothingFound.postValue(it.nothingFound)
+        }
+
+        compositeSubscription +=findResults.map { it.list }
                 .subscribe {
                     findInFilesResults.postValue(it);
                 }
