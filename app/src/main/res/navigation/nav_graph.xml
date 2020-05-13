@@ -4,11 +4,11 @@
     app:startDestination="@id/folderListFragment">
     <fragment
         android:id="@+id/preferenceFragment"
-        android:name="com.taiko.noblenote.preferences.PreferenceFragment"
+        android:name="com.taiko.noblenote.fragments.PreferenceFragment"
         android:label="PreferenceFragment" />
     <fragment
         android:id="@+id/findInFilesFragment"
-        android:name="com.taiko.noblenote.findinfiles.FindInFilesFragment"
+        android:name="com.taiko.noblenote.fragments.FindInFilesFragment"
         android:label="FindInFilesFragment" >
         <action
             android:id="@+id/action_findInFilesFragment_to_editorFragment"
@@ -19,11 +19,11 @@
     </fragment>
     <fragment
         android:id="@+id/editorFragment"
-        android:name="com.taiko.noblenote.editor.EditorFragment"
+        android:name="com.taiko.noblenote.fragments.EditorFragment"
         android:label="EditorFragment" />
     <fragment
         android:id="@+id/folderListFragment"
-        android:name="com.taiko.noblenote.FolderListFragment"
+        android:name="com.taiko.noblenote.fragments.FolderListFragment"
         android:label="FolderListFragment" >
         <action
             android:id="@+id/action_folderListFragment_to_noteListFragment"
@@ -37,7 +37,7 @@
     </fragment>
     <fragment
         android:id="@+id/noteListFragment"
-        android:name="com.taiko.noblenote.NoteListFragment"
+        android:name="com.taiko.noblenote.fragments.NoteListFragment"
         android:label="NoteListFragment" >
         <action
             android:id="@+id/action_noteListFragment_to_editorFragment"

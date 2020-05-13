@@ -9,6 +9,7 @@
     <string name="strikethrough">Strikethrough</string>
     <string name="remove">Remove</string>
 
+    <string name="myNotebooks">My Notebooks</string>
     <string name="rename">Rename</string>
     <string name="noteNotRenamed">Note not renamed</string>
     <string name="notebookNotRenamed">Notebook not renamed</string>
@@ -79,6 +80,7 @@
     <string name="msg_storage_removed">The public folder where your notebooks are stored is currently not accessible</string>
     <string name="msg_saf_downloads_not_supported">"Folders inside \"Downloads\" cannot be used. Please select another folder. "</string>
     <string name="msg_saf_provider_not_supported">This storage location cannot be used. Only SD-Cards, USB flash drives and Internal Storage are supported.</string>
+    <string name="find_in_files_description">Search for notes and content</string>
 
 
 </resources>

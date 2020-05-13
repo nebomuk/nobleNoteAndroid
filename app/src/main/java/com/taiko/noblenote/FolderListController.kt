@@ -2,6 +2,8 @@ package com.taiko.noblenote
 
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -12,24 +14,31 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding.view.clicks
-import com.taiko.noblenote.document.SFile
-import kotlinx.android.synthetic.main.fragment_file_list.view.*
-import kotlinx.android.synthetic.main.fragment_twopane.*
+import com.taiko.noblenote.adapters.RecyclerFileAdapter
+import com.taiko.noblenote.databinding.FragmentFileListBinding
+import com.taiko.noblenote.filesystem.SFile
+import com.taiko.noblenote.filesystem.VolumeUtil
+import com.taiko.noblenote.fragments.NoteListFragment
+import com.taiko.noblenote.fragments.TwoPaneFragment
+import com.taiko.noblenote.util.loggerFor
+import rx.Subscription
 
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
+import rx.subscriptions.Subscriptions
 import java.io.File
 
 /**
  * Created by taiko
  */
-class FolderListController(private var fragment: Fragment, view: View) : LifecycleObserver {
+class FolderListController(private val fragment: Fragment, private val binding: FragmentFileListBinding) : LifecycleObserver {
 
+
+    private var mVolumeSubscription: Subscription = Subscriptions.empty()
+    private val log = loggerFor()
     private var mTwoPane = false
     private val mCompositeSubscription = CompositeSubscription()
-
 
     private  val recyclerFileAdapter: RecyclerFileAdapter
     private val listSelectionController: ListSelectionController;
@@ -37,7 +46,7 @@ class FolderListController(private var fragment: Fragment, view: View) : Lifecyc
     init {
         mTwoPane = (fragment.parentFragment is TwoPaneFragment)
 
-        val recyclerView = view.recycler_view;
+        val recyclerView = binding.recyclerView;
 
         recyclerView.itemAnimator = DefaultItemAnimator();
 
@@ -48,20 +57,22 @@ class FolderListController(private var fragment: Fragment, view: View) : Lifecyc
                 dir.mkdirs()
         }
 
-
         recyclerFileAdapter = RecyclerFileAdapter(SFile(Pref.rootPath.value))
 
         recyclerFileAdapter.showFolders = true;
 
-        mCompositeSubscription += recyclerFileAdapter.applyEmptyView(view.empty_list_switcher,R.id.tv_recycler_view_empty,R.id.recycler_view)
+        mCompositeSubscription += recyclerFileAdapter.applyEmptyView(binding.emptyListSwitcher,R.id.tv_recycler_view_empty,R.id.recycler_view)
 
         recyclerView.adapter = recyclerFileAdapter
         recyclerView.layoutManager = LinearLayoutManager(fragment.activity)
 
+        val app = (fragment.requireActivity().application as MainApplication)
+
+
         if(mTwoPane)
         {
-            val mf = fragment.parentFragment as TwoPaneFragment;
-            listSelectionController = ListSelectionController(mf,mf.coordinator_layout, recyclerFileAdapter)
+
+            listSelectionController = ListSelectionController(fragment.requireParentFragment(), recyclerFileAdapter, getTwoPaneToolbar())
 
             recyclerFileAdapter.selectFolderOnClick =true
             mCompositeSubscription += recyclerFileAdapter.selectedFolder().subscribe {
@@ -82,15 +93,23 @@ class FolderListController(private var fragment: Fragment, view: View) : Lifecyc
                     }
                 }
             }
+
+            mCompositeSubscription += app.eventBus.swipeRefresh.subscribe {
+                SFile.invalidateAllFileListCaches();
+                recyclerFileAdapter.refresh()
+            };
+
+            binding.swipeRefresh.isEnabled = false;
         }
         else
         {
-            listSelectionController = ListSelectionController(fragment, view, recyclerFileAdapter)
-            view.appbar.visibility = View.VISIBLE;
-            view.fab.visibility = View.VISIBLE;
-            view.findViewById<Toolbar>(R.id.toolbar).inflateMenu(R.menu.menu_main)
+            listSelectionController = ListSelectionController(fragment, recyclerFileAdapter,binding.toolbarInclude.toolbar)
+            binding.appbar.visibility = View.VISIBLE;
+            binding.fab.visibility = View.VISIBLE;
+            binding.toolbarInclude.toolbar.title = fragment.getString(R.string.myNotebooks)
+            binding.toolbarInclude.toolbar.inflateMenu(R.menu.menu_main)
 
-            view.findViewById<Toolbar>(R.id.toolbar).setOnMenuItemClickListener {
+            binding.toolbarInclude.toolbar.setOnMenuItemClickListener {
                 when (it.itemId) {
                     R.id.action_settings -> {
                         fragment.findNavController().navigate(R.id.preferenceFragment);
@@ -111,45 +130,43 @@ class FolderListController(private var fragment: Fragment, view: View) : Lifecyc
                             showNoteFragment(item.uri.toString())
                         }
                     }
-        }
-        listSelectionController.isTwoPane = mTwoPane;
 
-        val app = (fragment.requireActivity().application as MainApplication)
-
-        mCompositeSubscription += view.fab.clicks().subscribe {
-            Dialogs.showNewFolderDialog(view, {app.eventBus.createFolderClick.onNext(it)})
-
-        }
-
-
-        mCompositeSubscription += app.eventBus.createFolderClick.subscribe { recyclerFileAdapter.addFileName(it.name) }
-
-        mCompositeSubscription += app.eventBus.swipeRefresh.subscribe {
-            if (fragment != null) {
+            binding.swipeRefresh.setOnRefreshListener {
+                Handler(Looper.getMainLooper()).postDelayed({binding.swipeRefresh.isRefreshing = false},500)
                 SFile.invalidateAllFileListCaches();
                 recyclerFileAdapter.refresh()
             }
-        };
+
+
+        }
+        listSelectionController.isTwoPane = mTwoPane;
+
+        mCompositeSubscription += binding.fab.clicks().subscribe {
+            Dialogs.showNewFolderDialog(binding.root, {app.eventBus.createFolderClick.onNext(it)})
+
+        }
+
+        mCompositeSubscription += app.eventBus.createFolderClick.subscribe { recyclerFileAdapter.refresh()}
     }
 
     private fun showNoteFragment(folderUriString: String) {
-
-
         val arguments = Bundle()
         arguments.putString(NoteListFragment.ARG_FOLDER_PATH, folderUriString)
-
 
         if (mTwoPane) {
             val noteFragment = NoteListFragment()
             noteFragment.arguments = arguments
             fragment.parentFragmentManager.beginTransaction().replace(R.id.item_detail_container, noteFragment).commit()
-            fragment.requireParentFragment().view?.findViewById<Toolbar>(R.id.toolbar)?.title = null; // clear title after orientation change
-            val pasteFileMenuItem = fragment.activity?.findViewById<Toolbar>(R.id.toolbar)?.menu?.findItem(R.id.action_paste);
-            pasteFileMenuItem?.isEnabled = mTwoPane && FileClipboard.hasContent;
+            val pasteFileMenuItem = getTwoPaneToolbar().menu?.findItem(R.id.action_paste);
+            pasteFileMenuItem?.isVisible = mTwoPane && FileClipboard.hasContent;
         } else {
-            fragment.findNavController().navigate(R.id.noteListFragment,arguments);
-            fragment.view?.findViewById<Toolbar>(R.id.toolbar)?.title = SFile(folderUriString).nameWithoutExtension
+            fragment.findNavController().navigate(R.id.action_folderListFragment_to_noteListFragment,arguments);
         }
+    }
+
+    private fun getTwoPaneToolbar() : Toolbar
+    {
+        return fragment.requireParentFragment().requireView().findViewById(R.id.toolbarTwoPane)!!;
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
@@ -157,6 +174,14 @@ class FolderListController(private var fragment: Fragment, view: View) : Lifecyc
     {
             recyclerFileAdapter.path = SFile(Pref.rootPath.value);
             recyclerFileAdapter.refresh();
+
+        mVolumeSubscription = VolumeNotAccessibleDialog.showAutomatically(fragment);
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    fun onStop()
+    {
+        mVolumeSubscription.unsubscribe();
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)

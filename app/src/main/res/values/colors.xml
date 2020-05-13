@@ -6,13 +6,12 @@
     <color name="lightGray">#FFF6F6F6</color>
 
     <color name="primary_pressed">#681f13</color>
-    <color name="colorPrimary">#FF5722</color>
-    <color name="colorPrimaryDark">#E64A19</color>
+    <color name="colorPrimary">#EEEEEE</color>
+    <color name="colorPrimaryDark">#BC3D15</color>
     <color name="colorPrimaryLight">#FFCCBC</color>
-    <color name="colorAccent">#FFC107</color>
+    <color name="colorAccent">#D6A309</color>
     <color name="primary_text">#212121</color>
     <color name="secondary_text">#757575</color>
-    <color name="icons">#FFFFFF</color>
     <color name="divider">#BDBDBD</color>
     <color name="listHighlight">#77FFCCBC</color>
     <color name="listHighlightDark">#F44336</color>

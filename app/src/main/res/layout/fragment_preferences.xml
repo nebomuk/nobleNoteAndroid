@@ -7,7 +7,17 @@
     android:id="@+id/linear_layout"
     android:orientation="vertical"
     >
-    <include layout="@layout/toolbar" />
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        >
+    <include layout="@layout/toolbar"
+        android:elevation="@dimen/elevation_toolbar"
+        />
+    </com.google.android.material.appbar.AppBarLayout>
 
     <FrameLayout
         android:id="@android:id/list_container"

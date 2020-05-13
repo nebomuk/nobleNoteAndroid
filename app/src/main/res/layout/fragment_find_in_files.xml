@@ -9,7 +9,7 @@
         <import type="android.view.View"/>
         <variable
             name="viewModel"
-            type="com.taiko.noblenote.findinfiles.FindInFilesViewModel" />
+            type="com.taiko.noblenote.viewmodels.FindInFilesViewModel" />
 
     </data>
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -29,14 +29,24 @@
             android:visibility="@{viewModel.nothingFound ? View.GONE : View.VISIBLE}"
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
+            app:queryText="@{viewModel.toolbarFindInFilesText}"
             app:itemSource="@{viewModel.findInFilesResults}"
             app:onItemClick="@{item -> viewModel.onFindItemClick(item)}"
             android:layout_height="match_parent"/>
         <!-- list empty indicator used by RecyclerFileAdapter  when there are no files in the given folder-->
-        <TextView android:id="@+id/tv_recycler_view_empty"
-            android:visibility="@{viewModel.nothingFound ? View.VISIBLE : View.GONE}"
+        <TextView
+        android:visibility="@{viewModel.nothingFound ? View.VISIBLE : View.GONE}"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:text="@string/no_results_found"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_width="match_parent"
+        android:layout_height="128dp"
+        android:gravity="center"
+        />
+        <TextView
+            android:visibility='@{viewModel.toolbarFindInFilesText.equals("") ? View.VISIBLE : View.GONE}'
             android:layout_marginTop="?attr/actionBarSize"
-            android:text="@string/no_results_found"
+            android:text="@string/find_in_files_description"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:layout_width="match_parent"
             android:layout_height="128dp"

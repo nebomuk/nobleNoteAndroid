@@ -4,9 +4,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import com.chibatching.kotpref.KotprefModel
-import com.taiko.noblenote.document.SFile
-import com.taiko.noblenote.document.toSFile
-import rx.Observable
+import com.taiko.noblenote.filesystem.SFile
+import com.taiko.noblenote.filesystem.toSFile
 import rx.lang.kotlin.BehaviorSubject
 import rx.subjects.BehaviorSubject
 import java.io.File

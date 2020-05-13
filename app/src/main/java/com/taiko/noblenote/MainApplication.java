@@ -2,7 +2,8 @@ package com.taiko.noblenote;
 
 import android.app.Application;
 
-import com.taiko.noblenote.document.SFile;
+import com.taiko.noblenote.filesystem.SFile;
+import com.taiko.noblenote.util.EventBus;
 
 import rx_activity_result.RxActivityResult;
 

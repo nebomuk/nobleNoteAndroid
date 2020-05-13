@@ -1,17 +1,12 @@
 package com.taiko.noblenote.extensions
 
-import android.content.Context
 import android.os.Bundle
 import androidx.annotation.CheckResult
-import androidx.annotation.NavigationRes
-import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
-import com.taiko.noblenote.R
-import com.taiko.noblenote.document.SFile
-import com.taiko.noblenote.editor.EditorFragment
+import com.taiko.noblenote.filesystem.SFile
+import com.taiko.noblenote.fragments.EditorFragment
 
 // start the note editor
-@CheckResult fun Any.createNoteEditorArgs(file: SFile, argOpenMode : String, argQueryText : String = "") : Bundle
+@CheckResult fun Any.createNoteEditorArgs(file: SFile, argOpenMode : String, argQueryText : String) : Bundle
 
 {
     val bundle = Bundle()

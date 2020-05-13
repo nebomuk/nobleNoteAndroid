@@ -1,17 +1,8 @@
-<!-- this overrides  activity_main.xml via  refs.xml-->
 <layout xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.taiko.noblenote.MainViewModel" />
-
-    </data>
     <androidx.coordinatorlayout.widget.CoordinatorLayout android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="com.taiko.noblenote.FAMBehavior"
         android:id="@+id/coordinator_layout">
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -73,6 +64,7 @@
 
         <!-- menu requires match_parent so that close on click outside works-->
         <com.github.clans.fab.FloatingActionMenu
+            app:layout_behavior="com.taiko.noblenote.util.FAMBehavior"
             android:id="@+id/fab_menu"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

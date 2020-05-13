@@ -3,13 +3,11 @@ package com.taiko.noblenote.extensions
 import android.annotation.SuppressLint
 import android.text.Layout
 import android.view.MenuItem
-import android.view.ViewTreeObserver
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import com.jakewharton.rxbinding.view.RxView
-import com.taiko.noblenote.loggerFor
+import com.taiko.noblenote.util.loggerFor
 import rx.android.schedulers.AndroidSchedulers
-import rx.lang.kotlin.subscribeWith
 
 
 @SuppressLint("SetTextI18n")

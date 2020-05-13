@@ -4,19 +4,21 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context=".MainActivity">
 
-    <item
-        android:id="@+id/action_paste"
-        android:enabled="false"
-        android:orderInCategory="100"
-        android:icon="@drawable/ic_content_paste_black_24dp"
-        android:title="@android:string/paste"
-        app:showAsAction="never" />
+
     <item
         android:id="@+id/action_search"
         android:icon="@drawable/ic_search_24dp"
         android:orderInCategory="100"
         app:showAsAction="ifRoom"
         android:title="@android:string/search_go" />
+
+    <item
+        android:id="@+id/action_paste"
+        android:visible="false"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_content_paste_black_24dp"
+        android:title="@android:string/paste"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_settings"
