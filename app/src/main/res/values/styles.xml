@@ -11,8 +11,16 @@
         <!-- api lvl < 21-->
         <item name="windowActionModeOverlay">true</item>
 
+        <!-- disable status bar using colorPrimaryDark-->
+        <item name="android:statusBarColor">#000000</item>
         <!-- api lvl >= 21-->
         <item name="android:windowActionModeOverlay">true</item>
+
+        <item name="preferenceTheme">@style/AppTheme.PreferenceThemeOverlay</item>
+    </style>
+
+    <style name="AppTheme.PreferenceThemeOverlay" parent="PreferenceThemeOverlay">
+        <item name="android:layout">@layout/fragment_preferences</item>
     </style>
 
 

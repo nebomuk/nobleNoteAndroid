@@ -65,4 +65,6 @@
     <string name="msg_saf_downloads_not_supported">Ordner innerhalb von \"Downloads\" werden nicht unterstützt. Bitte wählen Sie einen anderen Ordner.</string>
     <string name="msg_saf_provider_not_supported">Dieser Speicherort wird nicht unterstützt. Bitte wählen Sie einen Ordner auf einem Usb-Stick, auf der SD Karte oder im Internen Speicher</string>
     <string name="bold">Fett</string>
+    <string name="find_in_files_description">Suche nach Notizen und Inhalt</string>
+    <string name="myNotebooks">Meine Notizbücher</string>
 </resources>

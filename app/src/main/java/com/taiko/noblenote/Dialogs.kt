@@ -7,7 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.FrameLayout
-import com.taiko.noblenote.document.SFile
+import com.taiko.noblenote.filesystem.SFile
+import com.taiko.noblenote.filesystem.FileNameValidator
+import com.taiko.noblenote.util.ScreenUtil
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
@@ -47,12 +49,12 @@ object Dialogs {
                     // Set an EditText view to get user input
                     val input = EditText(context)
 
-                    val parent = SFile(Pref.rootPath.value);
+                    val parent = SFile(Pref.currentFolderPath.value);
                     val proposedFileName = context.getString(R.string.newNote)
                     var proposed = SFile(parent, proposedFileName)
                     var counter = 0
                     while (proposed.exists()) {
-                    proposed = SFile(parent,"$proposedFileName (${++counter})")
+                    proposed = SFile(parent, "$proposedFileName (${++counter})")
                     }
 
                     input.setText(proposed.name)
@@ -62,7 +64,7 @@ object Dialogs {
                             android.R.string.ok) { dialog, whichButton ->
                         val newName = input.text.trim()
 
-                        if (isNameInvalidAndErrorSnackbar(newName, rootView, R.string.noteNotCreated)) return@setPositiveButton
+                        if (showErrorIfNameInvalid(newName, rootView, R.string.noteNotCreated)) return@setPositiveButton
 
 
                         val newFile = SFile(SFile(Pref.currentFolderPath.value), newName.toString())
@@ -123,7 +125,7 @@ object Dialogs {
                     var proposed = SFile(parent, proposedFileName)
                     var counter = 0
                     while (proposed.exists()) {
-                        proposed = SFile(parent,"$proposedFileName (${++counter})")
+                        proposed = SFile(parent, "$proposedFileName (${++counter})")
                     }
                     input.setText(proposed.name)
                     input.setSelection(input.text.length)
@@ -133,7 +135,7 @@ object Dialogs {
                             android.R.string.ok) { dialog, whichButton ->
                         val newName = input.text.trim()
 
-                        if (isNameInvalidAndErrorSnackbar(newName, rootView, R.string.notebookNotCreated)) return@setPositiveButton
+                        if (showErrorIfNameInvalid(newName, rootView, R.string.notebookNotCreated)) return@setPositiveButton
 
                         val dir = SFile(SFile(Pref.rootPath.value), newName.toString())
                         if(dir.exists())
@@ -191,9 +193,9 @@ object Dialogs {
                             return@setPositiveButton;
                         }
 
-                        if (isNameInvalidAndErrorSnackbar(newName, rootView, msgNotRenamed)) return@setPositiveButton
+                        if (showErrorIfNameInvalid(newName, rootView, msgNotRenamed)) return@setPositiveButton
 
-                        var proposed = SFile(file.parentFile,newName)
+                        var proposed = SFile(file.parentFile, newName)
                         if (proposed.exists()) {
                             Snackbar.make(rootView, msgExists, Snackbar.LENGTH_LONG).show()
                             onNotRenamed();
@@ -232,7 +234,7 @@ object Dialogs {
                     dialogBuilder.show()
     }
 
-    private fun isNameInvalidAndErrorSnackbar(newName: CharSequence, rootView: View, msgNotRenamed: Int): Boolean {
+    private fun showErrorIfNameInvalid(newName: CharSequence, rootView: View, msgNotRenamed: Int): Boolean {
         if (FileNameValidator.containsDisallowedCharacter(newName)) {
             val errorMessage = (rootView.context.getString(msgNotRenamed) + ": " +
                     rootView.context.getString(R.string.msg_error_disallowed_characters_in_filename)

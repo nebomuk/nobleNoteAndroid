@@ -1,7 +1,41 @@
 package com.taiko.noblenote.editor
 
+import java.io.StringReader
+import java.util.*
+
 object TextConverter {
 
+    fun removeHtmlTagsFast(inp : String): String {
+        var insideTag = false;
+        val builder = StringBuilder();
+
+        for (i in 0 until inp.length) {
+            if (!insideTag && inp[i] == '<') {
+                insideTag = true
+                continue
+            }
+            if (insideTag && inp[i] == '>') {
+                insideTag = false
+                continue
+            }
+            if (!insideTag) {
+                builder.append(inp[i])
+            }
+        }
+        return builder.toString();
+
+    }
+
+    @Deprecated("replaced by apache method")
+    fun unescapeUnicodefromHtmlString(yourInputString : String) : String
+    {
+        val p = Properties();
+        p.load(StringReader("key="+yourInputString));
+        return p.getProperty("key");
+    }
+
+
+    // TODO this can probably replaced by Html.escapeHtml
     fun convertFromPlainText(plain: String): String {
         var col = 0
         val rich = StringBuilder()
@@ -81,6 +115,7 @@ object TextConverter {
         return false;
     }
 
+    @ExperimentalUnsignedTypes
     private fun String.mid(inputPosition : Int, inputLength : Int) : String
     {
         var length = inputLength;

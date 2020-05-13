@@ -1,5 +1,7 @@
 package com.taiko.noblenote
 
+import android.os.Handler
+import android.os.Looper
 import androidx.recyclerview.widget.LinearLayoutManager
 import android.util.Log
 import android.view.View
@@ -7,17 +9,29 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
-import com.taiko.noblenote.document.SFile
-import kotlinx.android.synthetic.main.fragment_file_list.view.*
-import rx.android.schedulers.AndroidSchedulers
+import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
+import com.jakewharton.rxbinding.view.clicks
+import com.taiko.noblenote.adapters.RecyclerFileAdapter
+import com.taiko.noblenote.databinding.FragmentFileListBinding
+import com.taiko.noblenote.filesystem.SFile
+import com.taiko.noblenote.fragments.EditorFragment
+import com.taiko.noblenote.extensions.createNoteEditorArgs
+import com.taiko.noblenote.fragments.NoteListFragment
+import com.taiko.noblenote.fragments.TwoPaneFragment
+import com.taiko.noblenote.util.loggerFor
+import kotlinx.android.synthetic.main.fragment_twopane.*
+import rx.Subscription
 import rx.lang.kotlin.plusAssign
-import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
-import java.io.FileFilter
+import rx.subscriptions.Subscriptions
+import java.lang.IllegalStateException
 
-class NoteListController(private var fragment: Fragment, view: View)
+class NoteListController(private var fragment: Fragment, binding: FragmentFileListBinding)
     : LifecycleObserver {
 
+    private var mTwoPane: Boolean
+    private var mVolumeSubscription: Subscription = Subscriptions.empty()
     private val recyclerFileAdapter: RecyclerFileAdapter
     private val listSelectionController : ListSelectionController
 
@@ -25,44 +39,74 @@ class NoteListController(private var fragment: Fragment, view: View)
 
     init {
 
-        val recyclerView = view.recycler_view
-        //recyclerView.itemAnimator = SlideInLeftAnimator();
+        val recyclerView = binding.recyclerView
 
-        val fileFilter = FileFilter { pathname -> pathname.isFile && !pathname.isHidden }
+        val path  = fragment.requireArguments().getString(NoteListFragment.ARG_FOLDER_PATH)
+                ?: throw IllegalStateException("ARG_FOLDER_PATH is null");
 
-
-        var path : SFile;
-
-
-
-        // FIXME search submit is currently broken because this is not working
-        if(fragment.arguments?.containsKey(NoteListFragment.ARG_QUERY_TEXT) == true)
-        {
-            // file path of the adapter is not used, because it is only used to display search results
-            recyclerFileAdapter = RecyclerFileAdapter(SFile(Pref.rootPath.value));
-
-            displaySearchResults(view)
-        }
-        else
-        {
-
-            path = SFile(fragment.arguments?.getString(NoteListFragment.ARG_FOLDER_PATH));
-
-            recyclerFileAdapter = RecyclerFileAdapter(path)
-//            recyclerFileAdapter.refresh(activity)
-        }
+        recyclerFileAdapter = RecyclerFileAdapter(SFile(path))
 
 
         recyclerFileAdapter.showFolders = false
 
-        mCompositeSubscription += recyclerFileAdapter.applyEmptyView(view.empty_list_switcher,R.id.tv_recycler_view_empty,R.id.recycler_view)
+        mCompositeSubscription += recyclerFileAdapter.applyEmptyView(binding.emptyListSwitcher,R.id.tv_recycler_view_empty,R.id.recycler_view)
 
         recyclerView.adapter = recyclerFileAdapter
         recyclerView.layoutManager = LinearLayoutManager(fragment.activity)
 
         val app = (fragment.activity?.application as MainApplication)
 
-        listSelectionController = ListSelectionController(fragment.activity as MainActivity,recyclerFileAdapter)
+
+        mTwoPane = (fragment.parentFragment is TwoPaneFragment)
+
+        if(mTwoPane)
+        {
+            listSelectionController = ListSelectionController(fragment.requireParentFragment(), recyclerFileAdapter,binding.toolbarInclude.toolbar)
+
+            mCompositeSubscription += app.eventBus.swipeRefresh.subscribe( {
+                recyclerFileAdapter.refresh()
+            }, {
+                        log.e("exception in swipe refresh",it);
+                    });
+            binding.swipeRefresh.isEnabled = false;
+        }
+        else
+        {
+            listSelectionController = ListSelectionController(fragment,  recyclerFileAdapter,binding.toolbarInclude.toolbar)
+            binding.appbar.visibility = View.VISIBLE;
+            binding.fab.visibility = View.VISIBLE;
+
+            binding.toolbarInclude.toolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp)
+            binding.toolbarInclude.toolbar.setNavigationOnClickListener {
+                fragment.findNavController().navigateUp();
+            }
+
+            val folderPath = fragment.arguments?.getString(NoteListFragment.ARG_FOLDER_PATH,null)
+            binding.toolbarInclude.toolbar.title = folderPath?.let { SFile(it).name };
+
+            if(FileClipboard.hasContent)
+            {
+                binding.toolbarInclude.toolbar.inflateMenu(R.menu.menu_paste);
+                val pasteItem = binding.toolbarInclude.toolbar.menu.findItem(R.id.action_paste);
+                pasteItem
+                        .setOnMenuItemClickListener {
+
+                            if(!FileClipboard.pasteContentIntoFolder(SFile(folderPath!!)))
+                            {
+                                Snackbar.make(binding.root,R.string.msg_paste_error, Snackbar.LENGTH_LONG).show();
+                            }
+                            pasteItem.isVisible = FileClipboard.hasContent;
+                            true;
+                        }
+            }
+
+            binding.swipeRefresh.setOnRefreshListener {
+                Handler(Looper.getMainLooper()).postDelayed({binding.swipeRefresh.isRefreshing = false},500)
+                SFile.invalidateAllFileListCaches();
+                recyclerFileAdapter.refresh()
+            }
+
+        }
         listSelectionController.isNoteList = true;
 
 
@@ -70,55 +114,39 @@ class NoteListController(private var fragment: Fragment, view: View)
                 .doOnNext { Log.d("","item pos clicked: " + it) }
                 .subscribe { app.eventBus.fileSelected.onNext(recyclerFileAdapter.getItem(it)) }
 
-        mCompositeSubscription += app.eventBus.createFileClick.subscribe { recyclerFileAdapter.addFileName(it.name) }
+        mCompositeSubscription += app.eventBus.fileSelected.mergeWith(app.eventBus.createFileClick)
+                .subscribe { fragment.findNavController().navigate(R.id.editorFragment,
+                        createNoteEditorArgs(file = it, argOpenMode = EditorFragment.READ_WRITE, argQueryText = "")) }
 
-        mCompositeSubscription += app.eventBus.swipeRefresh.subscribe( {
-            if(fragment.activity != null)
-            {
-                recyclerFileAdapter.refresh()
-            }
-        },
-                {
-                    log.e("exception in swipe refresh",it);
-                });
+
+        mCompositeSubscription += app.eventBus.createFileClick.subscribe { recyclerFileAdapter.refresh() }
+
 
         mCompositeSubscription += FileClipboard.pastedFileNames.subscribe {
-            for (fileName : String in it)
-            {
-                recyclerFileAdapter.addFileName(fileName)
-            };
+            recyclerFileAdapter.refresh()
+        }
+
+        mCompositeSubscription += binding.fab.clicks().subscribe {
+                Dialogs.showNewNoteDialog(binding.root, {app.eventBus.createFileClick.onNext(it)})
         }
     }
-
-    private fun displaySearchResults(view: View) {
-        view.tv_file_list_empty.setText(R.string.no_results_found);
-        view.tv_title_search_results.visibility = View.VISIBLE;
-
-        val queryText = fragment.arguments!!.getString(NoteListFragment.ARG_QUERY_TEXT, "");
-        if (!queryText.isNullOrBlank()) {
-            mCompositeSubscription += FindInFiles.recursiveFullTextSearch(SFile(Pref.rootPath.value), queryText)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({
-                        recyclerFileAdapter.addFileName(it.name)
-                    },
-
-                            {},
-                            // on Completed
-                            {
-                                // show "no results" text
-
-                                view.tv_file_list_empty.visibility = if (recyclerFileAdapter.itemCount == 0) View.VISIBLE else View.GONE;
-                            })
-        }
-    }
-
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun onStart()
     {
         SFile.invalidateAllFileListCaches();
         recyclerFileAdapter.refresh();
+
+        if(!mTwoPane)
+        {
+            mVolumeSubscription = VolumeNotAccessibleDialog.showAutomatically(fragment);
+        }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    fun onStop()
+    {
+        mVolumeSubscription.unsubscribe();
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
@@ -127,8 +155,6 @@ class NoteListController(private var fragment: Fragment, view: View)
         mCompositeSubscription.clear();
         listSelectionController.clearSubscriptions()
     }
-
-
 
     companion object {
         private val log = loggerFor()

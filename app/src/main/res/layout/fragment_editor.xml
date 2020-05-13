@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.taiko.noblenote.viewmodels.EditorViewModel" />
+
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/layout_root"
+        android:orientation="vertical">
+        <!-- shadow, elevation and outlineProvider based on
+        https://stackoverflow.com/questions/27477371/android-elevation-not-showing-a-shadow/27518160#27518160 -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elevation="@dimen/elevation_toolbar"
+            android:clipToPadding="false"
+            android:outlineProvider="bounds"
+            >
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <include
+                    layout="@layout/toolbar_find_in_text"
+                    android:id="@+id/toolbar_find_in_text_include"
+                    />
+
+                <include
+                    layout="@layout/toolbar"
+                    android:id="@+id/toolbar_include"
+                    />
+
+            </FrameLayout>
+            <!-- elevation must be the same as the toolbar , requires MaterialProgressDrawable to work properly-->
+            <ProgressBar
+                android:id="@+id/progress_bar_file_loading"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:indeterminate="true"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:visibility="@{viewModel.progressBarFileLoadingVisibility}"
+                android:elevation="4dp"
+                android:maxHeight="3dp"
+                android:minHeight="3dp" />
+        </FrameLayout>
+
+        <ScrollView
+            android:id="@+id/editor_scroll_view"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@color/listBackground"
+            android:fadingEdge="none"
+            android:fillViewport="true"
+            android:visibility="@{viewModel.editorScrollViewVisibility}"
+            >
+
+            <!-- android:fillViewport expands the border-buttons -->
+            <!-- note the case sensitivity -->
+
+
+            <LinearLayout
+                android:id="@+id/editor_vertical_layout"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+
+                <!-- left border, can not use a mere View here, because a view with a color
+                set is not properly rendered on 4.1+ devices -->
+                <Button
+                    android:background="@color/listBackground"
+                    android:layout_width="28dp"
+                    android:layout_height="fill_parent"
+                    android:layout_marginBottom="-8dp"
+                    android:layout_marginLeft="-8dp"
+                    android:layout_marginTop="-8dp"
+                    android:enabled="false" />
+
+                <!-- layout_weight="1" and  layout_width="0dp" cause the text edit to
+                expand to fill the available space between the border buttons -->
+
+                <com.taiko.noblenote.editor.DroidWriterEditText
+                    android:id="@+id/editor_edit_text"
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:gravity="top"
+                    android:hint="@string/emptyNoteHint"
+                    android:imeOptions="flagNoExtractUi"
+                    android:inputType="textMultiLine"
+                    android:scrollHorizontally="false"
+                    android:scrollbars="vertical"
+                    android:saveEnabled="true"
+                    android:focusable="@{viewModel.isFocusable}"
+                    app:charSequenceText="@={viewModel.editorText}"
+                    app:onTextChanged="@{(text, start, before, count) -> viewModel.onEditorTextChanged(text)}"
+                    >
+                </com.taiko.noblenote.editor.DroidWriterEditText>
+
+
+                <!-- right border -->
+                <Button
+                    android:background="@color/listBackground"
+                    android:layout_width="28dp"
+                    android:layout_height="fill_parent"
+                    android:enabled="false"
+                    android:layout_marginBottom="-8dp"
+                    android:layout_marginRight="-8dp"
+                    android:layout_marginTop="-8dp"/>
+
+            </LinearLayout>
+
+        </ScrollView>
+    </LinearLayout>
+</layout>

@@ -1,6 +1,7 @@
 package com.taiko.noblenote
 
-import com.taiko.noblenote.document.SFile
+import com.taiko.noblenote.filesystem.SFile
+import com.taiko.noblenote.util.loggerFor
 import rx.Observable
 import rx.lang.kotlin.PublishSubject
 
@@ -26,7 +27,7 @@ object FileClipboard {
 
     val pastedFileNames: Observable<List<String>> = PublishSubject();
 
-    fun pasteContentIntoFolder(targetFolderPath: SFile ) : Boolean
+    fun pasteContentIntoFolder(targetFolderPath: SFile) : Boolean
     {
         log.v("pasteContentIntoFolder targetFolderPath: $targetFolderPath");
 

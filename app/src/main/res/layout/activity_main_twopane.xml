@@ -1,113 +1,23 @@
-<!-- this overrides  activity_main.xml via  refs.xml-->
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<?xml version="1.0" encoding="utf-8"?>
+<!-- same as activity_main.xml, this is automatically used in landscape mode via refs.xml and uses another navigation graph-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    app:layout_behavior="com.taiko.noblenote.FAMBehavior"
-    xmlns:fab="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/coordinator_layout">
+    tools:context=".MainActivity">
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipe_refresh"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize"
-        >
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/nav_graph_twopane" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:divider="?android:attr/dividerHorizontal"
-            android:orientation="horizontal"
-            android:showDividers="middle"
-            >
-
-            <FrameLayout
-                android:id="@+id/item_master_container"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1.5"/>
-
-            <FrameLayout
-                android:id="@+id/item_detail_container"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="3"
-                >
-
-
-            </FrameLayout>
-
-        </LinearLayout>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:elevation="@dimen/elevation_toolbar"
-        android:clipToPadding="false"
-        android:outlineProvider="bounds"
-        >
-
-        <include layout="@layout/toolbar"/>
-        <com.miguelcatalan.materialsearchview.MaterialSearchView
-            android:id="@+id/search_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:elevation="@dimen/elevation_toolbar"
-            />
-        <ViewStub
-            android:id="@+id/cab_stub"
-            android:layout_width="match_parent"
-            android:layout_height="?actionBarSize"
-            android:elevation="@dimen/elevation_toolbar"
-            />
-
-    </FrameLayout>
-
-<!-- menu requires match_parent so that close on click outside works-->
-    <com.github.clans.fab.FloatingActionMenu
-        android:id="@+id/fab_menu"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="bottom|right"
-        android:layout_marginBottom="@dimen/fab_margin"
-        android:layout_marginRight="@dimen/fab_margin"
-        fab:menu_colorNormal="@color/colorAccent"
-        fab:menu_colorPressed="@color/primary_pressed"
-        fab:menu_colorRipple="@color/ripple"
-        >
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/fab_menu_folder"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|right"
-            android:layout_marginBottom="8dp"
-            android:layout_marginRight="8dp"
-            android:src="@drawable/ic_folder_24dp"
-            fab:fab_size="mini"
-            fab:fab_label="@string/newNotebook"
-            fab:fab_colorNormal="@color/colorAccent"
-            fab:fab_colorPressed="@color/primary_pressed"
-            fab:fab_colorRipple="@color/ripple"/>
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/fab_menu_note"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|right"
-            android:layout_marginBottom="8dp"
-            android:layout_marginRight="8dp"
-            android:src="@drawable/ic_event_note_black_24dp"
-            fab:fab_size="mini"
-            fab:fab_label="@string/newNote"
-            fab:fab_colorNormal="@color/colorAccent"
-            fab:fab_colorPressed="@color/primary_pressed"
-            fab:fab_colorRipple="@color/ripple"/>
-    </com.github.clans.fab.FloatingActionMenu>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-<!-- if you rename this file, you must also update the reference to this file inside refs.xml -->
+</androidx.constraintlayout.widget.ConstraintLayout>

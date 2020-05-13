@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/nav_graph"
+    app:startDestination="@id/mainFragment">
+    <fragment
+        android:id="@+id/preferenceFragment"
+        android:name="com.taiko.noblenote.fragments.PreferenceFragment"
+        android:label="PreferenceFragment" />
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.taiko.noblenote.fragments.TwoPaneFragment"
+        android:label="MainFragment" >
+        <action
+            android:id="@+id/action_mainFragment_to_preferenceFragment"
+            app:destination="@id/preferenceFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_findInFilesFragment"
+            app:destination="@id/findInFilesFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_editorFragment"
+            app:destination="@id/editorFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/findInFilesFragment"
+        android:name="com.taiko.noblenote.fragments.FindInFilesFragment"
+        android:label="FindInFilesFragment" >
+        <action
+            android:id="@+id/action_findInFilesFragment_to_editorFragment"
+            app:destination="@id/editorFragment"
+            app:popUpTo="@id/findInFilesFragment"
+            app:popUpToInclusive="true"
+            />
+    </fragment>
+    <fragment
+        android:id="@+id/editorFragment"
+        android:name="com.taiko.noblenote.fragments.EditorFragment"
+        android:label="EditorFragment" />
+</navigation>

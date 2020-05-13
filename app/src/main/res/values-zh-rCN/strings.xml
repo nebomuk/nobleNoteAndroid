@@ -65,5 +65,7 @@
     <string name="msg_saf_downloads_not_supported">不能使用 下载 里的文件夹</string>
     <string name="msg_saf_provider_not_supported">"不能使用此存储空间。 请选USB，内存或者SD卡里的文件夹。 "</string>
     <string name="bold">粗体字</string>
+    <string name="find_in_files_description">搜索笔记与内容</string>
+    <string name="myNotebooks">我的笔记本</string>
 
 </resources>

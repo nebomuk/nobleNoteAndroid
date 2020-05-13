@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/tools"
+    android:clickable="true"
+    android:background="@color/listBackground"
+    >
+    <data>
+        <import type="android.view.View"/>
+        <variable
+            name="viewModel"
+            type="com.taiko.noblenote.viewmodels.FindInFilesViewModel" />
+
+    </data>
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinator_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+    <include layout="@layout/toolbar_find_in_files"
+        android:id="@+id/toolbar"
+        bind:viewModel="@{viewModel}"
+        />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_marginTop="?attr/actionBarSize"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:visibility="@{viewModel.nothingFound ? View.GONE : View.VISIBLE}"
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            app:queryText="@{viewModel.toolbarFindInFilesText}"
+            app:itemSource="@{viewModel.findInFilesResults}"
+            app:onItemClick="@{item -> viewModel.onFindItemClick(item)}"
+            android:layout_height="match_parent"/>
+        <!-- list empty indicator used by RecyclerFileAdapter  when there are no files in the given folder-->
+        <TextView
+        android:visibility="@{viewModel.nothingFound ? View.VISIBLE : View.GONE}"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:text="@string/no_results_found"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_width="match_parent"
+        android:layout_height="128dp"
+        android:gravity="center"
+        />
+        <TextView
+            android:visibility='@{viewModel.toolbarFindInFilesText.equals("") ? View.VISIBLE : View.GONE}'
+            android:layout_marginTop="?attr/actionBarSize"
+            android:text="@string/find_in_files_description"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_width="match_parent"
+            android:layout_height="128dp"
+            android:gravity="center"
+            />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+</layout>
