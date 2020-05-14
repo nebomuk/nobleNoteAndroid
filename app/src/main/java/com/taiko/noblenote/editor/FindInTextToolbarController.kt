@@ -12,6 +12,7 @@ import com.jakewharton.rxbinding.view.clicks
 import com.jakewharton.rxbinding.widget.textChanges
 import com.taiko.noblenote.R
 import com.taiko.noblenote.databinding.ToolbarFindInTextBinding
+import com.taiko.noblenote.extensions.MapWithIndex
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
 
@@ -53,9 +54,20 @@ class FindInTextToolbarController(editor : EditText,
             setArrowUpEnabled(mFindHighlighter.hasPrevious());
         }
 
-        mCompositeSubscription+= editor.textChanges().subscribe {
+
+        mCompositeSubscription+=
+                editor.textChanges().filter { it.isNotEmpty() }
+                        .compose(MapWithIndex.instance())
+                .subscribe {
             mFindHighlighter.onEditorTextChanged();
-            mFindHighlighter.highlightWithoutScroll();
+                    if(it.index() == 0L)
+                    {
+                        mFindHighlighter.highlight();
+                    }
+                    else
+                    {
+                        mFindHighlighter.highlightWithoutScroll()
+                    }
             updateArrows();
         }
 

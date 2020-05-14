@@ -14,7 +14,7 @@ class EventBus
     val  fileSelected : PublishSubject<SFile> = PublishSubject();
     val createFileClick: PublishSubject<SFile> = PublishSubject()
     val createFolderClick: PublishSubject<SFile> = PublishSubject()
-    val filesPasted : PublishSubject<Sequence<SFile>> = PublishSubject();
+    val fabMenuVisible : PublishSubject<Int /*View.Visible*/> = PublishSubject();
     val swipeRefresh: PublishSubject<Unit> = PublishSubject()
 
 

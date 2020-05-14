@@ -25,7 +25,7 @@ import java.io.IOException
 object Dialogs {
 
     @JvmStatic
-    fun showNewNoteDialog(rootView: View, fileCreated: (f : SFile) -> Unit) {
+    fun showNewNoteDialog(rootView: View, currentFolderPath : String, fileCreated: (f : SFile) -> Unit) {
 
         val context = rootView.context;
 
@@ -49,7 +49,7 @@ object Dialogs {
                     // Set an EditText view to get user input
                     val input = EditText(context)
 
-                    val parent = SFile(Pref.currentFolderPath.value);
+                    val parent = SFile(currentFolderPath);
                     val proposedFileName = context.getString(R.string.newNote)
                     var proposed = SFile(parent, proposedFileName)
                     var counter = 0
@@ -67,7 +67,7 @@ object Dialogs {
                         if (showErrorIfNameInvalid(newName, rootView, R.string.noteNotCreated)) return@setPositiveButton
 
 
-                        val newFile = SFile(SFile(Pref.currentFolderPath.value), newName.toString())
+                        val newFile = SFile(SFile(currentFolderPath), newName.toString())
                         try {
                             if(newFile.exists())
                             {

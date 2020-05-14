@@ -157,7 +157,7 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
     }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-     mSelectedFolderColor = recyclerView.context.getColorFromAttr(R.attr.colorAccent);
+     mSelectedFolderColor = ColorUtils.setAlphaComponent(recyclerView.context.getColorFromAttr(R.attr.colorAccent),128);
         mSelectionColor = recyclerView.context.getColorFromAttr(R.attr.colorAccent);
     }
 

@@ -42,7 +42,6 @@
             android:gravity="end"
             style="@style/Widget.AppCompat.ActionButton"
             android:layout_height="wrap_content"
-            android:tint="@color/md_grey_400"
             android:clickable="true"
             android:adjustViewBounds="false"/>
         <ImageView
@@ -53,7 +52,6 @@
             style="@style/Widget.AppCompat.ActionButton"
             android:layout_height="wrap_content"
             android:clickable="true"
-            android:tint="@color/md_grey_400"
             android:adjustViewBounds="false"/>
         <ImageView
             android:id="@+id/close"

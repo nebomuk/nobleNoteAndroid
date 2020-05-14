@@ -61,7 +61,9 @@ class NoteListController(private var fragment: Fragment, binding: FragmentFileLi
 
         if(mTwoPane)
         {
-            listSelectionController = ListSelectionController(fragment.requireParentFragment(), recyclerFileAdapter,binding.toolbarInclude.toolbar)
+            listSelectionController = ListSelectionController(fragment.requireParentFragment().requireView(), recyclerFileAdapter,binding.toolbarInclude.toolbar)
+
+            mCompositeSubscription +=  listSelectionController.fabVisible.subscribe{ app.eventBus.fabMenuVisible.onNext(it) }
 
             mCompositeSubscription += app.eventBus.swipeRefresh.subscribe( {
                 recyclerFileAdapter.refresh()
@@ -72,9 +74,11 @@ class NoteListController(private var fragment: Fragment, binding: FragmentFileLi
         }
         else
         {
-            listSelectionController = ListSelectionController(fragment,  recyclerFileAdapter,binding.toolbarInclude.toolbar)
+            listSelectionController = ListSelectionController(fragment.requireView(),  recyclerFileAdapter,binding.toolbarInclude.toolbar)
             binding.appbar.visibility = View.VISIBLE;
             binding.fab.visibility = View.VISIBLE;
+
+            listSelectionController.fabVisible.subscribe { binding.fab.visibility = it }
 
             binding.toolbarInclude.toolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp)
             binding.toolbarInclude.toolbar.setNavigationOnClickListener {
@@ -83,11 +87,12 @@ class NoteListController(private var fragment: Fragment, binding: FragmentFileLi
 
             val folderPath = fragment.arguments?.getString(NoteListFragment.ARG_FOLDER_PATH,null)
             binding.toolbarInclude.toolbar.title = folderPath?.let { SFile(it).name };
+            binding.toolbarInclude.toolbar.inflateMenu(R.menu.menu_paste);
 
             if(FileClipboard.hasContent)
             {
-                binding.toolbarInclude.toolbar.inflateMenu(R.menu.menu_paste);
                 val pasteItem = binding.toolbarInclude.toolbar.menu.findItem(R.id.action_paste);
+                pasteItem.isVisible = true;
                 pasteItem
                         .setOnMenuItemClickListener {
 
@@ -109,6 +114,10 @@ class NoteListController(private var fragment: Fragment, binding: FragmentFileLi
         }
         listSelectionController.isNoteList = true;
 
+        mCompositeSubscription += listSelectionController.showHtml.subscribe {
+            fragment.findNavController().navigate(R.id.editorFragment,createNoteEditorArgs(file = it, argOpenMode = EditorFragment.HTML, argQueryText = ""))
+        }
+
 
         mCompositeSubscription += listSelectionController.itemClicks()
                 .doOnNext { Log.d("","item pos clicked: " + it) }
@@ -127,8 +136,11 @@ class NoteListController(private var fragment: Fragment, binding: FragmentFileLi
         }
 
         mCompositeSubscription += binding.fab.clicks().subscribe {
-                Dialogs.showNewNoteDialog(binding.root, {app.eventBus.createFileClick.onNext(it)})
-        }
+                Dialogs.showNewNoteDialog(binding.root, currentFolderPath = path, fileCreated = {app.eventBus.createFileClick.onNext(it)})
+
+                FileClipboard.clearContent();
+                binding.toolbarInclude.toolbar.menu.findItem(R.id.action_paste)?.isVisible = false;
+            }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)

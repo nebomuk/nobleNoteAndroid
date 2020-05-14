@@ -79,10 +79,6 @@ class EditorViewModel(app : Application) : AndroidViewModel(app), LifecycleObser
         isFocusable.postValue(!(mOpenMode == EditorFragment.HTML || mOpenMode == EditorFragment.READ_ONLY)) // no editing if html source should be shown
         toolbarTitle.postValue(SFile(mFileUri).nameWithoutExtension)
         queryText.value = (extras.getString(EditorFragment.ARG_QUERY_TEXT).orEmpty());
-        if(queryText.value?.isNotBlank() == true)
-        {
-            toolbarFindInTextVisible.value = true;
-        }
 
     }
 

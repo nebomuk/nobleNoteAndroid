@@ -12,7 +12,6 @@
     <color name="colorAccent">#AA9D7A</color>
     <color name="primary_text">#212121</color>
     <color name="secondary_text">#757575</color>
-    <color name="icons">#FFFFFF</color>
     <color name="divider">#BDBDBD</color>
     <color name="listHighlight">#77FFCCBC</color>
     <color name="listHighlightDark">#F44336</color>
