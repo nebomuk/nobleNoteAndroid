@@ -81,13 +81,13 @@ public class FAMBehavior extends CoordinatorLayout.Behavior<View> // generic spe
 
     private boolean isSnackbarOverlappingFab(CoordinatorLayout coordinatorLayout, View snackbar) {
 
-
+        // FIXME this only works on tablets, where the snackbar is shorter than the screen
+        // and not overlapping the fab anyways
         snackbar.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        coordinatorLayout.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
 
         int fabWidth = ScreenUtil.dpToPx(mContext,30);
         int fabMargin = mContext.getResources().getDimensionPixelSize(R.dimen.fab_margin);
-        return snackbar.getMeasuredWidth() >= (coordinatorLayout.getMeasuredWidth() - fabMargin - fabWidth);
+        return snackbar.getMeasuredWidth() >= (coordinatorLayout.getWidth() - fabMargin - fabWidth);
 
     }
 }

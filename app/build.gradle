@@ -22,8 +22,8 @@ android {
         minSdkVersion 24
         // minimum level for DocumentFile support // actual min should be 24 because of DocumentsContract.move support
         targetSdkVersion 29
-        versionCode 9
-        versionName '0.1.9'
+        versionCode 11
+        versionName '0.1.11'
         signingConfig signingConfigs.debugsigning
     }
     buildTypes {

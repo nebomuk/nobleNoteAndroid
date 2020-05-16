@@ -293,7 +293,8 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
 
 class FileItemDiffCallback(private val oldResults: List<FileItem>, private val newResults: List<FileItem>) : DiffUtil.Callback() {
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldResults[oldItemPosition]?.file == newResults[newItemPosition]?.file;
+        return oldResults[oldItemPosition]?.file == newResults[newItemPosition]?.file
+        ;
     }
 
     override fun getOldListSize(): Int {
@@ -305,6 +306,9 @@ class FileItemDiffCallback(private val oldResults: List<FileItem>, private val n
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldResults[oldItemPosition].file == newResults[newItemPosition].file;
+        return oldResults[oldItemPosition].file == newResults[newItemPosition].file
+                &&
+                oldResults[oldItemPosition].isSelectedFolder == newResults[newItemPosition].isSelectedFolder
+        ;
     }
 }

@@ -10,6 +10,7 @@ import android.text.Spanned
 import android.view.View
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.annotation.UiThread
 import androidx.lifecycle.*
 import com.taiko.noblenote.*
 import com.taiko.noblenote.R
@@ -150,7 +151,7 @@ class EditorViewModel(app : Application) : AndroidViewModel(app), LifecycleObser
         val noteText = Html.toHtml(editorText.value as Spanned, this.getApplication<Application>().resources.displayMetrics);
 
 
-        mCompositeSubscription += FileHelper.writeFile(filePath = mFileUri, text = noteText)
+        /* automatically unsubscribes */ FileHelper.writeFile(filePath = mFileUri, text = noteText)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
@@ -184,10 +185,10 @@ class EditorViewModel(app : Application) : AndroidViewModel(app), LifecycleObser
     // toast not bound by EditorActivity's scope
     private fun applicationToast(@StringRes msg :  Int)
     {
-        val handler = Handler(Looper.getMainLooper())
-        handler.post {
-           Toast.makeText(this.getApplication(),msg,Toast.LENGTH_SHORT).show();
-        }
+            val handler = Handler(Looper.getMainLooper())
+            handler.post {
+                Toast.makeText(this.getApplication(),msg,Toast.LENGTH_SHORT).show();
+            }
     }
 
 }
