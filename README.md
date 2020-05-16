@@ -19,17 +19,24 @@ src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_gener
 
 3.) Use a sync software of your choice (e.g. [Syncthing](https://syncthing.net), Dropbox) to sync the folder containining the notebooks with the same folder on your Linux/Windows/macOS device. nobleNote will detect when notes have been changed on the file system and reload them automatically. 
 
-## Screenshots
-
-![Alt text](/screenshot/Screenshot0.png?raw=true "")
-
-![Alt text](/screenshot/Screenshot1.png?raw=true "")
-
 ## Build from source
 
 Building from source is not required since you can get it directly on Google Play.
 
-The sources can be build using Android Studio Version 3.5 or greater. 
+The sources can be build using Android Studio Version 3.6 or greater. 
+
+## Screenshots
+
+
+<img src="/screenshot/Screenshot0.png" width="200px">
+
+<img src="/screenshot/Screenshot1.png" width="200px">
+
+<img src="/screenshot/Screenshot2.png" width="200px">
+
+<img src="/screenshot/Screenshot3.png" width="200px">
+
+<img src="/screenshot/ScreenshotTablet2.png" width="300px">
 
 ## License
 
