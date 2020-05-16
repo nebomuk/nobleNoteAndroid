@@ -28,13 +28,7 @@ The sources can be build using Android Studio Version 3.6 or greater.
 ## Screenshots
 
 
-<img src="/screenshot/Screenshot0.png" width="200px">
-
-<img src="/screenshot/Screenshot1.png" width="200px">
-
-<img src="/screenshot/Screenshot2.png" width="200px">
-
-<img src="/screenshot/Screenshot3.png" width="200px">
+<img src="/screenshot/Screenshot0.png" width="200px"> <img src="/screenshot/Screenshot1.png" width="200px"> <img src="/screenshot/Screenshot2.png" width="200px"> <img src="/screenshot/Screenshot3.png" width="200px">
 
 <img src="/screenshot/ScreenshotTablet2.png" width="300px">
 
