@@ -20,7 +20,7 @@ object LegacyStorageMigration {
     private var resolutionRequired: Boolean = false
     private var legacyRootPath: String? = null;
 
-    fun migrateFromLegacyStorage()  {
+    private fun migrateFromLegacyStorage()  {
         if(Uri.parse(Pref.rootPath.value).scheme == null)
         {
             // these android versions do not use content:// uris in this app but instead rely on file:// uris
@@ -48,6 +48,8 @@ object LegacyStorageMigration {
     }
 
     fun showResolutionDialogIfRequired(fragment: Fragment) {
+
+        migrateFromLegacyStorage();
 
         if(!resolutionRequired)
         {

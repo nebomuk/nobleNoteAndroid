@@ -16,26 +16,31 @@ import com.taiko.noblenote.extensions.createNoteEditorArgs
 import com.taiko.noblenote.filesystem.UndoHelper
 import com.taiko.noblenote.util.loggerFor
 import rx.Observable
+import rx.lang.kotlin.PublishSubject
 import rx.lang.kotlin.plusAssign
+import rx.subjects.PublishSubject
 import rx.subscriptions.CompositeSubscription
 import java.util.*
 
 /***
  * handles file list selection and contextual toolbar actions
  */
-class ListSelectionController(private val fragment: Fragment, private val adapter: RecyclerFileAdapter, val toolbar : Toolbar)
+class ListSelectionController(private val view : View, private val adapter: RecyclerFileAdapter, val toolbar : Toolbar)
 {
-    private val view = fragment.requireView();
 
     private val log = loggerFor()
 
     var isTwoPane: Boolean = false; // folder list in two pane, colors each list item when clicked
     var isNoteList = false // show html source and cut action
 
+    val showHtml = PublishSubject<SFile>();
+
+    val fabVisible = PublishSubject<Int>();
+
 
     private var mActionMode : ActionMode? = null
 
-    private val mFileActionModeCallback = FileActionModeCallback(fragment.requireContext());
+    private val mFileActionModeCallback = FileActionModeCallback(view.context);
 
     private val  mCompositeDisposable : CompositeSubscription = CompositeSubscription()
 
@@ -68,7 +73,7 @@ class ListSelectionController(private val fragment: Fragment, private val adapte
 
             val selectedFile = adapter.selectedFiles.firstOrNull()
             if (selectedFile != null) {
-                fragment.findNavController().navigate(R.id.editorFragment,createNoteEditorArgs(file = selectedFile, argOpenMode = EditorFragment.HTML, argQueryText = ""))
+                showHtml.onNext(selectedFile);
                 mActionMode?.finish()
             }
         }
@@ -82,7 +87,7 @@ class ListSelectionController(private val fragment: Fragment, private val adapte
 
         mCompositeDisposable += mFileActionModeCallback.onCut.subscribe {
             FileClipboard.cutFiles(adapter.selectedFiles.map { it }) // warning: Singleton causes memory leak when listener not disposed
-            Snackbar.make(view,fragment.getString(R.string.msg_n_notes_in_clipboard,adapter.selectedFiles.size), Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(view,view.context.getString(R.string.msg_n_notes_in_clipboard,adapter.selectedFiles.size), Snackbar.LENGTH_SHORT).show();
             adapter.clearSelection();
             mActionMode?.finish()
         }
@@ -93,7 +98,7 @@ class ListSelectionController(private val fragment: Fragment, private val adapte
             if(isTwoPane) {
                 adapter.selectFolderOnClick = true;
             }
-            //fragment.setFabVisible(true);
+            fabVisible.onNext(View.VISIBLE);
         }
 
         mCompositeDisposable += adapter.itemLongClicks().subscribe {
@@ -105,7 +110,7 @@ class ListSelectionController(private val fragment: Fragment, private val adapte
 
 
             adapter.setSelected(it,true);
-           // fragment.setFabVisible(false);
+            fabVisible.onNext(View.INVISIBLE);
         }
 
 

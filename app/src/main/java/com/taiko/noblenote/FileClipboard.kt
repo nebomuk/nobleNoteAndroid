@@ -20,7 +20,7 @@ object FileClipboard {
     private val cutFileList : MutableList<SFile> = java.util.ArrayList();
 
     val hasContent: Boolean
-        get() = !cutFileList.isEmpty()
+        get() = cutFileList.isNotEmpty()
 
     var contentOriginFolder: SFile? = null
         private  set

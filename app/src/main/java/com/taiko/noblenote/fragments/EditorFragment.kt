@@ -1,8 +1,10 @@
 package com.taiko.noblenote.fragments
 
 import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import android.widget.Toast
 import androidx.activity.addCallback
@@ -114,7 +116,11 @@ class EditorFragment : Fragment() {
 
         editorViewModel.toast.observe(viewLifecycleOwner, Observer { Toast.makeText(requireActivity(),it, Toast.LENGTH_SHORT).show(); })
 
-        editorViewModel.finishActivity.observe(viewLifecycleOwner, Observer { findNavController().popBackStack() })
+        editorViewModel.finishActivity.observe(viewLifecycleOwner, Observer {
+
+            val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(binding.editorEditText.windowToken,0);
+            findNavController().popBackStack() })
 
         binding.editorEditText.isTextWatcherEnabled = false
 
@@ -185,7 +191,6 @@ class EditorFragment : Fragment() {
                     editorViewModel.onDiscardChangesClicked();
                 }
                 .setNegativeButton(R.string.keepEditing, null)
-        // Create the AlertDialog object and return it
         builder.create().show()
     }
 

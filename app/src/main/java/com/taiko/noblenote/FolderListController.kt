@@ -18,7 +18,6 @@ import com.jakewharton.rxbinding.view.clicks
 import com.taiko.noblenote.adapters.RecyclerFileAdapter
 import com.taiko.noblenote.databinding.FragmentFileListBinding
 import com.taiko.noblenote.filesystem.SFile
-import com.taiko.noblenote.filesystem.VolumeUtil
 import com.taiko.noblenote.fragments.NoteListFragment
 import com.taiko.noblenote.fragments.TwoPaneFragment
 import com.taiko.noblenote.util.loggerFor
@@ -72,7 +71,9 @@ class FolderListController(private val fragment: Fragment, private val binding: 
         if(mTwoPane)
         {
 
-            listSelectionController = ListSelectionController(fragment.requireParentFragment(), recyclerFileAdapter, getTwoPaneToolbar())
+            listSelectionController = ListSelectionController(fragment.requireParentFragment().requireView(), recyclerFileAdapter, getTwoPaneToolbar())
+
+            mCompositeSubscription +=  listSelectionController.fabVisible.subscribe{ app.eventBus.fabMenuVisible.onNext(it) }
 
             recyclerFileAdapter.selectFolderOnClick =true
             mCompositeSubscription += recyclerFileAdapter.selectedFolder().subscribe {
@@ -89,7 +90,7 @@ class FolderListController(private val fragment: Fragment, private val binding: 
                     val item = recyclerFileAdapter.getItem(it)
                     if(item != null) {
                         Pref.currentFolderPath.onNext(item.uri.toString())
-                        showNoteFragment(item.uri.toString())
+                        showNoteListFragment(item.uri.toString())
                     }
                 }
             }
@@ -103,22 +104,28 @@ class FolderListController(private val fragment: Fragment, private val binding: 
         }
         else
         {
-            listSelectionController = ListSelectionController(fragment, recyclerFileAdapter,binding.toolbarInclude.toolbar)
+            listSelectionController = ListSelectionController(fragment.requireView(), recyclerFileAdapter,binding.toolbarInclude.toolbar)
             binding.appbar.visibility = View.VISIBLE;
             binding.fab.visibility = View.VISIBLE;
+            listSelectionController.fabVisible.subscribe { binding.fab.visibility = it }
+
+
             binding.toolbarInclude.toolbar.title = fragment.getString(R.string.myNotebooks)
             binding.toolbarInclude.toolbar.inflateMenu(R.menu.menu_main)
 
             binding.toolbarInclude.toolbar.setOnMenuItemClickListener {
                 when (it.itemId) {
+
                     R.id.action_settings -> {
-                        fragment.findNavController().navigate(R.id.preferenceFragment);
+                    fragment.findNavController().navigate(R.id.preferenceFragment);
                     }
                     R.id.action_search ->
                     {
                         fragment.findNavController().navigate(R.id.findInFilesFragment);
                     }
                 }
+                FileClipboard.clearContent();
+
                 true;
             }
 
@@ -127,7 +134,7 @@ class FolderListController(private val fragment: Fragment, private val binding: 
                         val item = recyclerFileAdapter.getItem(it);
                         if (item != null) {
                             Pref.currentFolderPath.onNext(item.uri.toString())
-                            showNoteFragment(item.uri.toString())
+                            showNoteListFragment(item.uri.toString())
                         }
                     }
 
@@ -144,12 +151,13 @@ class FolderListController(private val fragment: Fragment, private val binding: 
         mCompositeSubscription += binding.fab.clicks().subscribe {
             Dialogs.showNewFolderDialog(binding.root, {app.eventBus.createFolderClick.onNext(it)})
 
+            FileClipboard.clearContent();
         }
 
         mCompositeSubscription += app.eventBus.createFolderClick.subscribe { recyclerFileAdapter.refresh()}
     }
 
-    private fun showNoteFragment(folderUriString: String) {
+    private fun showNoteListFragment(folderUriString: String) {
         val arguments = Bundle()
         arguments.putString(NoteListFragment.ARG_FOLDER_PATH, folderUriString)
 

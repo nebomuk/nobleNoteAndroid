@@ -6,5 +6,6 @@
         android:orderInCategory="100"
         android:icon="@drawable/ic_content_paste_black_24dp"
         android:title="@android:string/paste"
+        android:visible="false"
         app:showAsAction="ifRoom" />
 </menu>

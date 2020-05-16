@@ -10,10 +10,12 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding.view.clicks
+import com.jakewharton.rxbinding.view.visible
 import com.taiko.noblenote.*
 import com.taiko.noblenote.databinding.FragmentTwopaneBinding
 import com.taiko.noblenote.filesystem.SFile
 import com.taiko.noblenote.util.loggerFor
+import rx.Observable
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
 import rx.subscriptions.Subscriptions
@@ -60,17 +62,25 @@ class TwoPaneFragment : Fragment() {
 
         val app = requireActivity().application as MainApplication
 
-            binding.fabMenu.setClosedOnTouchOutside(true)
+        binding.fabMenu.setClosedOnTouchOutside(true)
 
-            mCompositeSubscription += binding.fabMenuNote.clicks().subscribe {
-                Dialogs.showNewNoteDialog(binding.coordinatorLayout) { app.eventBus.createFileClick.onNext(it) }
-                binding.fabMenu.close(true);
-            }
+        mCompositeSubscription += binding.fabMenuNote.clicks().subscribe {
+            Dialogs.showNewNoteDialog(binding.coordinatorLayout, Pref.currentFolderPath.value) { app.eventBus.createFileClick.onNext(it) }
+            binding.fabMenu.close(true);
 
-            mCompositeSubscription += binding.fabMenuFolder.clicks().subscribe {
-                Dialogs.showNewFolderDialog(binding.coordinatorLayout, { app.eventBus.createFolderClick.onNext(it) })
-                binding.fabMenu.close(true);
-            }
+            FileClipboard.clearContent();
+            binding.toolbarTwoPane.toolbar.menu.findItem(R.id.action_paste)?.isVisible = false;
+        }
+
+        mCompositeSubscription += binding.fabMenuFolder.clicks().subscribe {
+            Dialogs.showNewFolderDialog(binding.coordinatorLayout, { app.eventBus.createFolderClick.onNext(it) })
+            binding.fabMenu.close(true);
+
+            FileClipboard.clearContent();
+            binding.toolbarTwoPane.toolbar.menu.findItem(R.id.action_paste)?.isVisible = false;
+        }
+
+        mCompositeSubscription += app.eventBus.fabMenuVisible.subscribe { binding.fabMenu.visibility = it }
 
         val handler = Handler();
 
