@@ -88,11 +88,13 @@ public class BetterTextViewBinding {
         return false;
     }
 
-    @BindingAdapter(value = {"beforeTextChanged", "onTextChanged",
-            "afterTextChanged", "textAttrChanged"}, requireAll = false)
-    public static void setTextWatcher(TextView view, final TextViewBindingAdapter.BeforeTextChanged before,
-                                      final TextViewBindingAdapter.OnTextChanged on, final TextViewBindingAdapter.AfterTextChanged after,
-                                      final InverseBindingListener textAttrChanged) {
+    @BindingAdapter(value = {"beforeTextChanged", "onTextChanged", "afterTextChanged", "textAttrChanged"}, requireAll = false)
+    public static void setTextWatcher(TextView view,
+                                      final BetterTextViewBinding.BeforeTextChanged before,
+                                      final BetterTextViewBinding.OnTextChanged on,
+                                      final BetterTextViewBinding.AfterTextChanged after,
+                                      final InverseBindingListener textAttrChanged)
+    {
 
 
         final TextWatcher newValue;

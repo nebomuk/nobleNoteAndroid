@@ -20,7 +20,6 @@ import com.taiko.noblenote.extensions.createNoteEditorArgs
 import com.taiko.noblenote.fragments.NoteListFragment
 import com.taiko.noblenote.fragments.TwoPaneFragment
 import com.taiko.noblenote.util.loggerFor
-import kotlinx.android.synthetic.main.fragment_twopane.*
 import rx.Subscription
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription

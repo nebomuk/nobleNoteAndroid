@@ -82,7 +82,7 @@ class InstanceLog  constructor(private  val Tag : String)
     }
 
      fun e(message: String?) {
-        Log.e(Tag, message)
+        Log.e(Tag, if(message.isNullOrBlank()) { ""} else message)
     }
 
      fun wtf(message: String) {

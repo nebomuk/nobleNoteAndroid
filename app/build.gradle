@@ -13,6 +13,7 @@ android {
             storePassword 'android'
         }
     }
+    namespace "com.taiko.noblenote"
     compileSdkVersion 36
     buildToolsVersion "36.0.0"
     defaultConfig {
@@ -35,12 +36,19 @@ android {
     dataBinding {
         enabled = true
     }
+    viewBinding {
+        enabled = true
+    }
     buildFeatures { viewBinding true }
     productFlavors {
     }
     compileOptions {
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
+        sourceCompatibility JavaVersion.VERSION_17 // Set your desired source compatibility
+        targetCompatibility JavaVersion.VERSION_17 // Set your desired target compatibility
+    }
+
+    kotlinOptions {
+        jvmTarget = '17' // Ensure Kotlin also targets the same version
     }
 }
 
@@ -82,9 +90,9 @@ dependencies {
     implementation 'com.github.VictorAlbertos:RxActivityResult:0.3.5'
     implementation 'com.chibatching:kotpref:1.4.0'
     implementation 'com.github.clans:fab:1.6.4'
-    implementation 'jp.wasabeef:recyclerview-animators:2.2.4'
+    implementation 'jp.wasabeef:recyclerview-animators:4.0.2'
     implementation 'net.yanzm:actionbarprogress:1.0.0'
-    implementation 'com.afollestad:material-cab:0.1.12'
+    implementation 'com.afollestad:material-cab:2.0.1'
     implementation group: 'org.apache.commons', name: 'commons-text', version: '1.8'
     implementation 'com.google.android.material:material:1.0.0'
 

@@ -8,8 +8,9 @@ import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import android.widget.Toast
 import androidx.activity.addCallback
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.taiko.noblenote.*
@@ -106,13 +107,19 @@ class EditorFragment : Fragment() {
             binding.toolbarFindInTextInclude.searchInput.setText(it);
         })
 
-        Transformations.distinctUntilChanged(editorViewModel.toolbarTitle).observe(viewLifecycleOwner, Observer {
-            binding.toolbarInclude.toolbar.setTitleAndModified(it, editorViewModel.isModified.value!!) })
 
-        Transformations.distinctUntilChanged(editorViewModel.isModified).observe(viewLifecycleOwner, Observer {
-            binding.toolbarInclude.toolbar.getMenuItems().firstOrNull { menuItem -> menuItem.itemId == R.id.action_done }?.isEnabled = it
-            binding.toolbarInclude.toolbar.setTitleAndModified(editorViewModel.toolbarTitle.value!!,it);
-        })
+        editorViewModel.toolbarTitle.distinctUntilChanged()
+            .observe(viewLifecycleOwner) {
+                binding.toolbarInclude.toolbar.setTitleAndModified(it, editorViewModel.isModified.value!!)
+            }
+
+        editorViewModel.isModified.distinctUntilChanged()
+            .observe(viewLifecycleOwner) {
+                binding.toolbarInclude.toolbar.getMenuItems()
+                    .firstOrNull { menuItem -> menuItem.itemId == R.id.action_done }?.isEnabled = it
+                binding.toolbarInclude.toolbar.setTitleAndModified(editorViewModel.toolbarTitle.value!!, it)
+            }
+
 
         editorViewModel.toast.observe(viewLifecycleOwner, Observer { Toast.makeText(requireActivity(),it, Toast.LENGTH_SHORT).show(); })
 
@@ -214,6 +221,19 @@ class EditorFragment : Fragment() {
 
         mCompositeSubscription.clear();
     }
+
+    fun <T> LiveData<T>.distinctUntilChanged(): LiveData<T> {
+        val mediator = MediatorLiveData<T>()
+        var lastValue: T? = null
+        mediator.addSource(this) { newValue ->
+            if (lastValue != newValue) {
+                lastValue = newValue
+                mediator.value = newValue
+            }
+        }
+        return mediator
+    }
+
 
     companion object {
 

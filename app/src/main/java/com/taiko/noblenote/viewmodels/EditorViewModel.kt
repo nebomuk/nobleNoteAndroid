@@ -54,7 +54,8 @@ class EditorViewModel(app : Application) : AndroidViewModel(app), LifecycleObser
 
     val toolbarTitle = MutableLiveData<String>("default_title");
 
-    val toast = SingleLiveEvent<@StringRes Int>()
+    // string res
+    val toast = SingleLiveEvent<Int>()
 
     val finishActivity = SingleLiveEvent<Boolean>()
 

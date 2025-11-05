@@ -65,51 +65,44 @@ public class SelectionActionModeCallback implements android.view.ActionMode.Call
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
 
-        switch(item.getItemId()) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.bold) {
+            Format.toggleStyleSpan(this.editText, Typeface.BOLD);
+            editText.setModified(true); // apparently doesnt get set automatically by DroidWriterEditText's TextWatcher
+            return true;
+        } else if (itemId == R.id.italic) {
+            Format.toggleStyleSpan(this.editText, Typeface.ITALIC);
+            editText.setModified(true);
+            return true;
+        } else if (itemId == R.id.underline) {
+            Format.toggleCharacterStyle(this.editText, UnderlineSpan.class);
+            editText.setModified(true);
+            return true;
+        } else if (itemId == R.id.strikethrough) {
+            Format.toggleCharacterStyle(this.editText, StrikethroughSpan.class);
+            editText.setModified(true);
+            return true;
+        } else if (itemId == R.id.menu_item_share) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)   // item is not visible
+            {
+                return false;
+            }
+            int selectionStart = editText.getSelectionStart();
+            int selectionEnd = editText.getSelectionEnd();
+            if (selectionStart > selectionEnd) {
+                int tmp = selectionEnd;
+                selectionEnd = selectionStart;
+                selectionStart = tmp;
+            }
+            CharSequence selectedText = editText.getText().subSequence(selectionStart, selectionEnd);
 
-            case R.id.bold: {
-                Format.toggleStyleSpan(this.editText, Typeface.BOLD);
-                editText.setModified(true); // apparently doesnt get set automatically by DroidWriterEditText's TextWatcher
-                return true;
-            }
-            case R.id.italic: {
-                Format.toggleStyleSpan(this.editText, Typeface.ITALIC);
-                editText.setModified(true);
-                return true;
-            }
-            case R.id.underline: {
-                Format.toggleCharacterStyle(this.editText, UnderlineSpan.class);
-                editText.setModified(true);
-                return true;
-            }
-            case R.id.strikethrough: {
-                Format.toggleCharacterStyle(this.editText, StrikethroughSpan.class);
-                editText.setModified(true);
-                return true;
-            }
-            case R.id.menu_item_share: {
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)   // item is not visible
-                {
-                    break;
-                }
-                int selectionStart = editText.getSelectionStart();
-                int selectionEnd = editText.getSelectionEnd();
-                if (selectionStart > selectionEnd) {
-                    int tmp = selectionEnd;
-                    selectionEnd = selectionStart;
-                    selectionStart = tmp;
-                }
-                CharSequence selectedText = editText.getText().subSequence(selectionStart, selectionEnd);
-
-                Intent sendIntent = new Intent();
-                sendIntent.setAction(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_TEXT, selectedText.toString() /*deep copy*/); // sharing spanned string does not work here
-                sendIntent.setType("text/plain");
-                if (mShareActionProvider != null)
-                    mShareActionProvider.setShareIntent(sendIntent);
-                return true;
-            }
-
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, selectedText.toString() /*deep copy*/); // sharing spanned string does not work here
+            sendIntent.setType("text/plain");
+            if (mShareActionProvider != null)
+                mShareActionProvider.setShareIntent(sendIntent);
+            return true;
         }
         return false;
     }
