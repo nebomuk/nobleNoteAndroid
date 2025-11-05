@@ -2,8 +2,6 @@ apply plugin: 'com.android.application'
 
 apply plugin: 'kotlin-android'
 
-apply plugin: 'kotlin-android-extensions'
-
 apply plugin: 'kotlin-kapt'
 
 android {
@@ -15,15 +13,15 @@ android {
             storePassword 'android'
         }
     }
-    compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    compileSdkVersion 36
+    buildToolsVersion "36.0.0"
     defaultConfig {
         applicationId "de.blogspot.noblenoteandroid"
         minSdkVersion 24
         // minimum level for DocumentFile support // actual min should be 24 because of DocumentsContract.move support
-        targetSdkVersion 29
-        versionCode 11
-        versionName '0.1.11'
+        targetSdkVersion 36
+        versionCode 12
+        versionName '0.1.12'
         signingConfig signingConfigs.debugsigning
     }
     buildTypes {
@@ -37,6 +35,7 @@ android {
     dataBinding {
         enabled = true
     }
+    buildFeatures { viewBinding true }
     productFlavors {
     }
     compileOptions {
