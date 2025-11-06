@@ -7,6 +7,8 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorSecondary">@color/colorAccent</item>
+        <!-- The FAB library uses colorAccent, which is deprecated. Modern components use colorSecondary. -->
+        <item name="colorAccent">@color/colorAccent</item>
 
         <!-- api lvl < 21-->
         <item name="windowActionModeOverlay">true</item>
