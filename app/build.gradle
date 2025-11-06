@@ -68,13 +68,13 @@ repositories {
 
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    implementation 'com.google.android.material:material:1.1.0'
-    implementation 'androidx.documentfile:documentfile:1.0.1'
-    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
-    implementation 'androidx.preference:preference:1.1.0'
-    implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta4"
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
+    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'androidx.documentfile:documentfile:1.1.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    implementation 'androidx.preference:preference:1.2.1'
+    implementation "androidx.constraintlayout:constraintlayout:2.2.1"
 
 
     implementation 'org.ccil.cowan.tagsoup:tagsoup:1.2.1'
@@ -88,15 +88,14 @@ dependencies {
     implementation 'com.jakewharton.rxbinding:rxbinding-appcompat-v7:0.4.0'
     implementation 'com.jakewharton.rxbinding:rxbinding-appcompat-v7-kotlin:0.4.0'
     implementation 'com.github.VictorAlbertos:RxActivityResult:0.3.5'
-    implementation 'com.chibatching:kotpref:1.4.0'
+    implementation 'com.chibatching:kotpref:1.6.0'
     implementation 'com.github.clans:fab:1.6.4'
     implementation 'jp.wasabeef:recyclerview-animators:4.0.2'
     implementation 'net.yanzm:actionbarprogress:1.0.0'
     implementation 'com.afollestad:material-cab:2.0.1'
     implementation group: 'org.apache.commons', name: 'commons-text', version: '1.8'
-    implementation 'com.google.android.material:material:1.0.0'
 
-    def lifecycle_version = "2.3.0-alpha01"
+    def lifecycle_version = "2.3.0"
     def arch_version = "2.1.0"
 
     // ViewModel
