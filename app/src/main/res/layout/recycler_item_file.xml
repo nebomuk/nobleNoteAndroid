@@ -28,9 +28,7 @@
         android:layout_height="?android:attr/listPreferredItemHeight"
         android:background="?android:attr/selectableItemBackground"
         android:id="@+id/outer_layout"
-
-    android:backgroundTint="@{adapter.getBackgroundColor(position)}"
-    >
+        >
 
     <FrameLayout
         android:id="@+id/layoutWithCircleDrawable"

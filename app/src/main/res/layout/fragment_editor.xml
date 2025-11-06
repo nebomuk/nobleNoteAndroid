@@ -13,7 +13,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/layout_root"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:fitsSystemWindows="true"
+        android:background="@color/colorPrimary">
         <!-- shadow, elevation and outlineProvider based on
         https://stackoverflow.com/questions/27477371/android-elevation-not-showing-a-shadow/27518160#27518160 -->
         <FrameLayout

@@ -162,8 +162,8 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
      mSelectedFolderColor = ColorUtils.setAlphaComponent(recyclerView.context.getColorFromAttr(
-         androidx.navigation.ui.R.attr.colorSecondary),128);
-        mSelectionColor = recyclerView.context.getColorFromAttr(androidx.navigation.ui.R.attr.colorSecondary);
+         com.google.android.material.R.attr.colorSecondary),128);
+        mSelectionColor = recyclerView.context.getColorFromAttr(com.google.android.material.R.attr.colorSecondary);
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -253,9 +253,7 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
             .doOnNext { log.i("item long click pos: " + position) }
             .subscribe { mLongClickSubject.onNext(holder.layoutPosition) }
 
-        // 3. The manual call to setBackgroundColor is no longer needed
-        // holder.itemView.outer_layout.setBackgroundColor(getBackgroundColor(position))
-        // This is handled by the data binding expression in the XML: android:backgroundTint="@{adapter.getBackgroundColor(position)}"
+        holder.binding.root.findViewById< View>(R.id.outer_layout).setBackgroundColor(getBackgroundColor(position))
     }
 
     /**

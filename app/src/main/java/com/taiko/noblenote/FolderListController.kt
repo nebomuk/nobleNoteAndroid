@@ -10,9 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.fragment.findNavController
 import com.jakewharton.rxbinding.view.clicks
 import com.taiko.noblenote.adapters.RecyclerFileAdapter
@@ -31,7 +30,7 @@ import java.io.File
 /**
  * Created by taiko
  */
-class FolderListController(private val fragment: Fragment, private val binding: FragmentFileListBinding) : LifecycleObserver {
+class FolderListController(private val fragment: Fragment, private val binding: FragmentFileListBinding) : DefaultLifecycleObserver {
 
 
     private var mVolumeSubscription: Subscription = Subscriptions.empty()
@@ -177,8 +176,7 @@ class FolderListController(private val fragment: Fragment, private val binding: 
         return fragment.requireParentFragment().requireView().findViewById(R.id.toolbarTwoPane)!!;
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    fun onStart()
+    override fun onStart(owner: LifecycleOwner)
     {
             recyclerFileAdapter.path = SFile(Pref.rootPath.value);
             recyclerFileAdapter.refresh();
@@ -186,14 +184,12 @@ class FolderListController(private val fragment: Fragment, private val binding: 
         mVolumeSubscription = VolumeNotAccessibleDialog.showAutomatically(fragment);
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    fun onStop()
+    override fun onStop(owner: LifecycleOwner)
     {
         mVolumeSubscription.unsubscribe();
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun onDestroyView()
+    override fun onDestroy(owner: LifecycleOwner)
     {
         mCompositeSubscription.clear();
         listSelectionController.clearSubscriptions()
