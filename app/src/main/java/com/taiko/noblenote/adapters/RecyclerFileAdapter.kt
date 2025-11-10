@@ -167,19 +167,16 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        // Use the generated binding class to inflate the layout
         val binding = RecyclerItemFileBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
         )
 
-        // The rest of the logic can stay for now, but note how iconImageView is accessed via binding
         if (!showFolders) {
             binding.iconImageView.setImageResource(R.drawable.ic_event_note_black_24dp)
         }
 
-        // Return the new ViewHolder holding the binding object
         return ViewHolder(binding)
     }
 
@@ -229,20 +226,17 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
         val fileItem = mFiles[position]
 
         // 1. Set the variables defined in the XML <data> block
-        // This replaces holder.itemView.text1.text = fileItem.file.name
         holder.binding.setVariable(BR.fileItem, fileItem)
 
         // Also set the 'adapter' and 'position' variables needed for the background color binding expression
         holder.binding.setVariable(BR.adapter, this) // 'this' refers to RecyclerFileAdapter
         holder.binding.setVariable(BR.position, position)
 
-        // Execute pending bindings immediately (important for RecyclerView performance)
         holder.binding.executePendingBindings()
 
-        // 2. The RxJava click handling can now use the binding root view directly
-        holder.mCompositeSubscription.clear() // clear subscriptions from previous bindings
+        holder.mCompositeSubscription.clear()
 
-        // outer_layout is accessed via binding.outerLayout
+        // outer_layout should be accessible via binding.outerLayout but is not working
         holder.mCompositeSubscription += holder.binding.root.findViewById< View>(R.id.outer_layout)
             .clicks()
             .doOnNext { log.i("item click pos: " + position) }

@@ -3,25 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Define the data variable that the layout will use -->
     <data>
-        <!-- The data class that holds the file information -->
         <variable
             name="fileItem"
-            type="com.taiko.noblenote.adapters.FileItem" /> <!-- IMPORTANT: Replace with your actual package name -->
+            type="com.taiko.noblenote.adapters.FileItem" />
 
         <!-- The adapter class for access to methods like getBackgroundColor -->
         <variable
             name="adapter"
-            type="com.taiko.noblenote.adapters.RecyclerFileAdapter" /> <!-- IMPORTANT: Replace with your actual package name -->
+            type="com.taiko.noblenote.adapters.RecyclerFileAdapter" />
 
         <!-- The current position in the list, needed for adapter.getBackgroundColor -->
         <variable
             name="position"
             type="java.lang.Integer" />
     </data>
-
-    <!-- background tint is Data binding expression to set background color -->
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

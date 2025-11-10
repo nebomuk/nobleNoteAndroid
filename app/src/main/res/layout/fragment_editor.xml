@@ -41,12 +41,13 @@
                     />
 
             </FrameLayout>
-            <!-- elevation must be the same as the toolbar , requires MaterialProgressDrawable to work properly-->
+            <!-- elevation must be the same as the toolbar -->
             <com.google.android.material.progressindicator.LinearProgressIndicator
                 android:id="@+id/progress_bar_file_loading"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
+                android:elevation="4dp"
                 android:indeterminate="true"
                 android:visibility="@{viewModel.progressBarFileLoadingVisibility}"
                 app:indicatorColor="@color/colorPrimary" />
