@@ -64,7 +64,7 @@
 
         <!-- menu requires match_parent so that close on click outside works-->
         <com.github.clans.fab.FloatingActionMenu
-            app:layout_behavior="com.blogspot.noblenoteandroid.util.FAMBehavior"
+            app:layout_behavior="de.blogspot.noblenoteandroid.de.blogspot.noblenoteandroid.util.FAMBehavior"
             android:id="@+id/fab_menu"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

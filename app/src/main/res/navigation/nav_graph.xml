@@ -4,11 +4,11 @@
     app:startDestination="@id/folderListFragment">
     <fragment
         android:id="@+id/preferenceFragment"
-        android:name="com.blogspot.noblenoteandroid.fragments.PreferenceFragment"
+        android:name="de.blogspot.noblenoteandroid.fragments.PreferenceFragment"
         android:label="PreferenceFragment" />
     <fragment
         android:id="@+id/findInFilesFragment"
-        android:name="com.blogspot.noblenoteandroid.fragments.FindInFilesFragment"
+        android:name="de.blogspot.noblenoteandroid.fragments.FindInFilesFragment"
         android:label="FindInFilesFragment" >
         <action
             android:id="@+id/action_findInFilesFragment_to_editorFragment"
@@ -19,11 +19,11 @@
     </fragment>
     <fragment
         android:id="@+id/editorFragment"
-        android:name="com.blogspot.noblenoteandroid.fragments.EditorFragment"
+        android:name="de.blogspot.noblenoteandroid.fragments.EditorFragment"
         android:label="EditorFragment" />
     <fragment
         android:id="@+id/folderListFragment"
-        android:name="com.blogspot.noblenoteandroid.fragments.FolderListFragment"
+        android:name="de.blogspot.noblenoteandroid.fragments.FolderListFragment"
         android:label="FolderListFragment" >
         <action
             android:id="@+id/action_folderListFragment_to_noteListFragment"
@@ -37,7 +37,7 @@
     </fragment>
     <fragment
         android:id="@+id/noteListFragment"
-        android:name="com.blogspot.noblenoteandroid.fragments.NoteListFragment"
+        android:name="de.blogspot.noblenoteandroid.fragments.NoteListFragment"
         android:label="NoteListFragment" >
         <action
             android:id="@+id/action_noteListFragment_to_editorFragment"
