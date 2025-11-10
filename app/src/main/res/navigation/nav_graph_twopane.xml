@@ -4,11 +4,11 @@
     app:startDestination="@id/mainFragment">
     <fragment
         android:id="@+id/preferenceFragment"
-        android:name="com.taiko.noblenote.fragments.PreferenceFragment"
+        android:name="com.blogspot.noblenoteandroid.fragments.PreferenceFragment"
         android:label="PreferenceFragment" />
     <fragment
         android:id="@+id/mainFragment"
-        android:name="com.taiko.noblenote.fragments.TwoPaneFragment"
+        android:name="com.blogspot.noblenoteandroid.fragments.TwoPaneFragment"
         android:label="MainFragment" >
         <action
             android:id="@+id/action_mainFragment_to_preferenceFragment"
@@ -22,7 +22,7 @@
     </fragment>
     <fragment
         android:id="@+id/findInFilesFragment"
-        android:name="com.taiko.noblenote.fragments.FindInFilesFragment"
+        android:name="com.blogspot.noblenoteandroid.fragments.FindInFilesFragment"
         android:label="FindInFilesFragment" >
         <action
             android:id="@+id/action_findInFilesFragment_to_editorFragment"
@@ -33,6 +33,6 @@
     </fragment>
     <fragment
         android:id="@+id/editorFragment"
-        android:name="com.taiko.noblenote.fragments.EditorFragment"
+        android:name="com.blogspot.noblenoteandroid.fragments.EditorFragment"
         android:label="EditorFragment" />
 </navigation>
