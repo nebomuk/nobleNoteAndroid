@@ -6,12 +6,12 @@
     <data>
         <variable
             name="fileItem"
-            type="com.blogspot.noblenoteandroid.adapters.FileItem" />
+            type="de.blogspot.noblenoteandroid.adapters.FileItem" />
 
         <!-- The adapter class for access to methods like getBackgroundColor -->
         <variable
             name="adapter"
-            type="com.blogspot.noblenoteandroid.adapters.RecyclerFileAdapter" />
+            type="de.blogspot.noblenoteandroid.adapters.RecyclerFileAdapter" />
 
         <!-- The current position in the list, needed for adapter.getBackgroundColor -->
         <variable
