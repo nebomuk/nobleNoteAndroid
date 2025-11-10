@@ -45,7 +45,7 @@ public fun Toolbar.setTitleAndModified(defaultTitle : String, isModified : Boole
                     .observeOn(AndroidSchedulers.mainThread()) // fix not working when not called on the next ui cycle
                     .subscribe {
                         try {
-                            val latestLayout = textView?.layout;
+                            val latestLayout = textView.layout;
                             this@setTitleAndModified.addModifiedIndicatorToEllipsis(textView, latestLayout);
                         } catch (e: Exception) {
                             log.d("failed to set title as modified in view tree observer",e);

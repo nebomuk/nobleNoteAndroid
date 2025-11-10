@@ -6,9 +6,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding.view.clicks
@@ -20,7 +19,6 @@ import com.taiko.noblenote.extensions.createNoteEditorArgs
 import com.taiko.noblenote.fragments.NoteListFragment
 import com.taiko.noblenote.fragments.TwoPaneFragment
 import com.taiko.noblenote.util.loggerFor
-import kotlinx.android.synthetic.main.fragment_twopane.*
 import rx.Subscription
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
@@ -28,7 +26,7 @@ import rx.subscriptions.Subscriptions
 import java.lang.IllegalStateException
 
 class NoteListController(private var fragment: Fragment, binding: FragmentFileListBinding)
-    : LifecycleObserver {
+    : DefaultLifecycleObserver {
 
     private var mTwoPane: Boolean
     private var mVolumeSubscription: Subscription = Subscriptions.empty()
@@ -143,8 +141,7 @@ class NoteListController(private var fragment: Fragment, binding: FragmentFileLi
             }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    fun onStart()
+    override fun onStart(owner: LifecycleOwner)
     {
         SFile.invalidateAllFileListCaches();
         recyclerFileAdapter.refresh();
@@ -155,14 +152,12 @@ class NoteListController(private var fragment: Fragment, binding: FragmentFileLi
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    fun onStop()
+    override fun onStop(owner: LifecycleOwner)
     {
         mVolumeSubscription.unsubscribe();
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun onDestroyView()
+    override fun onDestroy(owner: LifecycleOwner)
     {
         mCompositeSubscription.clear();
         listSelectionController.clearSubscriptions()

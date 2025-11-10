@@ -13,15 +13,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/layout_root"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@color/colorPrimary">
         <!-- shadow, elevation and outlineProvider based on
         https://stackoverflow.com/questions/27477371/android-elevation-not-showing-a-shadow/27518160#27518160 -->
         <FrameLayout
+            android:id="@+id/toolbar_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:elevation="@dimen/elevation_toolbar"
             android:clipToPadding="false"
             android:outlineProvider="bounds"
+            android:fitsSystemWindows="true"
             >
             <FrameLayout
                 android:layout_width="match_parent"
@@ -38,18 +41,16 @@
                     />
 
             </FrameLayout>
-            <!-- elevation must be the same as the toolbar , requires MaterialProgressDrawable to work properly-->
-            <ProgressBar
+            <!-- elevation must be the same as the toolbar -->
+            <com.google.android.material.progressindicator.LinearProgressIndicator
                 android:id="@+id/progress_bar_file_loading"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:indeterminate="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                android:visibility="@{viewModel.progressBarFileLoadingVisibility}"
                 android:elevation="4dp"
-                android:maxHeight="3dp"
-                android:minHeight="3dp" />
+                android:indeterminate="true"
+                android:visibility="@{viewModel.progressBarFileLoadingVisibility}"
+                app:indicatorColor="@color/colorPrimary" />
         </FrameLayout>
 
         <ScrollView

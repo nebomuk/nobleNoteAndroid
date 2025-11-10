@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.os.storage.StorageManager
 import android.view.View
 import androidx.activity.addCallback
+import androidx.appcompat.widget.Toolbar
 import androidx.navigation.fragment.findNavController
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -22,7 +23,6 @@ import com.taiko.noblenote.filesystem.SFile
 import com.taiko.noblenote.filesystem.TreeUriUtil
 import com.taiko.noblenote.filesystem.VolumeUtil
 import com.taiko.noblenote.filesystem.toSFile
-import kotlinx.android.synthetic.main.toolbar.view.*
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
 import rx_activity_result.RxActivityResult
@@ -52,10 +52,11 @@ class PreferenceFragment : PreferenceFragmentCompat() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val toolbarView = requireView().findViewById<Toolbar>(R.id.toolbar)
 
-        requireView().toolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp);
-        requireView().toolbar.setNavigationOnClickListener { findNavController().popBackStack() }
-        requireView().toolbar.setTitle(R.string.title_activity_preferences)
+        toolbarView.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp);
+        toolbarView.setNavigationOnClickListener { findNavController().popBackStack() }
+        toolbarView.setTitle(R.string.title_activity_preferences)
 
         mCompositeSubscription += Pref.rootPath.map { Pref.isExternalOrSafStorage }.subscribe {
             findPreference<Preference>(getString(R.string.pref_key_internal_storage))?.isEnabled = it;

@@ -2,24 +2,28 @@ package com.taiko.noblenote.adapters
 
 import android.graphics.Color
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.ViewSwitcher
 import androidx.annotation.CheckResult
 import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
 import androidx.core.graphics.ColorUtils
+import androidx.databinding.DataBindingUtil
 import androidx.databinding.ObservableArrayList
+import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.jakewharton.rxbinding.view.clicks
 import com.jakewharton.rxbinding.view.longClicks
 import com.taiko.noblenote.R
+import com.taiko.noblenote.databinding.RecyclerItemFileBinding
 import com.taiko.noblenote.extensions.getColorFromAttr
 import com.taiko.noblenote.extensions.toRxObservable
 import com.taiko.noblenote.filesystem.SFile
 import com.taiko.noblenote.util.loggerFor
-import kotlinx.android.synthetic.main.fragment_file_list.view.*
-import kotlinx.android.synthetic.main.recycler_item_file.view.*
+import com.taiko.noblenote.BR
 import rx.Observable
 import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
@@ -157,22 +161,23 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
     }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-     mSelectedFolderColor = ColorUtils.setAlphaComponent(recyclerView.context.getColorFromAttr(R.attr.colorAccent),128);
-        mSelectionColor = recyclerView.context.getColorFromAttr(R.attr.colorAccent);
+     mSelectedFolderColor = ColorUtils.setAlphaComponent(recyclerView.context.getColorFromAttr(
+         com.google.android.material.R.attr.colorSecondary),128);
+        mSelectionColor = recyclerView.context.getColorFromAttr(com.google.android.material.R.attr.colorSecondary);
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        // create a new view
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.recycler_item_file, parent, false)
+        val binding = RecyclerItemFileBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
 
-        if(!showFolders)
-        {
-            view.iconImageView.setImageResource(R.drawable.ic_event_note_black_24dp);
+        if (!showFolders) {
+            binding.iconImageView.setImageResource(R.drawable.ic_event_note_black_24dp)
         }
-        // set the view's size, margins, paddings and layout parameters
 
-        return ViewHolder(view)
-
+        return ViewHolder(binding)
     }
 
     fun getItem(pos : Int) : SFile? {
@@ -219,29 +224,37 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val fileItem = mFiles[position]
-        holder.itemView.text1.text = fileItem.file.name
 
-        holder.mCompositeSubscription.clear() // clear subscriptions from previous bindings
+        // 1. Set the variables defined in the XML <data> block
+        holder.binding.setVariable(BR.fileItem, fileItem)
 
-        holder.mCompositeSubscription += holder.itemView.outer_layout
-                .clicks()
-                .doOnNext{ log.i("item click pos: " + position )}
-                .subscribe { mClickSubject.onNext(holder.layoutPosition) }
+        // Also set the 'adapter' and 'position' variables needed for the background color binding expression
+        holder.binding.setVariable(BR.adapter, this) // 'this' refers to RecyclerFileAdapter
+        holder.binding.setVariable(BR.position, position)
 
-        holder.mCompositeSubscription += holder.itemView.outer_layout
-                .longClicks()
-                .doOnNext{ log.i("item long click pos: " + position )}
-                .subscribe { mLongClickSubject.onNext(holder.layoutPosition) }
+        holder.binding.executePendingBindings()
 
-        holder.itemView.outer_layout.setBackgroundColor(getBackgroundColor(position))
+        holder.mCompositeSubscription.clear()
 
+        // outer_layout should be accessible via binding.outerLayout but is not working
+        holder.mCompositeSubscription += holder.binding.root.findViewById< View>(R.id.outer_layout)
+            .clicks()
+            .doOnNext { log.i("item click pos: " + position) }
+            .subscribe { mClickSubject.onNext(holder.layoutPosition) }
+
+        holder.mCompositeSubscription += holder.binding.root.findViewById< View>(R.id.outer_layout)
+            .longClicks()
+            .doOnNext { log.i("item long click pos: " + position) }
+            .subscribe { mLongClickSubject.onNext(holder.layoutPosition) }
+
+        holder.binding.root.findViewById< View>(R.id.outer_layout).setBackgroundColor(getBackgroundColor(position))
     }
 
     /**
      * @return the ColorInt background color depending on the selection state and folder clicked state (in two pane mode)
      */
     @ColorInt
-    private fun getBackgroundColor(position : Int):  Int {
+    public fun getBackgroundColor(position : Int):  Int {
         var backgroundColor = Color.TRANSPARENT;
         val fileItem = mFiles[position]
         if(fileItem.isSelected && fileItem.isSelectedFolder)
@@ -279,11 +292,11 @@ class RecyclerFileAdapter(var path : SFile) : RecyclerView.Adapter<ViewHolder>()
 
                 if(showFolders)
                 {
-                    switcher.tv_recycler_view_empty.setText(R.string.notebook_list_empty);
+                    switcher.findViewById<TextView>(R.id.tv_recycler_view_empty).setText(R.string.notebook_list_empty);
                 }
                 else
                 {
-                    switcher.tv_recycler_view_empty.setText(R.string.note_list_empty);
+                    switcher.findViewById<TextView>(R.id.tv_recycler_view_empty).setText(R.string.note_list_empty);
                 }
             }
         }

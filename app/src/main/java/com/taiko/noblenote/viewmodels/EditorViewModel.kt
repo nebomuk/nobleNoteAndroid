@@ -25,7 +25,7 @@ import rx.lang.kotlin.plusAssign
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
 
-class EditorViewModel(app : Application) : AndroidViewModel(app), LifecycleObserver
+class EditorViewModel(app : Application) : AndroidViewModel(app), DefaultLifecycleObserver
 {
 
     private val log = loggerFor();
@@ -54,7 +54,8 @@ class EditorViewModel(app : Application) : AndroidViewModel(app), LifecycleObser
 
     val toolbarTitle = MutableLiveData<String>("default_title");
 
-    val toast = SingleLiveEvent<@StringRes Int>()
+    // string res
+    val toast = SingleLiveEvent<Int>()
 
     val finishActivity = SingleLiveEvent<Boolean>()
 
@@ -83,16 +84,14 @@ class EditorViewModel(app : Application) : AndroidViewModel(app), LifecycleObser
 
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    fun onStart()
+    override fun onStart(owner: LifecycleOwner)
     {
         if (SFile(mFileUri).lastModified() > lastModified.value!!) {
             reload()
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    fun onStop()
+    override fun onStop(owner: LifecycleOwner)
     {
         toolbarFindInTextVisible.value = false;
 
@@ -154,7 +153,7 @@ class EditorViewModel(app : Application) : AndroidViewModel(app), LifecycleObser
         /* automatically unsubscribes */ FileHelper.writeFile(filePath = mFileUri, text = noteText)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
+                .subscribe { it ->
 
                     lastModified.value = it
                     isModified.postValue(false);

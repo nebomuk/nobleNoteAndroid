@@ -7,7 +7,6 @@ import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.text.toSpannable
@@ -15,13 +14,10 @@ import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.DiffUtil.calculateDiff
 import androidx.recyclerview.widget.RecyclerView
-import com.taiko.noblenote.R
-import com.taiko.noblenote.filesystem.SFile
+import com.taiko.noblenote.databinding.RecyclerItemFindInFilesBinding
 import com.taiko.noblenote.extensions.indicesOf
 import com.taiko.noblenote.filesystem.FindResult
 import com.taiko.noblenote.util.loggerFor
-import kotlinx.android.synthetic.main.recycler_item_file.view.text1
-import kotlinx.android.synthetic.main.recycler_item_find_in_files.view.*
 import rx.lang.kotlin.PublishSubject
 import rx.subjects.PublishSubject
 
@@ -47,10 +43,13 @@ class FindInFilesAdapter : RecyclerView.Adapter<ResultViewHolder>() {
     var queryText : String = "";
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ResultViewHolder {
-
-        val itemContainer = LayoutInflater.from(parent.context)
-                .inflate(R.layout.recycler_item_find_in_files, parent, false)
-        return ResultViewHolder(itemContainer);
+        // Use the generated binding class's inflate method
+        val binding = RecyclerItemFindInFilesBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return ResultViewHolder(binding)
     }
 
     override fun getItemCount(): Int {
@@ -60,9 +59,18 @@ class FindInFilesAdapter : RecyclerView.Adapter<ResultViewHolder>() {
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ResultViewHolder, position: Int) {
         val findResult = items[position]
-        holder.itemView.text1.setText(highlightQuery(findResult.file.parentFile.name + " / " + findResult.file.name), TextView.BufferType.SPANNABLE)
-        holder.itemView.text2.setText(highlightQuery(findResult.line),TextView.BufferType.SPANNABLE);
-        holder.itemView.setOnClickListener { clicks.onNext(items[holder.layoutPosition]) }
+
+        // Access views directly via the binding object held in the ViewHolder
+        holder.binding.text1.setText(
+            highlightQuery(findResult.file.parentFile.name + " / " + findResult.file.name),
+            TextView.BufferType.SPANNABLE
+        )
+        holder.binding.text2.setText(
+            highlightQuery(findResult.line),
+            TextView.BufferType.SPANNABLE
+        )
+        // Set the click listener on the root view of the binding
+        holder.binding.root.setOnClickListener { clicks.onNext(items[holder.layoutPosition]) }
     }
 
     private fun highlightQuery(sourceText : CharSequence) : CharSequence {
@@ -142,12 +150,11 @@ interface OnItemClickListener {
 }
 
 
-class ResultViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+class ResultViewHolder(val binding: RecyclerItemFindInFilesBinding) :
+    RecyclerView.ViewHolder(binding.root)
 {
 
 }
-
-
 
 class CustomDiffCallback(private val oldResults: List<FindResult>, private val newResults: List<FindResult>) : DiffUtil.Callback()
 {

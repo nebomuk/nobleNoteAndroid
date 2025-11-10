@@ -1,12 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeight"
-    android:background="?android:attr/selectableItemBackground"
-    android:id="@+id/outer_layout"
-    >
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="fileItem"
+            type="com.taiko.noblenote.adapters.FileItem" />
+
+        <!-- The adapter class for access to methods like getBackgroundColor -->
+        <variable
+            name="adapter"
+            type="com.taiko.noblenote.adapters.RecyclerFileAdapter" />
+
+        <!-- The current position in the list, needed for adapter.getBackgroundColor -->
+        <variable
+            name="position"
+            type="java.lang.Integer" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/listPreferredItemHeight"
+        android:background="?android:attr/selectableItemBackground"
+        android:id="@+id/outer_layout"
+        >
 
     <FrameLayout
         android:id="@+id/layoutWithCircleDrawable"
@@ -26,7 +44,10 @@
             android:src="@drawable/ic_folder_24dp" />
     </FrameLayout>
 
-    <TextView
+        <!-- last line is Data binding expression to set text -->
+
+
+        <TextView
         android:id="@+id/text1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -41,7 +62,10 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/layoutWithCircleDrawable"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+
+    android:text="@{fileItem.file.name}"
+    />
 
     <!-- separator -->
     <View
@@ -55,3 +79,4 @@
         app:layout_constraintTop_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+    </layout>

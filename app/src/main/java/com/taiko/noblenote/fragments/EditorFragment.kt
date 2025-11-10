@@ -8,8 +8,11 @@ import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import android.widget.Toast
 import androidx.activity.addCallback
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.taiko.noblenote.*
@@ -21,8 +24,6 @@ import com.taiko.noblenote.editor.TextViewUndoRedo
 import com.taiko.noblenote.extensions.getMenuItems
 import com.taiko.noblenote.extensions.setTitleAndModified
 import com.taiko.noblenote.util.loggerFor
-import net.yanzm.actionbarprogress.MaterialIndeterminateProgressDrawable
-import net.yanzm.actionbarprogress.MaterialProgressDrawable
 import rx.lang.kotlin.plusAssign
 import rx.subscriptions.CompositeSubscription
 
@@ -61,16 +62,18 @@ class EditorFragment : Fragment() {
 
         log.d( ".onViewCreated()");
 
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbarContainer) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(0, systemBars.top, 0, 0)
+            insets
+        }
+
         editorViewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory(requireActivity().application))
                 .get(EditorViewModel::class.java);
 
         lifecycle.addObserver(editorViewModel);
 
         binding.viewModel = editorViewModel;
-
-
-        binding.progressBarFileLoading.progressDrawable = MaterialProgressDrawable.create(requireContext())
-        binding.progressBarFileLoading.indeterminateDrawable = MaterialIndeterminateProgressDrawable.create(requireContext())
 
         binding.editorEditText.movementMethod = ArrowKeyLinkMovementMethod()
 
@@ -106,17 +109,23 @@ class EditorFragment : Fragment() {
             binding.toolbarFindInTextInclude.searchInput.setText(it);
         })
 
-        Transformations.distinctUntilChanged(editorViewModel.toolbarTitle).observe(viewLifecycleOwner, Observer {
-            binding.toolbarInclude.toolbar.setTitleAndModified(it, editorViewModel.isModified.value!!) })
 
-        Transformations.distinctUntilChanged(editorViewModel.isModified).observe(viewLifecycleOwner, Observer {
-            binding.toolbarInclude.toolbar.getMenuItems().firstOrNull { menuItem -> menuItem.itemId == R.id.action_done }?.isEnabled = it
-            binding.toolbarInclude.toolbar.setTitleAndModified(editorViewModel.toolbarTitle.value!!,it);
-        })
+        editorViewModel.toolbarTitle.distinctUntilChanged()
+            .observe(viewLifecycleOwner) {
+                binding.toolbarInclude.toolbar.setTitleAndModified(it, editorViewModel.isModified.value!!)
+            }
+
+        editorViewModel.isModified.distinctUntilChanged()
+            .observe(viewLifecycleOwner) {
+                binding.toolbarInclude.toolbar.getMenuItems()
+                    .firstOrNull { menuItem -> menuItem.itemId == R.id.action_done }?.isEnabled = it
+                binding.toolbarInclude.toolbar.setTitleAndModified(editorViewModel.toolbarTitle.value!!, it)
+            }
+
 
         editorViewModel.toast.observe(viewLifecycleOwner, Observer { Toast.makeText(requireActivity(),it, Toast.LENGTH_SHORT).show(); })
 
-        editorViewModel.finishActivity.observe(viewLifecycleOwner, Observer {
+        editorViewModel.finishActivity.observe(viewLifecycleOwner, Observer { 
 
             val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(binding.editorEditText.windowToken,0);
@@ -214,6 +223,19 @@ class EditorFragment : Fragment() {
 
         mCompositeSubscription.clear();
     }
+
+    fun <T> LiveData<T>.distinctUntilChanged(): LiveData<T> {
+        val mediator = MediatorLiveData<T>()
+        var lastValue: T? = null
+        mediator.addSource(this) { newValue ->
+            if (lastValue != newValue) {
+                lastValue = newValue
+                mediator.value = newValue
+            }
+        }
+        return mediator
+    }
+
 
     companion object {
 
