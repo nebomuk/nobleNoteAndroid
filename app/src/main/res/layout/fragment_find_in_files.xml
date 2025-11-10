@@ -9,7 +9,7 @@
         <import type="android.view.View"/>
         <variable
             name="viewModel"
-            type="com.taiko.noblenote.viewmodels.FindInFilesViewModel" />
+            type="com.blogspot.noblenoteandroid.viewmodels.FindInFilesViewModel" />
 
     </data>
     <androidx.coordinatorlayout.widget.CoordinatorLayout

@@ -5,7 +5,7 @@
 
         <variable
             name="viewModel"
-            type="com.taiko.noblenote.viewmodels.EditorViewModel" />
+            type="com.blogspot.noblenoteandroid.viewmodels.EditorViewModel" />
 
     </data>
 
@@ -87,7 +87,7 @@
                 <!-- layout_weight="1" and  layout_width="0dp" cause the text edit to
                 expand to fill the available space between the border buttons -->
 
-                <com.taiko.noblenote.editor.DroidWriterEditText
+                <com.blogspot.noblenoteandroid.editor.DroidWriterEditText
                     android:id="@+id/editor_edit_text"
                     android:layout_width="0dp"
                     android:layout_height="fill_parent"
@@ -103,7 +103,7 @@
                     app:charSequenceText="@={viewModel.editorText}"
                     app:onTextChanged="@{(text, start, before, count) -> viewModel.onEditorTextChanged(text)}"
                     >
-                </com.taiko.noblenote.editor.DroidWriterEditText>
+                </com.blogspot.noblenoteandroid.editor.DroidWriterEditText>
 
 
                 <!-- right border -->
