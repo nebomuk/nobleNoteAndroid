@@ -24,7 +24,6 @@
             android:elevation="@dimen/elevation_toolbar"
             android:clipToPadding="false"
             android:outlineProvider="bounds"
-            android:fitsSystemWindows="true"
             >
             <FrameLayout
                 android:layout_width="match_parent"

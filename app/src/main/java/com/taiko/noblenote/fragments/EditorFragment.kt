@@ -37,12 +37,10 @@ class EditorFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
 
-        //requireActivity().window.requestFeature(Window.FEATURE_ACTION_MODE_OVERLAY)
+        binding = FragmentEditorBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = viewLifecycleOwner
 
-        binding = FragmentEditorBinding.inflate(inflater,container,false);
-        binding.lifecycleOwner = this;
-
-        return binding.root;
+        return binding.root
     }
 
     private val log = loggerFor()
@@ -62,9 +60,16 @@ class EditorFragment : Fragment() {
 
         log.d( ".onViewCreated()");
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbarContainer) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.layoutRoot) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(0, systemBars.top, 0, 0)
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            
+            binding.toolbarContainer.setPadding(0, systemBars.top, 0, 0)
+            
+            // Apply bottom padding to the vertical layout inside the scroll view 
+            // to ensure the keyboard doesn't obscure the text.
+            binding.editorVerticalLayout.setPadding(0, 0, 0, ime.bottom)
+            
             insets
         }
 
@@ -84,10 +89,6 @@ class EditorFragment : Fragment() {
         requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
 
         mUndoRedo = TextViewUndoRedo(binding.editorEditText);
-
-        // uncomment to enable close button
-/*        toolbar.setNavigationIcon(R.drawable.ic_close_black_24dp)
-        toolbar.setNavigationOnClickListener { showExitDialog() }*/
 
         val extras = arguments ?: return
 
