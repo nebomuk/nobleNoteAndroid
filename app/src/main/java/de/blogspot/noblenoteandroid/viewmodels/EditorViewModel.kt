@@ -19,12 +19,16 @@ import de.blogspot.noblenoteandroid.filesystem.SFile
 import de.blogspot.noblenoteandroid.editor.Html
 import de.blogspot.noblenoteandroid.fragments.EditorFragment
 import de.blogspot.noblenoteandroid.filesystem.FileHelper
+import de.blogspot.noblenoteandroid.models.NoteContent
+import de.blogspot.noblenoteandroid.models.NoteMetadata
 import de.blogspot.noblenoteandroid.util.SingleLiveEvent
 import de.blogspot.noblenoteandroid.util.loggerFor
 import rx.android.schedulers.AndroidSchedulers
 import rx.lang.kotlin.plusAssign
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
+import java.text.SimpleDateFormat
+import java.util.*
 
 class EditorViewModel(app : Application) : AndroidViewModel(app), DefaultLifecycleObserver
 {
@@ -54,6 +58,8 @@ class EditorViewModel(app : Application) : AndroidViewModel(app), DefaultLifecyc
     val queryText = MutableLiveData<CharSequence>("");
 
     val toolbarTitle = MutableLiveData<String>("default_title");
+
+    val metadata = MutableLiveData<NoteMetadata>(NoteMetadata())
 
     // string res
     val toast = SingleLiveEvent<Int>()
@@ -122,7 +128,9 @@ class EditorViewModel(app : Application) : AndroidViewModel(app), DefaultLifecyc
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    editorText.value = it;
+                    editorText.value = it.text;
+                    metadata.value = it.metadata;
+                    
                     progressBarFileLoadingVisibility.postValue(View.GONE);
                     editorScrollViewVisibility.postValue(View.VISIBLE);
                     isModified.postValue(false)// must be postValue!, reset modification state because modification flag has been set by editor_edit_text.setText
@@ -147,11 +155,30 @@ class EditorViewModel(app : Application) : AndroidViewModel(app), DefaultLifecyc
     }
 
     private fun saveNote() {
+        val currentMetadata = metadata.value ?: NoteMetadata()
+        
+        // Populate metadata if missing
+        if (currentMetadata.uuid == null) {
+            currentMetadata.uuid = UUID.randomUUID().toString()
+        }
+        
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.getDefault())
+        val now = sdf.format(Date())
+        
+        if (currentMetadata.createDate == null) {
+            val fileLastModified = SFile(mFileUri).lastModified()
+            if (fileLastModified != 0L) {
+                currentMetadata.createDate = sdf.format(Date(fileLastModified))
+            } else {
+                currentMetadata.createDate = now
+            }
+        }
+        
+        currentMetadata.lastChangeDate = now
 
-        val noteText = Html.toHtml(editorText.value as Spanned, this.getApplication<Application>().resources.displayMetrics);
+        val content = NoteContent(editorText.value as Spanned, currentMetadata)
 
-
-        /* automatically unsubscribes */ FileHelper.writeFile(filePath = mFileUri, text = noteText)
+        /* automatically unsubscribes */ FileHelper.writeFile(filePath = mFileUri, content = content, ctx = this.getApplication())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { it ->

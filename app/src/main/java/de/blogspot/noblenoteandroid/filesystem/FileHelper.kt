@@ -2,8 +2,11 @@ package de.blogspot.noblenoteandroid.filesystem
 
 import android.content.Context
 import android.net.Uri
+import android.text.SpannableString
 import de.blogspot.noblenoteandroid.editor.Html
 import de.blogspot.noblenoteandroid.editor.TextConverter
+import de.blogspot.noblenoteandroid.models.NoteContent
+import de.blogspot.noblenoteandroid.models.NoteMetadata
 import de.blogspot.noblenoteandroid.util.loggerFor
 import rx.Observable
 import java.io.*
@@ -18,7 +21,7 @@ object FileHelper {
 
 
     @JvmStatic
-    fun readFile(filePath : Uri, ctx : Context, parseHtml: Boolean ) : Observable<CharSequence>
+    fun readFile(filePath : Uri, ctx : Context, parseHtml: Boolean ) : Observable<NoteContent>
     {
         return Observable.create { subscriber ->
             val htmlText = StringBuilder()
@@ -41,32 +44,32 @@ object FileHelper {
             }
 
             // do slow html parsing
-            val span: CharSequence
+            val content: NoteContent
             if (parseHtml) {
                 var htmlString = htmlText.toString();
                 if(!TextConverter.mightBeRichText(htmlString))
                 {
                     htmlString =  TextConverter.convertFromPlainText(htmlString);
                 }
-                span = Html.fromHtml(htmlString, ctx.resources.displayMetrics)// time consuming
+                content = Html.fromNoteHtml(htmlString, null, null, ctx.resources.displayMetrics)// time consuming
             } else {
-                span = htmlText.toString()
+                content = NoteContent(SpannableString(htmlText.toString()), NoteMetadata())
             }
 
-            subscriber.onNext(span)
+            subscriber.onNext(content)
             subscriber.onCompleted()
         }
     }
 
     @JvmStatic
-    fun writeFile(filePath : Uri, text : CharSequence) : Observable<Long>
+    fun writeFile(filePath : Uri, content : NoteContent, ctx: Context) : Observable<Long>
     {
-
         return Observable.create<Long> {
             val file = SFile(filePath)
             try {
+                val htmlString = Html.toHtml(content.text, content.metadata, ctx.resources.displayMetrics)
                 val writer = file.openOuptutStream().bufferedWriter();
-                writer.append(text)
+                writer.append(htmlString)
                 writer.flush()
                 writer.close()
                 val lastModified = file.lastModified()
