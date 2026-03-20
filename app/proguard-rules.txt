@@ -1,3 +1,4 @@
+# RxJava rules
 -keepclassmembers class rx.internal.util.unsafe.*ArrayQueue*Field* {
     long producerIndex;
     long consumerIndex;
@@ -10,4 +11,36 @@
 }
 -dontwarn sun.misc.Unsafe
 
+# Jetpack Navigation
 -keepnames class androidx.navigation.fragment.NavHostFragment
+-keepattributes *Annotation*
+-keep @androidx.navigation.Navigator$Name class *
+-keep public class * extends androidx.navigation.Navigator
+-keep public class * extends androidx.navigation.NavInflater
+-keepclassmembers class * extends androidx.navigation.Navigator {
+    public <init>(...);
+}
+
+# CoordinatorLayout Behaviors
+-keep public class * extends androidx.coordinatorlayout.widget.CoordinatorLayout$Behavior {
+    public <init>(android.content.Context, android.util.AttributeSet);
+    public <init>();
+}
+-keep class de.blogspot.noblenoteandroid.util.FAMBehavior { *; }
+
+# DataBinding
+-keep class de.blogspot.noblenoteandroid.databinding.** { *; }
+-keep class de.blogspot.noblenoteandroid.viewmodels.** { *; }
+
+# Models (important for DataBinding and reflection)
+-keep class de.blogspot.noblenoteandroid.models.** { *; }
+
+# Keep your Application and Activity classes
+-keep class de.blogspot.noblenoteandroid.MainApplication { *; }
+-keep class de.blogspot.noblenoteandroid.MainActivity { *; }
+
+# RxActivityResult
+-keep class rx_activity_result.** { *; }
+
+# clans fab
+-keep class com.github.clans.fab.** { *; }
